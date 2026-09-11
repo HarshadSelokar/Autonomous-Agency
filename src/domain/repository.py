@@ -7,6 +7,8 @@ from abc import ABC, abstractmethod
 
 from src.domain.agent import Agent
 from src.domain.checkpoint import AgentCheckpoint
+from src.domain.department import Department
+from src.domain.employee import Employee
 from src.domain.run import AgentRun
 from src.domain.step import ExecutionStep
 
@@ -84,4 +86,57 @@ class CheckpointRepositoryInterface(ABC):
     @abstractmethod
     async def list_by_run_id(self, run_id: str) -> list[AgentCheckpoint]:
         """List all checkpoints for a specific run ordered by timestamp."""
+        pass
+
+
+class EmployeeRepositoryInterface(ABC):
+    """Abstract interface for Employee persistence operations."""
+
+    @abstractmethod
+    async def save(self, employee: Employee) -> Employee:
+        """Save or update an Employee entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, employee_id: str) -> Employee | None:
+        """Find an Employee by ID."""
+        pass
+
+    @abstractmethod
+    async def get_by_code(self, employee_code: str) -> Employee | None:
+        """Find an Employee by employee_code."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> list[Employee]:
+        """List all Employee entities."""
+        pass
+
+    @abstractmethod
+    async def list_by_department_id(self, department_id: str) -> list[Employee]:
+        """List all Employees assigned to a specific department."""
+        pass
+
+    @abstractmethod
+    async def delete(self, employee_id: str) -> bool:
+        """Delete or archive an Employee by ID."""
+        pass
+
+
+class DepartmentRepositoryInterface(ABC):
+    """Abstract interface for Department persistence operations."""
+
+    @abstractmethod
+    async def save(self, department: Department) -> Department:
+        """Save or update a Department entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, department_id: str) -> Department | None:
+        """Find a Department by ID."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> list[Department]:
+        """List all Department entities."""
         pass
