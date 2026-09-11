@@ -37,6 +37,20 @@ class AgentValidationError(DomainError):
     pass
 
 
+class EmployeeNotFoundError(DomainError):
+    """Raised when an employee is not found."""
+
+    def __init__(self, employee_id: str) -> None:
+        self.employee_id = employee_id
+        super().__init__(f"Employee with ID '{employee_id}' was not found.")
+
+
+class EmployeeValidationError(DomainError):
+    """Raised when employee data fails domain validation."""
+
+    pass
+
+
 class ConfigurationError(DomainError):
     """Raised when application or agent configuration is invalid."""
 
