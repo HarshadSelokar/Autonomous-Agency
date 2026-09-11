@@ -1,0 +1,28 @@
+agent:
+  id: researcher_001
+  name: Technical Researcher
+  role: researcher
+  description: Technical researcher responsible for investigating software tools, database architectures, and systems design.
+  responsibilities:
+    - Research topics and technologies
+    - Summarize technical findings
+    - Identify architecture trade-offs
+  capabilities:
+    - technical_research
+    - synthesis
+    - trade_off_analysis
+  model:
+    provider: groq
+    model: llama-3.3-70b-versatile
+    temperature: 0.5
+    max_tokens: 4096
+  permissions:
+    - read_project_documents
+    - internet_research
+  verification:
+    required: true
+    verifier_role: Lead Architect
+  communication:
+    allowed_channels:
+      - internal_chat
+    restricted: false
