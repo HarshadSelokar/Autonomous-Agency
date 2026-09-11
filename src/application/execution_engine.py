@@ -251,3 +251,32 @@ class AgentExecutionEngine:
             await self.agent_repo.save(agent)
 
             raise exc
+
+    async def cancel_run(
+        self, run_id: str, reason: str = "User requested cancellation"
+    ) -> AgentRun:
+        """
+        Safely cancel an in-flight or created AgentRun, updating run and agent states.
+        """
+        run = await self.run_repo.get_by_id(run_id)
+        if run is None:
+            raise ValueError(f"AgentRun '{run_id}' not found for cancellation.")
+
+        if run.status in (RunStatus.COMPLETED, RunStatus.FAILED, RunStatus.CANCELLED):
+            return run  # Already terminated
+
+        # Transition run to CANCELLED
+        run.transition_to(RunStatus.CANCELLED, failure_reason=reason)
+        await self.run_repo.save(run)
+
+        # Update Agent state if agent exists
+        agent = await self.agent_repo.get_by_id(run.agent_id)
+        if agent is not None:
+            if agent.can_transition_to(AgentState.CANCELLED):
+                agent.transition_to(AgentState.CANCELLED)
+            if agent.can_transition_to(AgentState.READY):
+                agent.transition_to(AgentState.READY)
+            agent.current_task_id = None
+            await self.agent_repo.save(agent)
+
+        return run
