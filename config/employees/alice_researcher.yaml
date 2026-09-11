@@ -1,0 +1,24 @@
+employee:
+  id: alice_researcher_001
+  employee_code: EMP-001
+  name: Alice Smith
+  title: Senior Technical Researcher
+  role: researcher
+  agent_id: researcher_001
+  department_id: dept_research
+  manager_id: null
+  responsibilities:
+    - Conduct research on technical architectures
+    - Analyze performance trade-offs
+    - Summarize technical findings
+  skills:
+    - name: python
+      category: programming
+      proficiency: expert
+    - name: postgresql
+      category: database
+      proficiency: advanced
+  capabilities:
+    - name: technical_research
+      description: Conduct deep technical research
+  status: ACTIVE
