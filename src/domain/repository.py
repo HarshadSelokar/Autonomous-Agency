@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 from src.domain.agent import Agent
 from src.domain.run import AgentRun
+from src.domain.step import ExecutionStep
 
 
 class AgentRepositoryInterface(ABC):
@@ -49,4 +50,18 @@ class AgentRunRepositoryInterface(ABC):
     @abstractmethod
     async def list_by_agent_id(self, agent_id: str) -> list[AgentRun]:
         """List all AgentRuns for a specific agent."""
+        pass
+
+
+class ExecutionStepRepositoryInterface(ABC):
+    """Abstract interface for ExecutionStep persistence operations."""
+
+    @abstractmethod
+    async def save(self, step: ExecutionStep) -> ExecutionStep:
+        """Save or update an ExecutionStep entity."""
+        pass
+
+    @abstractmethod
+    async def list_by_run_id(self, run_id: str) -> list[ExecutionStep]:
+        """List all ExecutionSteps for a specific run in order of step_number."""
         pass
