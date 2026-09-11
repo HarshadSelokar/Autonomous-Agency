@@ -32,7 +32,10 @@ venv/
 ENV/
 env/
 
-# Configuration & Secrets
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
 .env
 .env.local
 *.pem
