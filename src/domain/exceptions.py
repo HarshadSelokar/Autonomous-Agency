@@ -35,3 +35,64 @@ class AgentValidationError(DomainError):
     """Raised when agent data fails domain validation."""
 
     pass
+
+
+class ConfigurationError(DomainError):
+    """Raised when application or agent configuration is invalid."""
+
+    pass
+
+
+class ProviderUnavailableError(DomainError):
+    """Raised when model provider is unreachable or temporarily down."""
+
+    pass
+
+
+class AuthenticationError(DomainError):
+    """Raised when provider authentication (API key) fails."""
+
+    pass
+
+
+class RateLimitError(DomainError):
+    """Raised when provider rate limit is exceeded."""
+
+    pass
+
+
+class TimeoutError(DomainError):
+    """Raised when model provider request times out."""
+
+    pass
+
+
+class ModelExecutionError(DomainError):
+    """Raised when model provider returns an execution error."""
+
+    pass
+
+
+class InvalidResponseError(DomainError):
+    """Raised when model response is invalid or malformed."""
+
+    pass
+
+
+class StructuredOutputValidationError(DomainError):
+    """Raised when structured output validation fails."""
+
+    pass
+
+
+class ContextError(DomainError):
+    """Raised when context construction fails."""
+
+    pass
+
+
+class CancellationError(DomainError):
+    """Raised when an execution run is cancelled."""
+
+    pass
+
