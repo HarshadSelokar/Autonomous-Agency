@@ -10,13 +10,16 @@ from typing import Any
 
 from src.application.context import ContextBuilder
 from src.application.provider_registry import ModelProviderRegistry, default_provider_registry
+from src.application.retry import RetryPolicy
 from src.application.structured_output import StructuredOutputValidator
 from src.domain.agent import AgentState
+from src.domain.checkpoint import AgentCheckpoint
 from src.domain.exceptions import AgentNotFoundError, AgentValidationError
 from src.domain.model_provider import ModelRequest
 from src.domain.repository import (
     AgentRepositoryInterface,
     AgentRunRepositoryInterface,
+    CheckpointRepositoryInterface,
     ExecutionStepRepositoryInterface,
 )
 from src.domain.run import AgentRun, RunStatus
@@ -29,16 +32,20 @@ class AgentExecutionEngine:
         agent_repo: AgentRepositoryInterface,
         run_repo: AgentRunRepositoryInterface,
         step_repo: ExecutionStepRepositoryInterface,
+        checkpoint_repo: CheckpointRepositoryInterface | None = None,
         provider_registry: ModelProviderRegistry | None = None,
         context_builder: ContextBuilder | None = None,
         output_validator: StructuredOutputValidator | None = None,
+        retry_policy: RetryPolicy | None = None,
     ) -> None:
         self.agent_repo = agent_repo
         self.run_repo = run_repo
         self.step_repo = step_repo
+        self.checkpoint_repo = checkpoint_repo
         self.provider_registry = provider_registry or default_provider_registry
         self.context_builder = context_builder or ContextBuilder()
         self.output_validator = output_validator or StructuredOutputValidator()
+        self.retry_policy = retry_policy or RetryPolicy()
 
     async def execute_run(
         self,
@@ -149,7 +156,22 @@ class AgentExecutionEngine:
                 response_schema=response_schema,
             )
 
-            model_response = await provider.generate(model_request)
+            # Wrap model call in RetryPolicy
+            model_response = await self.retry_policy.execute(
+                lambda: provider.generate(model_request)
+            )
+
+            # Save Checkpoint if checkpoint_repo is configured
+            if self.checkpoint_repo is not None:
+                checkpoint = AgentCheckpoint(
+                    id=f"chk_{run_id}_{step_counter}",
+                    run_id=run_id,
+                    current_state=RunStatus.RUNNING.value,
+                    current_step=step_counter,
+                    context_reference={"message_count": len(chat_messages)},
+                    output_so_far={"content": model_response.content},
+                )
+                await self.checkpoint_repo.save(checkpoint)
 
             # Update run usage with normalized usage data
             run.usage = {

@@ -6,6 +6,7 @@ Follows the repository pattern to keep domain decoupled from persistence details
 from abc import ABC, abstractmethod
 
 from src.domain.agent import Agent
+from src.domain.checkpoint import AgentCheckpoint
 from src.domain.run import AgentRun
 from src.domain.step import ExecutionStep
 
@@ -64,4 +65,23 @@ class ExecutionStepRepositoryInterface(ABC):
     @abstractmethod
     async def list_by_run_id(self, run_id: str) -> list[ExecutionStep]:
         """List all ExecutionSteps for a specific run in order of step_number."""
+        pass
+
+
+class CheckpointRepositoryInterface(ABC):
+    """Abstract interface for AgentCheckpoint persistence operations."""
+
+    @abstractmethod
+    async def save(self, checkpoint: AgentCheckpoint) -> AgentCheckpoint:
+        """Save an AgentCheckpoint entity."""
+        pass
+
+    @abstractmethod
+    async def get_latest_by_run_id(self, run_id: str) -> AgentCheckpoint | None:
+        """Find the latest checkpoint for a specific run."""
+        pass
+
+    @abstractmethod
+    async def list_by_run_id(self, run_id: str) -> list[AgentCheckpoint]:
+        """List all checkpoints for a specific run ordered by timestamp."""
         pass
