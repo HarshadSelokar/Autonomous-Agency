@@ -10,6 +10,7 @@ from typing import Any
 
 from src.application.context import ContextBuilder
 from src.application.provider_registry import ModelProviderRegistry, default_provider_registry
+from src.application.structured_output import StructuredOutputValidator
 from src.domain.agent import AgentState
 from src.domain.exceptions import AgentNotFoundError, AgentValidationError
 from src.domain.model_provider import ModelRequest
@@ -30,12 +31,14 @@ class AgentExecutionEngine:
         step_repo: ExecutionStepRepositoryInterface,
         provider_registry: ModelProviderRegistry | None = None,
         context_builder: ContextBuilder | None = None,
+        output_validator: StructuredOutputValidator | None = None,
     ) -> None:
         self.agent_repo = agent_repo
         self.run_repo = run_repo
         self.step_repo = step_repo
         self.provider_registry = provider_registry or default_provider_registry
         self.context_builder = context_builder or ContextBuilder()
+        self.output_validator = output_validator or StructuredOutputValidator()
 
     async def execute_run(
         self,
@@ -176,8 +179,13 @@ class AgentExecutionEngine:
             )
             await self.step_repo.save(step_val)
 
-            # For base execution engine, response validation succeeds
-            step_val.mark_completed({"valid": True})
+            validated_output = self.output_validator.validate(
+                content=model_response.content,
+                expected_schema=response_schema,
+                preparsed_output=model_response.structured_output,
+            )
+
+            step_val.mark_completed({"valid": True, "keys": list(validated_output.keys())})
             await self.step_repo.save(step_val)
 
             # STEP 5: Finalize
