@@ -142,3 +142,41 @@ class EscalationError(DomainError):
 
     pass
 
+
+class TaskValidationError(DomainError):
+    """Raised when task data fails domain validation."""
+
+    pass
+
+
+class TaskNotFoundError(DomainError):
+    """Raised when a task is not found."""
+
+    def __init__(self, task_id: str) -> None:
+        self.task_id = task_id
+        super().__init__(f"Task with ID '{task_id}' was not found.")
+
+
+class TaskDependencyError(DomainError):
+    """Raised when task dependency validation or creation fails."""
+
+    pass
+
+
+class TaskCycleError(DomainError):
+    """Raised when a task dependency cycle is detected."""
+
+    pass
+
+
+class TaskNotReadyError(DomainError):
+    """Raised when attempting to execute a task that is not in READY state."""
+
+    pass
+
+
+class TaskClaimError(DomainError):
+    """Raised when claiming a task fails due to concurrency or state conflict."""
+
+    pass
+
