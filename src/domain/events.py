@@ -56,3 +56,91 @@ class EmployeeWorkExecutedEvent(DomainEvent):
     run_id: str = ""
     objective: str = ""
     success: bool = True
+
+
+@dataclass(frozen=True)
+class ObjectiveCreatedEvent(DomainEvent):
+    objective_id: str = ""
+    title: str = ""
+    requester: str = ""
+    manager_id: str | None = None
+
+
+@dataclass(frozen=True)
+class ObjectiveClarificationRequestedEvent(DomainEvent):
+    objective_id: str = ""
+    questions: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ObjectiveClarifiedEvent(DomainEvent):
+    objective_id: str = ""
+    answers: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class PlanCreatedEvent(DomainEvent):
+    plan_id: str = ""
+    objective_id: str = ""
+    manager_id: str = ""
+    work_item_count: int = 0
+
+
+@dataclass(frozen=True)
+class PlanApprovedEvent(DomainEvent):
+    plan_id: str = ""
+    objective_id: str = ""
+    approved_by: str = ""
+
+
+@dataclass(frozen=True)
+class WorkItemCreatedEvent(DomainEvent):
+    work_item_id: str = ""
+    plan_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class WorkItemAssignedEvent(DomainEvent):
+    work_item_id: str = ""
+    employee_id: str = ""
+    assigned_by: str = ""
+
+
+@dataclass(frozen=True)
+class WorkItemReassignedEvent(DomainEvent):
+    work_item_id: str = ""
+    previous_employee_id: str | None = None
+    new_employee_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class BlockerDetectedEvent(DomainEvent):
+    work_item_id: str = ""
+    objective_id: str = ""
+    employee_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class WorkItemEscalatedEvent(DomainEvent):
+    work_item_id: str = ""
+    objective_id: str = ""
+    escalated_by: str = ""
+    escalated_to: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ManagerDecisionCreatedEvent(DomainEvent):
+    decision_id: str = ""
+    manager_id: str = ""
+    objective_id: str = ""
+    decision_type: str = ""
+
+
+@dataclass(frozen=True)
+class ObjectiveCompletedEvent(DomainEvent):
+    objective_id: str = ""
+    manager_id: str | None = None
