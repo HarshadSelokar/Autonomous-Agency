@@ -33,9 +33,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["run_id"], ["agent_runs.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_agent_run_steps_run_id"), "agent_run_steps", ["run_id"], unique=False
-    )
+    op.create_index(op.f("ix_agent_run_steps_run_id"), "agent_run_steps", ["run_id"], unique=False)
 
 
 def downgrade() -> None:

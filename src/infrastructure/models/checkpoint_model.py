@@ -37,9 +37,7 @@ class AgentCheckpointModel(Base):
 
 def checkpoint_model_to_domain(model: AgentCheckpointModel) -> AgentCheckpoint:
     """Map SQLAlchemy AgentCheckpointModel to pure Domain AgentCheckpoint entity."""
-    so_far = (
-        dict(model.output_so_far_json) if model.output_so_far_json is not None else None
-    )
+    so_far = dict(model.output_so_far_json) if model.output_so_far_json is not None else None
     return AgentCheckpoint(
         id=model.id,
         run_id=model.run_id,

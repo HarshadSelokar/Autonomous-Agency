@@ -20,9 +20,7 @@ class AgentRunModel(Base):
         String(64), ForeignKey("agents.id", ondelete="CASCADE"), nullable=False, index=True
     )
     objective: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[str] = mapped_column(
-        String(32), nullable=False, default=RunStatus.CREATED.value
-    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default=RunStatus.CREATED.value)
     provider: Mapped[str] = mapped_column(String(64), nullable=False, default="groq")
     model: Mapped[str] = mapped_column(
         String(128), nullable=False, default="llama-3.3-70b-versatile"
@@ -30,12 +28,8 @@ class AgentRunModel(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    usage_json: Mapped[dict[str, Any]] = mapped_column(
-        "usage", JSON, nullable=False, default=dict
-    )
-    result_json: Mapped[dict[str, Any] | None] = mapped_column(
-        "result", JSON, nullable=True
-    )
+    usage_json: Mapped[dict[str, Any]] = mapped_column("usage", JSON, nullable=False, default=dict)
+    result_json: Mapped[dict[str, Any] | None] = mapped_column("result", JSON, nullable=True)
     metadata_json: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSON, nullable=False, default=dict
     )

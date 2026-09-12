@@ -18,12 +18,8 @@ def test_parse_employee_definition_dict() -> None:
             "role": "analyst",
             "agent_id": "agent_dict_01",
             "responsibilities": ["Analyze metrics"],
-            "skills": [
-                {"name": "sql", "category": "database", "proficiency": "advanced"}
-            ],
-            "capabilities": [
-                {"name": "analytics", "description": "Data analytics"}
-            ],
+            "skills": [{"name": "sql", "category": "database", "proficiency": "advanced"}],
+            "capabilities": [{"name": "analytics", "description": "Data analytics"}],
             "status": "ACTIVE",
         }
     }

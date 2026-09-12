@@ -101,9 +101,7 @@ class EmployeeService:
         """List all registered employees."""
         return await self.employee_repo.list_all()
 
-    async def change_status(
-        self, employee_id: str, new_status: EmployeeStatus
-    ) -> Employee:
+    async def change_status(self, employee_id: str, new_status: EmployeeStatus) -> Employee:
         """Change employee status adhering to lifecycle transition rules."""
         emp = await self.get_employee(employee_id)
         prev_status = emp.status
@@ -151,9 +149,7 @@ class EmployeeService:
                 raise EmployeeValidationError(f"Referenced Manager '{current_id}' does not exist.")
             current_id = mgr.manager_id
 
-    async def update_manager(
-        self, employee_id: str, manager_id: str | None
-    ) -> Employee:
+    async def update_manager(self, employee_id: str, manager_id: str | None) -> Employee:
         """Update manager assignment for an employee with hierarchy cycle validation."""
         emp = await self.get_employee(employee_id)
         if manager_id:
@@ -174,9 +170,7 @@ class EmployeeService:
 
         return saved
 
-    async def update_department(
-        self, employee_id: str, department_id: str | None
-    ) -> Employee:
+    async def update_department(self, employee_id: str, department_id: str | None) -> Employee:
         """Update department assignment for an employee."""
         emp = await self.get_employee(employee_id)
         if department_id and self.department_repo is not None:

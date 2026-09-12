@@ -113,7 +113,7 @@ def domain_to_dep_response(dep: TaskDependency) -> TaskDependencyResponse:
 
 
 @router.post("/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-def create_task(
+async def create_task(
     body: TaskCreateRequest,
     services: Any = Depends(get_task_services),
 ) -> TaskResponse:
@@ -136,7 +136,7 @@ def create_task(
 
         # Validate parent hierarchy if parent_task_id is set
         if body.parent_task_id:
-            parent = task_repo.get_by_id(body.parent_task_id)
+            parent = await task_repo.get_by_id(body.parent_task_id)
             task_map = {task.id: task, parent.id: parent}
             task.set_parent(body.parent_task_id, task_map=task_map)
 
@@ -144,11 +144,11 @@ def create_task(
         task.transition_to(TaskStatus.PLANNED)
 
         # Initial readiness evaluation
-        task_repo.save(task)
+        await task_repo.save(task)
         evaluator = ReadinessEvaluator()
-        graph = graph_service.build_graph_for_plan(body.plan_id)
+        graph = await graph_service.build_graph_for_plan(body.plan_id)
         if evaluator.update_task_readiness(task, graph):
-            task_repo.save(task)
+            await task_repo.save(task)
 
         return domain_to_task_response(task)
     except DomainError as err:
@@ -156,40 +156,40 @@ def create_task(
 
 
 @router.get("/tasks", response_model=list[TaskResponse])
-def list_tasks(
+async def list_tasks(
     plan_id: str | None = None,
     task_status: TaskStatus | None = None,
     services: Any = Depends(get_task_services),
 ) -> list[TaskResponse]:
     task_repo = services[0]
     if plan_id:
-        tasks = task_repo.get_by_plan_id(plan_id)
+        tasks = await task_repo.get_by_plan_id(plan_id)
     elif task_status:
-        tasks = task_repo.get_by_status(task_status)
+        tasks = await task_repo.get_by_status(task_status)
     else:
-        tasks = task_repo.get_all()
+        tasks = await task_repo.get_all()
 
     return [domain_to_task_response(t) for t in tasks]
 
 
 @router.get("/tasks/ready", response_model=list[TaskResponse])
-def get_ready_tasks(
+async def get_ready_tasks(
     plan_id: str | None = None,
     services: Any = Depends(get_task_services),
 ) -> list[TaskResponse]:
     scheduler_service = services[6]
-    ready = scheduler_service.get_ready_tasks(plan_id)
+    ready = await scheduler_service.get_ready_tasks(plan_id)
     return [domain_to_task_response(t) for t in ready]
 
 
 @router.get("/tasks/{task_id}", response_model=TaskResponse)
-def get_task(
+async def get_task(
     task_id: str,
     services: Any = Depends(get_task_services),
 ) -> TaskResponse:
     task_repo = services[0]
     try:
-        task = task_repo.get_by_id(task_id)
+        task = await task_repo.get_by_id(task_id)
         return domain_to_task_response(task)
     except TaskNotFoundError as err:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err)) from err
@@ -235,14 +235,14 @@ async def remove_dependency(
 
 
 @router.post("/tasks/{task_id}/claim", response_model=TaskResponse)
-def claim_task(
+async def claim_task(
     task_id: str,
     body: TaskClaimRequest,
     services: Any = Depends(get_task_services),
 ) -> TaskResponse:
     _, _, _, claim_service, _, _, _ = services
     try:
-        claimed = claim_service.claim_task(
+        claimed = await claim_service.claim_task(
             task_id=task_id, worker_id=body.worker_id, metadata=body.metadata
         )
         return domain_to_task_response(claimed)

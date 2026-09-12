@@ -1,11 +1,11 @@
 """
-SQLAlchemy Repository implementation for Task domain entity.
+SQLAlchemy Repository implementation for Task domain entity supporting AsyncSession.
 """
 
-from collections.abc import Sequence
+import inspect
+from typing import Any, Sequence
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from src.domain.exceptions import TaskNotFoundError
 from src.domain.task import Task, TaskStatus
@@ -17,11 +17,26 @@ from src.infrastructure.models.task_model import (
 
 
 class SQLAlchemyTaskRepository:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Any) -> None:
         self.session = session
 
-    def save(self, task: Task) -> Task:
-        model = self.session.get(TaskModel, task.id)
+    async def _get(self, entity_id: str) -> TaskModel | None:
+        res = self.session.get(TaskModel, entity_id)
+        if inspect.isawaitable(res):
+            return await res
+        return res
+
+    async def _scalars_all(self, stmt: Any) -> Sequence[TaskModel]:
+        res = self.session.scalars(stmt)
+        if inspect.isawaitable(res):
+            res = await res
+        all_res = res.all()
+        if inspect.isawaitable(all_res):
+            all_res = await all_res
+        return all_res
+
+    async def save(self, task: Task) -> Task:
+        model = await self._get(task.id)
         if model is None:
             model = task_domain_to_model(task)
             self.session.add(model)
@@ -45,32 +60,38 @@ class SQLAlchemyTaskRepository:
             model.result_json = updated_model.result_json
             model.metadata_json = updated_model.metadata_json
             model.updated_at = updated_model.updated_at
-        self.session.flush()
+        flush_res = self.session.flush()
+        if inspect.isawaitable(flush_res):
+            await flush_res
         return task_model_to_domain(model)
 
-    def get_by_id(self, task_id: str) -> Task:
-        model = self.session.get(TaskModel, task_id)
+    async def get_by_id(self, task_id: str) -> Task:
+        model = await self._get(task_id)
         if model is None:
             raise TaskNotFoundError(task_id)
         return task_model_to_domain(model)
 
-    def get_by_plan_id(self, plan_id: str) -> list[Task]:
+    async def get_by_plan_id(self, plan_id: str) -> list[Task]:
         stmt = select(TaskModel).where(TaskModel.plan_id == plan_id)
-        models: Sequence[TaskModel] = self.session.scalars(stmt).all()
+        models = await self._scalars_all(stmt)
         return [task_model_to_domain(m) for m in models]
 
-    def get_by_status(self, status: TaskStatus) -> list[Task]:
+    async def get_by_status(self, status: TaskStatus) -> list[Task]:
         stmt = select(TaskModel).where(TaskModel.status == status.value)
-        models: Sequence[TaskModel] = self.session.scalars(stmt).all()
+        models = await self._scalars_all(stmt)
         return [task_model_to_domain(m) for m in models]
 
-    def get_all(self) -> list[Task]:
+    async def get_all(self) -> list[Task]:
         stmt = select(TaskModel)
-        models: Sequence[TaskModel] = self.session.scalars(stmt).all()
+        models = await self._scalars_all(stmt)
         return [task_model_to_domain(m) for m in models]
 
-    def delete(self, task_id: str) -> None:
-        model = self.session.get(TaskModel, task_id)
+    async def delete(self, task_id: str) -> None:
+        model = await self._get(task_id)
         if model is not None:
-            self.session.delete(model)
-            self.session.flush()
+            delete_res = self.session.delete(model)
+            if inspect.isawaitable(delete_res):
+                await delete_res
+            flush_res = self.session.flush()
+            if inspect.isawaitable(flush_res):
+                await flush_res

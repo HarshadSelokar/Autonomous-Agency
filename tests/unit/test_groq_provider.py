@@ -18,6 +18,7 @@ def test_groq_provider_unconfigured_api_key_raises_error() -> None:
     with pytest.raises(ConfigurationError) as exc_info:
         # Calling generate without API key should raise ConfigurationError
         import asyncio
+
         asyncio.run(provider.generate(request))
 
     assert "Groq API Key is not configured" in str(exc_info.value)

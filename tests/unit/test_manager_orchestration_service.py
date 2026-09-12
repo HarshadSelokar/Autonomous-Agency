@@ -178,9 +178,7 @@ async def test_submit_and_approve_plan(
         description="FastAPI",
         required_capabilities=["python"],
     )
-    proposed_plan = Plan(
-        id="p1", objective_id="obj_plan", manager_id="emp_mgr", work_items=[wi]
-    )
+    proposed_plan = Plan(id="p1", objective_id="obj_plan", manager_id="emp_mgr", work_items=[wi])
 
     saved_plan, saved_obj = await manager_service.submit_and_validate_plan(proposed_plan)
     assert saved_plan.status == PlanStatus.PROPOSED

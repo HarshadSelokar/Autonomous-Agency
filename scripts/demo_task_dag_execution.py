@@ -150,7 +150,7 @@ async def run_dag_demo() -> None:
     )
 
     for t in [t1, t2, t3, t4, t5, t6]:
-        task_repo.save(t)
+        await task_repo.save(t)
     session.commit()
 
     # 2. Build Dependency Edges
@@ -169,27 +169,27 @@ async def run_dag_demo() -> None:
     session.commit()
 
     print("\nInitial Graph State:")
-    all_tasks = task_repo.get_by_plan_id(plan_id)
+    all_tasks = await task_repo.get_by_plan_id(plan_id)
     for t in all_tasks:
         reasons = [r.value for r in t.block_reasons]
         print(f"  Task {t.id} ({t.title}): status={t.status.value}, block_reasons={reasons}")
 
     # Evaluate readiness
-    graph = graph_service.build_graph_for_plan(plan_id)
+    graph = await graph_service.build_graph_for_plan(plan_id)
     for t in all_tasks:
         if evaluator.update_task_readiness(t, graph):
-            task_repo.save(t)
+            await task_repo.save(t)
     session.commit()
 
     print("\nReadiness Evaluated State:")
-    all_tasks = task_repo.get_by_plan_id(plan_id)
+    all_tasks = await task_repo.get_by_plan_id(plan_id)
     for t in all_tasks:
         print(f"  Task {t.id} ({t.title}): status={t.status.value}")
 
     # Step-by-step DAG execution loop
     step = 1
     while True:
-        ready = scheduler_service.get_ready_tasks(plan_id)
+        ready = await scheduler_service.get_ready_tasks(plan_id)
         if not ready:
             print("\nNo more READY tasks available.")
             break
@@ -213,7 +213,7 @@ async def run_dag_demo() -> None:
         step += 1
 
     print("\nFinal DAG Execution Summary:")
-    final_tasks = task_repo.get_by_plan_id(plan_id)
+    final_tasks = await task_repo.get_by_plan_id(plan_id)
     for t in final_tasks:
         print(f"  [{t.status.value}] Task {t.id}: {t.title}")
 

@@ -1,8 +1,4 @@
-"""
-Task Execution Service integrating Phase 2 Employee Framework,
-Assignment allocation, Agent Runtime execution, and REVIEW state boundary.
-"""
-
+import inspect
 import uuid
 from typing import Any
 
@@ -16,6 +12,12 @@ from src.domain.events import (
 )
 from src.domain.task import Task, TaskStatus
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
+
+
+async def _maybe_await(res: Any) -> Any:
+    if inspect.isawaitable(res):
+        return await res
+    return res
 
 
 class TaskExecutionService:
@@ -55,15 +57,17 @@ class TaskExecutionService:
         elif task.status in {TaskStatus.ASSIGNED, TaskStatus.REWORK}:
             task.transition_to(TaskStatus.IN_PROGRESS)
 
-        self.task_repo.save(task)
+        await _maybe_await(self.task_repo.save(task))
 
         # 2. Invoke Employee execution if EmployeeService is provided
         if self.employee_service:
             try:
-                run_result = await self.employee_service.execute_work(
-                    employee_id=employee_id,
-                    objective=f"{task.title}: {task.description}",
-                    task_id=task.id,
+                run_result = await _maybe_await(
+                    self.employee_service.execute_work(
+                        employee_id=employee_id,
+                        objective=f"{task.title}: {task.description}",
+                        task_id=task.id,
+                    )
                 )
                 run_id = getattr(run_result, "id", str(uuid.uuid4()))
                 task.execution_run_id = run_id
@@ -73,23 +77,27 @@ class TaskExecutionService:
                 }
 
                 if self.event_dispatcher:
-                    await self.event_dispatcher.publish(
-                        TaskExecutionStartedEvent(
-                            task_id=task.id,
-                            employee_id=employee_id,
-                            execution_run_id=run_id,
+                    await _maybe_await(
+                        self.event_dispatcher.publish(
+                            TaskExecutionStartedEvent(
+                                task_id=task.id,
+                                employee_id=employee_id,
+                                execution_run_id=run_id,
+                            )
                         )
                     )
 
                 # Transition to REVIEW (False Completion Prevention: Agent "Done" != Task COMPLETED)
                 task.transition_to(TaskStatus.REVIEW)
-                self.task_repo.save(task)
+                await _maybe_await(self.task_repo.save(task))
 
                 if self.event_dispatcher:
-                    await self.event_dispatcher.publish(
-                        TaskReviewRequestedEvent(
-                            task_id=task.id,
-                            execution_run_id=run_id,
+                    await _maybe_await(
+                        self.event_dispatcher.publish(
+                            TaskReviewRequestedEvent(
+                                task_id=task.id,
+                                execution_run_id=run_id,
+                            )
                         )
                     )
 
@@ -103,26 +111,30 @@ class TaskExecutionService:
                     task.retry_count += 1
                     # Return task to FAILED or READY state for bounded retry
                     task.transition_to(TaskStatus.FAILED)
-                    self.task_repo.save(task)
+                    await _maybe_await(self.task_repo.save(task))
 
                     if self.event_dispatcher:
-                        await self.event_dispatcher.publish(
-                            TaskRetryScheduledEvent(
-                                task_id=task.id,
-                                retry_count=task.retry_count,
-                                max_retries=task.max_retries,
+                        await _maybe_await(
+                            self.event_dispatcher.publish(
+                                TaskRetryScheduledEvent(
+                                    task_id=task.id,
+                                    retry_count=task.retry_count,
+                                    max_retries=task.max_retries,
+                                )
                             )
                         )
                 else:
                     task.transition_to(TaskStatus.FAILED)
-                    self.task_repo.save(task)
+                    await _maybe_await(self.task_repo.save(task))
 
                     if self.event_dispatcher:
-                        await self.event_dispatcher.publish(
-                            TaskExecutionFailedEvent(
-                                task_id=task.id,
-                                execution_run_id=task.execution_run_id or "",
-                                error=error_msg,
+                        await _maybe_await(
+                            self.event_dispatcher.publish(
+                                TaskExecutionFailedEvent(
+                                    task_id=task.id,
+                                    execution_run_id=task.execution_run_id or "",
+                                    error=error_msg,
+                                )
                             )
                         )
                 return task
@@ -132,5 +144,5 @@ class TaskExecutionService:
             task.execution_run_id = mock_run_id
             task.result = {"output": f"Simulated output for task {task.title}"}
             task.transition_to(TaskStatus.REVIEW)
-            self.task_repo.save(task)
+            await _maybe_await(self.task_repo.save(task))
             return task

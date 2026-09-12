@@ -44,7 +44,7 @@ async def test_scheduler_get_ready_tasks_priority_ordering() -> None:
 
     task_repo.get_by_status.return_value = [t_low, t_critical, t_high]
 
-    ready = scheduler.get_ready_tasks()
+    ready = await scheduler.get_ready_tasks()
     assert [t.id for t in ready] == ["t2", "t3", "t1"]
 
 

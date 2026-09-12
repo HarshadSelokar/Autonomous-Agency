@@ -74,9 +74,7 @@ async def test_objective_api_flow(api_client: AsyncClient) -> None:
     assert emp_res.status_code == 201
 
     # Activate Manager
-    status_res = await api_client.post(
-        "/employees/emp_bob_api/status", json={"status": "ACTIVE"}
-    )
+    status_res = await api_client.post("/employees/emp_bob_api/status", json={"status": "ACTIVE"})
     assert status_res.status_code == 200
 
     # 2. Create Objective via POST /objectives

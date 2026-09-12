@@ -135,9 +135,7 @@ class ManagerOrchestrationService:
             raise ObjectiveNotFoundError(objective_id)
         return obj
 
-    async def request_clarification(
-        self, objective_id: str, questions: list[str]
-    ) -> Objective:
+    async def request_clarification(self, objective_id: str, questions: list[str]) -> Objective:
         """Request clarification for an ambiguous objective."""
         obj = await self.get_objective(objective_id)
         obj.transition_to(ObjectiveStatus.CLARIFICATION_REQUIRED)
@@ -154,9 +152,7 @@ class ManagerOrchestrationService:
 
         return saved
 
-    async def provide_clarification(
-        self, objective_id: str, answers: dict[str, str]
-    ) -> Objective:
+    async def provide_clarification(self, objective_id: str, answers: dict[str, str]) -> Objective:
         """Provide clarification answers and transition objective to READY_FOR_PLANNING."""
         obj = await self.get_objective(objective_id)
         if obj.status == ObjectiveStatus.CLARIFICATION_REQUIRED:
@@ -176,9 +172,7 @@ class ManagerOrchestrationService:
 
         return saved
 
-    async def submit_and_validate_plan(
-        self, proposed_plan: Plan
-    ) -> tuple[Plan, Objective]:
+    async def submit_and_validate_plan(self, proposed_plan: Plan) -> tuple[Plan, Objective]:
         """Validate and persist an LLM/Manager-proposed plan."""
         obj = await self.get_objective(proposed_plan.objective_id)
         mgr = await self.employee_repo.get_by_id(proposed_plan.manager_id)
@@ -400,9 +394,7 @@ class ManagerOrchestrationService:
         """Escalate a blocked work item to the manager's manager in the hierarchy."""
         mgr = await self.employee_repo.get_by_id(manager_id)
         if mgr is None or not mgr.manager_id:
-            raise EscalationError(
-                f"Manager '{manager_id}' has no higher manager to escalate to."
-            )
+            raise EscalationError(f"Manager '{manager_id}' has no higher manager to escalate to.")
 
         higher_mgr_id = mgr.manager_id
 

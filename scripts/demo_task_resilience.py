@@ -98,7 +98,7 @@ async def run_resilience_demo() -> None:
     t1 = Task(
         id="T1", plan_id=plan_id, title="Task 1", description="Desc 1", status=TaskStatus.PLANNED
     )
-    task_repo.save(t1)
+    await task_repo.save(t1)
     session.commit()
 
     try:
@@ -113,7 +113,7 @@ async def run_resilience_demo() -> None:
     t2 = Task(
         id="T2", plan_id=plan_id, title="Task 2", description="Desc 2", status=TaskStatus.PLANNED
     )
-    task_repo.save(t2)
+    await task_repo.save(t2)
     session.commit()
 
     await graph_service.add_dependency(
@@ -133,7 +133,7 @@ async def run_resilience_demo() -> None:
     t3 = Task(
         id="T3", plan_id=plan_id, title="Task 3", description="Desc 3", status=TaskStatus.PLANNED
     )
-    task_repo.save(t3)
+    await task_repo.save(t3)
     session.commit()
 
     await graph_service.add_dependency(
@@ -151,25 +151,25 @@ async def run_resilience_demo() -> None:
     # Demo 4: Atomic Claim Race Condition
     print("\n4. DEMO: Atomic Claim Race Condition Protection")
     t1.status = TaskStatus.READY
-    task_repo.save(t1)
+    await task_repo.save(t1)
     session.commit()
 
-    worker1_claim = claim_service.claim_task("T1", worker_id="worker-1")
+    worker1_claim = await claim_service.claim_task("T1", worker_id="worker-1")
     print(f"  Worker 1 claimed task T1: status={worker1_claim.status.value}")
 
     try:
-        claim_service.claim_task("T1", worker_id="worker-2")
+        await claim_service.claim_task("T1", worker_id="worker-2")
     except TaskClaimError as err:
         print(f"  Worker 2 claim rejected: {err}")
 
     # Demo 5: Predecessor Failure Blocking Downstream Task
     print("\n5. DEMO: Predecessor Failure Blocking Downstream Execution")
     t1.status = TaskStatus.FAILED
-    task_repo.save(t1)
-    graph_service.propagate_task_state_change("T1")
+    await task_repo.save(t1)
+    await graph_service.propagate_task_state_change("T1")
     session.commit()
 
-    t2_updated = task_repo.get_by_id("T2")
+    t2_updated = await task_repo.get_by_id("T2")
     reasons_list = [r.value for r in t2_updated.block_reasons]
     print(f"  Task T2 status: status={t2_updated.status.value}, reasons={reasons_list}")
     assert t2_updated.status == TaskStatus.BLOCKED
@@ -183,7 +183,7 @@ async def run_resilience_demo() -> None:
         description="Rework flow",
         status=TaskStatus.READY,
     )
-    task_repo.save(t_demo)
+    await task_repo.save(t_demo)
     session.commit()
 
     executed = await exec_service.execute_task(

@@ -1,11 +1,11 @@
 """
-SQLAlchemy Repository implementation for TaskDependency domain entity.
+SQLAlchemy Repository implementation for TaskDependency domain entity supporting AsyncSession.
 """
 
-from collections.abc import Sequence
+import inspect
+from typing import Any, Sequence
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from src.domain.task_dependency import TaskDependency
 from src.infrastructure.models.task_dependency_model import (
@@ -16,11 +16,26 @@ from src.infrastructure.models.task_dependency_model import (
 
 
 class SQLAlchemyTaskDependencyRepository:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Any) -> None:
         self.session = session
 
-    def save(self, dependency: TaskDependency) -> TaskDependency:
-        model = self.session.get(TaskDependencyModel, dependency.id)
+    async def _get(self, dependency_id: str) -> TaskDependencyModel | None:
+        res = self.session.get(TaskDependencyModel, dependency_id)
+        if inspect.isawaitable(res):
+            return await res
+        return res
+
+    async def _scalars_all(self, stmt: Any) -> Sequence[TaskDependencyModel]:
+        res = self.session.scalars(stmt)
+        if inspect.isawaitable(res):
+            res = await res
+        all_res = res.all()
+        if inspect.isawaitable(all_res):
+            all_res = await all_res
+        return all_res
+
+    async def save(self, dependency: TaskDependency) -> TaskDependency:
+        model = await self._get(dependency.id)
         if model is None:
             model = task_dependency_domain_to_model(dependency)
             self.session.add(model)
@@ -32,16 +47,18 @@ class SQLAlchemyTaskDependencyRepository:
             model.status = updated.status
             model.metadata_json = updated.metadata_json
             model.updated_at = updated.updated_at
-        self.session.flush()
+        flush_res = self.session.flush()
+        if inspect.isawaitable(flush_res):
+            await flush_res
         return task_dependency_model_to_domain(model)
 
-    def get_by_id(self, dependency_id: str) -> TaskDependency | None:
-        model = self.session.get(TaskDependencyModel, dependency_id)
+    async def get_by_id(self, dependency_id: str) -> TaskDependency | None:
+        model = await self._get(dependency_id)
         if model is None:
             return None
         return task_dependency_model_to_domain(model)
 
-    def get_by_plan_id(self, plan_id: str) -> list[TaskDependency]:
+    async def get_by_plan_id(self, plan_id: str) -> list[TaskDependency]:
         """Fetch dependencies for all tasks belonging to plan_id."""
         from src.infrastructure.models.task_model import TaskModel
 
@@ -53,16 +70,20 @@ class SQLAlchemyTaskDependencyRepository:
             )
             .where(TaskModel.plan_id == plan_id)
         )
-        models: Sequence[TaskDependencyModel] = self.session.scalars(stmt).all()
+        models = await self._scalars_all(stmt)
         return [task_dependency_model_to_domain(m) for m in models]
 
-    def get_all(self) -> list[TaskDependency]:
+    async def get_all(self) -> list[TaskDependency]:
         stmt = select(TaskDependencyModel)
-        models: Sequence[TaskDependencyModel] = self.session.scalars(stmt).all()
+        models = await self._scalars_all(stmt)
         return [task_dependency_model_to_domain(m) for m in models]
 
-    def delete(self, dependency_id: str) -> None:
-        model = self.session.get(TaskDependencyModel, dependency_id)
+    async def delete(self, dependency_id: str) -> None:
+        model = await self._get(dependency_id)
         if model is not None:
-            self.session.delete(model)
-            self.session.flush()
+            delete_res = self.session.delete(model)
+            if inspect.isawaitable(delete_res):
+                await delete_res
+            flush_res = self.session.flush()
+            if inspect.isawaitable(flush_res):
+                await flush_res

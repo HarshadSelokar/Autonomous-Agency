@@ -1,12 +1,15 @@
-"""
-Atomic Task Claiming Service to prevent race conditions and duplicate execution.
-"""
-
+import inspect
 from typing import Any
 
 from src.domain.exceptions import TaskClaimError
 from src.domain.task import Task, TaskStatus
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
+
+
+async def _maybe_await(res: Any) -> Any:
+    if inspect.isawaitable(res):
+        return await res
+    return res
 
 
 class TaskClaimService:
@@ -18,14 +21,14 @@ class TaskClaimService:
     def __init__(self, task_repository: SQLAlchemyTaskRepository) -> None:
         self.task_repo = task_repository
 
-    def claim_task(
+    async def claim_task(
         self, task_id: str, worker_id: str, metadata: dict[str, Any] | None = None
     ) -> Task:
         """
         Atomically claim a task in READY status for worker_id.
         Raises TaskClaimError if task is not in READY status or already claimed.
         """
-        task = self.task_repo.get_by_id(task_id)
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
 
         if task.status != TaskStatus.READY:
             raise TaskClaimError(
@@ -38,5 +41,5 @@ class TaskClaimService:
         if metadata:
             task.metadata.update(metadata)
 
-        saved_task = self.task_repo.save(task)
+        saved_task = await _maybe_await(self.task_repo.save(task))
         return saved_task

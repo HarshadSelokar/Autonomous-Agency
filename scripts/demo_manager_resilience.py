@@ -244,9 +244,7 @@ async def run_resilience_demo() -> None:
         # 4. GUARDRAIL 4: Invalid State Machine Transition Protection
         print("\n--- GUARDRAIL 4: Objective State Machine Protection ---")
         try:
-            print(
-                "Attempting to transition Objective directly from RECEIVED to COMPLETED..."
-            )
+            print("Attempting to transition Objective directly from RECEIVED to COMPLETED...")
             obj.transition_to(ObjectiveStatus.COMPLETED)
         except InvalidStateTransitionError as exc:
             print(f"[REJECTED EXPECTEDLY] {exc}")

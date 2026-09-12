@@ -3,7 +3,9 @@ Task Scheduler Service for Ready Task discovery, priority ordering,
 atomic claiming, employee selection, and execution coordination.
 """
 
+import inspect
 import uuid
+from typing import Any
 
 from src.application.employee_selector import EmployeeSelector
 from src.application.task_claim_service import TaskClaimService
@@ -20,6 +22,12 @@ from src.infrastructure.repositories.employee_repository import (
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
 PRIORITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+
+
+async def _maybe_await(res: Any) -> Any:
+    if inspect.isawaitable(res):
+        return await res
+    return res
 
 
 class TaskSchedulerService:
@@ -45,15 +53,15 @@ class TaskSchedulerService:
         self.employee_repo = employee_repository
         self.assignment_repo = assignment_repository
 
-    def get_ready_tasks(self, plan_id: str | None = None) -> list[Task]:
+    async def get_ready_tasks(self, plan_id: str | None = None) -> list[Task]:
         """
         Discover executable tasks in READY status, ordered by priority and creation time.
         """
         if plan_id:
-            tasks = self.task_repo.get_by_plan_id(plan_id)
+            tasks = await _maybe_await(self.task_repo.get_by_plan_id(plan_id))
             ready = [t for t in tasks if t.status == TaskStatus.READY]
         else:
-            ready = self.task_repo.get_by_status(TaskStatus.READY)
+            ready = await _maybe_await(self.task_repo.get_by_status(TaskStatus.READY))
 
         # Sort deterministically: priority ascending (critical first), then created_at
         ready.sort(key=lambda t: (PRIORITY_ORDER.get(t.priority, 2), t.created_at))
@@ -66,19 +74,21 @@ class TaskSchedulerService:
         Find the highest-priority READY task, claim it atomically, match an employee,
         and trigger execution.
         """
-        ready_tasks = self.get_ready_tasks(plan_id)
+        ready_tasks = await self.get_ready_tasks(plan_id)
         if not ready_tasks:
             return None
 
         for candidate in ready_tasks:
             try:
                 # 1. Atomic claim
-                claimed_task = self.claim_service.claim_task(candidate.id, worker_id)
+                claimed_task = await _maybe_await(
+                    self.claim_service.claim_task(candidate.id, worker_id)
+                )
 
                 # 2. Employee Selection
                 selected_emp_id = claimed_task.assigned_employee_id
                 if not selected_emp_id and self.employee_repo:
-                    all_employees = await self.employee_repo.list_all()
+                    all_employees = await _maybe_await(self.employee_repo.list_all())
                     eligible = self.employee_selector.find_eligible_employees(
                         employees=list(all_employees),
                         required_capabilities=claimed_task.required_capabilities,
@@ -99,13 +109,15 @@ class TaskSchedulerService:
                         reason="TaskScheduler automated allocation",
                         status=AssignmentStatus.ACTIVE,
                     )
-                    await self.assignment_repo.save(asgn)
+                    await _maybe_await(self.assignment_repo.save(asgn))
 
                 # 4. Trigger Execution
-                executed_task = await self.execution_service.execute_task(
-                    task=claimed_task,
-                    employee_id=selected_emp_id,
-                    assignment_id=assignment_id,
+                executed_task = await _maybe_await(
+                    self.execution_service.execute_task(
+                        task=claimed_task,
+                        employee_id=selected_emp_id,
+                        assignment_id=assignment_id,
+                    )
                 )
                 return executed_task
 

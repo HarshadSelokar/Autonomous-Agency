@@ -30,15 +30,11 @@ class PlanModel(Base):
     assumptions_json: Mapped[list[str]] = mapped_column(
         "assumptions", JSON, nullable=False, default=list
     )
-    goals_json: Mapped[list[str]] = mapped_column(
-        "goals", JSON, nullable=False, default=list
-    )
+    goals_json: Mapped[list[str]] = mapped_column("goals", JSON, nullable=False, default=list)
     required_capabilities_json: Mapped[list[str]] = mapped_column(
         "required_capabilities", JSON, nullable=False, default=list
     )
-    risks_json: Mapped[list[str]] = mapped_column(
-        "risks", JSON, nullable=False, default=list
-    )
+    risks_json: Mapped[list[str]] = mapped_column("risks", JSON, nullable=False, default=list)
     constraints_json: Mapped[list[str]] = mapped_column(
         "constraints", JSON, nullable=False, default=list
     )

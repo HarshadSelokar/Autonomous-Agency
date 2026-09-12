@@ -213,19 +213,20 @@ async def test_fm10_duplicate_scheduler_invocation() -> None:
 
 
 # 11. Concurrent task claim
-def test_fm11_concurrent_task_claim() -> None:
+@pytest.mark.asyncio
+async def test_fm11_concurrent_task_claim() -> None:
     task_repo = MagicMock()
     service = TaskClaimService(task_repo)
     t = Task(id="t1", plan_id="p1", title="T1", description="D1", status=TaskStatus.READY)
     task_repo.get_by_id.return_value = t
     task_repo.save.side_effect = lambda x: x
 
-    claimed1 = service.claim_task("t1", worker_id="w1")
+    claimed1 = await service.claim_task("t1", worker_id="w1")
     assert claimed1.status == TaskStatus.ASSIGNED
 
     # Concurrent attempt on ASSIGNED status fails
     with pytest.raises(TaskClaimError, match="cannot be claimed"):
-        service.claim_task("t1", worker_id="w2")
+        await service.claim_task("t1", worker_id="w2")
 
 
 # 12. Checkpoint/runtime interruption

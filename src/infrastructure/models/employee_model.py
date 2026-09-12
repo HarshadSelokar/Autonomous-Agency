@@ -22,9 +22,7 @@ class EmployeeModel(Base):
     __tablename__ = "employees"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    employee_code: Mapped[str] = mapped_column(
-        String(32), nullable=False, unique=True, index=True
-    )
+    employee_code: Mapped[str] = mapped_column(String(32), nullable=False, unique=True, index=True)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     title: Mapped[str] = mapped_column(String(128), nullable=False)
     role: Mapped[str] = mapped_column(String(128), nullable=False, index=True)

@@ -69,7 +69,8 @@ async def test_dependency_graph_service_cycle_rejected() -> None:
         await service.add_dependency(new_dep)
 
 
-def test_dependency_graph_service_propagation() -> None:
+@pytest.mark.asyncio
+async def test_dependency_graph_service_propagation() -> None:
     task_repo = MagicMock()
     dep_repo = MagicMock()
 
@@ -87,7 +88,7 @@ def test_dependency_graph_service_propagation() -> None:
     task_repo.get_by_plan_id.return_value = [t1, t2]
     dep_repo.get_by_plan_id.return_value = [existing_dep]
 
-    updated = service.propagate_task_state_change("t1")
+    updated = await service.propagate_task_state_change("t1")
     assert len(updated) == 1
     assert updated[0].id == "t2"
     assert t2.status == TaskStatus.READY

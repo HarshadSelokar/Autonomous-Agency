@@ -18,9 +18,7 @@ class EventDispatcher:
             defaultdict(list)
         )
 
-    def subscribe(
-        self, event_type: type[E], handler: Callable[[E], Awaitable[None]]
-    ) -> None:
+    def subscribe(self, event_type: type[E], handler: Callable[[E], Awaitable[None]]) -> None:
         """Register an async event handler for a specific event type."""
         self._subscribers[event_type].append(handler)
 

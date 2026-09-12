@@ -1,7 +1,4 @@
-"""
-Task Lifecycle Service managing REVIEW, REWORK, APPROVAL, RETRY, and CANCELLATION operations.
-"""
-
+import inspect
 from typing import Any
 
 from src.application.dependency_graph_service import DependencyGraphService
@@ -16,6 +13,12 @@ from src.domain.events import (
 from src.domain.exceptions import TaskValidationError
 from src.domain.task import Task, TaskStatus
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
+
+
+async def _maybe_await(res: Any) -> Any:
+    if inspect.isawaitable(res):
+        return await res
+    return res
 
 
 class TaskLifecycleService:
@@ -46,7 +49,7 @@ class TaskLifecycleService:
         If approved: transitions REVIEW -> APPROVED -> COMPLETED and propagates readiness.
         If rejected: transitions REVIEW -> REWORK and preserves execution history.
         """
-        task = self.task_repo.get_by_id(task_id)
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
 
         if task.status != TaskStatus.REVIEW:
             raise TaskValidationError(
@@ -57,19 +60,23 @@ class TaskLifecycleService:
         if approved:
             task.transition_to(TaskStatus.APPROVED)
             if self.event_dispatcher:
-                await self.event_dispatcher.publish(
-                    TaskApprovedEvent(task_id=task.id, approved_by=reviewer_id)
+                await _maybe_await(
+                    self.event_dispatcher.publish(
+                        TaskApprovedEvent(task_id=task.id, approved_by=reviewer_id)
+                    )
                 )
 
             task.transition_to(TaskStatus.COMPLETED)
-            self.task_repo.save(task)
+            await _maybe_await(self.task_repo.save(task))
 
             if self.event_dispatcher:
-                await self.event_dispatcher.publish(TaskCompletedEvent(task_id=task.id))
+                await _maybe_await(
+                    self.event_dispatcher.publish(TaskCompletedEvent(task_id=task.id))
+                )
 
             # Propagate readiness state change to downstream successors
             if self.graph_service:
-                self.graph_service.propagate_task_state_change(task.id)
+                await _maybe_await(self.graph_service.propagate_task_state_change(task.id))
 
         else:
             task.transition_to(TaskStatus.REWORK)
@@ -82,11 +89,15 @@ class TaskLifecycleService:
                 "previous_execution_run_id": task.execution_run_id,
             }
             task.metadata["rework_history"].append(rework_entry)
-            self.task_repo.save(task)
+            await _maybe_await(self.task_repo.save(task))
 
             if self.event_dispatcher:
-                await self.event_dispatcher.publish(
-                    TaskReworkRequestedEvent(task_id=task.id, reason=feedback or "Work rejected")
+                await _maybe_await(
+                    self.event_dispatcher.publish(
+                        TaskReworkRequestedEvent(
+                            task_id=task.id, reason=feedback or "Work rejected"
+                        )
+                    )
                 )
 
         return task
@@ -95,7 +106,7 @@ class TaskLifecycleService:
         """
         Retry a task currently in FAILED status if retry limits permit or if force=True.
         """
-        task = self.task_repo.get_by_id(task_id)
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
 
         if task.status != TaskStatus.FAILED:
             raise TaskValidationError(
@@ -111,14 +122,16 @@ class TaskLifecycleService:
 
         task.retry_count += 1
         task.transition_to(TaskStatus.READY)
-        self.task_repo.save(task)
+        await _maybe_await(self.task_repo.save(task))
 
         if self.event_dispatcher:
-            await self.event_dispatcher.publish(
-                TaskRetryScheduledEvent(
-                    task_id=task.id,
-                    retry_count=task.retry_count,
-                    max_retries=task.max_retries,
+            await _maybe_await(
+                self.event_dispatcher.publish(
+                    TaskRetryScheduledEvent(
+                        task_id=task.id,
+                        retry_count=task.retry_count,
+                        max_retries=task.max_retries,
+                    )
                 )
             )
 
@@ -128,15 +141,17 @@ class TaskLifecycleService:
         """
         Cancel a task, preserving audit history and updating downstream graph state.
         """
-        task = self.task_repo.get_by_id(task_id)
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
         task.transition_to(TaskStatus.CANCELLED)
         task.metadata["cancellation_reason"] = reason
-        self.task_repo.save(task)
+        await _maybe_await(self.task_repo.save(task))
 
         if self.event_dispatcher:
-            await self.event_dispatcher.publish(TaskCancelledEvent(task_id=task.id, reason=reason))
+            await _maybe_await(
+                self.event_dispatcher.publish(TaskCancelledEvent(task_id=task.id, reason=reason))
+            )
 
         if self.graph_service:
-            self.graph_service.propagate_task_state_change(task.id)
+            await _maybe_await(self.graph_service.propagate_task_state_change(task.id))
 
         return task

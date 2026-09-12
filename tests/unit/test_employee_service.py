@@ -189,9 +189,7 @@ async def test_execute_work_active_employee(
         agent_id="agent_001",
         status=EmployeeStatus.ACTIVE,
         skills=[
-            EmployeeSkill(
-                name="python", category="coding", proficiency=SkillProficiency.EXPERT
-            )
+            EmployeeSkill(name="python", category="coding", proficiency=SkillProficiency.EXPERT)
         ],
     )
     mock_employee_repo.get_by_id.return_value = emp
