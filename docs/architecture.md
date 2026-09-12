@@ -102,9 +102,39 @@ sequenceDiagram
 
 ---
 
+## Phase 5 Communication & Collaboration Protocol Architecture
+
+$$\text{Objective} \rightarrow \text{Plan} \rightarrow \text{Task Graph} \rightarrow \text{Assignment} \rightarrow \text{Employee} \stackrel{\text{Communication Protocol}}{\longleftrightarrow} \text{Agent Runtime}$$
+
+### 1. Communication Domain & Message Types
+- **Conversation**: `DIRECT`, `TEAM`, `TASK`, `OBJECTIVE`, `MANAGER`, `ESCALATION`.
+- **Message**: `INFORMATION`, `REQUEST`, `RESPONSE`, `QUESTION`, `ANSWER`, `STATUS_UPDATE`, `TASK_ASSIGNMENT`, `TASK_RESULT`, `BLOCKER`, `ESCALATION`, `APPROVAL_REQUEST`, `APPROVAL_RESPONSE`, `DECISION`, `NOTIFICATION`.
+- **DeliveryState**: `CREATED` → `DELIVERED` → `READ` → `ACKNOWLEDGED` / `FAILED`.
+
+### 2. Core Communication Services
+- **`CommunicationService`**: High-level manager/employee conversation orchestration, task-linked blocker reporting, and manager escalations.
+- **`MessageRouter`**: Sender authority validation (`EMPLOYEE ≠ AGENT ≠ LLM`), sender spoofing rejection, terminated employee communication prevention, and recipient resolution.
+- **`MessageDeliveryService`**: Reliable delivery, participant acknowledgement tracking, transactional outbox message creation, and worker retry queue processing.
+- **`MessageContextBuilder`**: Relevance-filtered message retrieval for Agent Runtime context injection with explicit `UNTRUSTED USER CONTENT` prompt security boundaries.
+
+### 3. REST API Endpoints (`src/api/routes/communication.py`)
+- `POST /conversations`: Create conversation.
+- `GET /conversations/{id}`: Get conversation details.
+- `GET /conversations`: List all conversations.
+- `POST /conversations/{id}/participants`: Add participant.
+- `DELETE /conversations/{id}/participants/{participant_id}`: Remove participant.
+- `POST /conversations/{id}/messages`: Send message.
+- `GET /conversations/{id}/messages`: List messages in conversation.
+- `GET /messages/{id}`: Get message details.
+- `POST /messages/{id}/acknowledge`: Acknowledge message.
+- `POST /tasks/{task_id}/blockers`: Report blocker to manager via communication protocol.
+- `POST /tasks/{task_id}/escalations`: Escalate unresolved blocker to higher manager.
+
+---
+
 ## Local Development & Testing
 
-### 1. Running Test Suite (141 Tests)
+### 1. Running Test Suite (189 Tests Across Phase 1–5)
 ```bash
 pytest
 ```
@@ -114,13 +144,13 @@ pytest
 pytest tests/failure_injection
 ```
 
-### 3. Running Phase 3 Demonstration Scripts
+### 3. Running Phase 5 Demonstration Scripts
 ```bash
-# Phase 3: End-to-end manager objective decomposition & orchestration demo
-python scripts/demo_manager_orchestration.py
+# Phase 5: End-to-end communication protocol, blockers & outbox demo
+python -m scripts.demo_communication_protocol
 
-# Phase 3: Manager guardrails, hierarchy cycle detection & resilience demo
-python scripts/demo_manager_resilience.py
+# Phase 5: Communication resilience, sender spoofing & Task Engine authority guards demo
+python -m scripts.demo_communication_resilience
 ```
 
 ### 4. Running the API Server

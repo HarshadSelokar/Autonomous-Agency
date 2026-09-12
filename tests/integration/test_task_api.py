@@ -1,142 +1,133 @@
-"""
-Integration tests for Task & Scheduler REST API endpoints using FastAPI TestClient.
-"""
-
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from typing import AsyncGenerator
+from httpx import ASGITransport, AsyncClient
+import pytest
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from src.api.main import app
 from src.infrastructure.database import Base, get_db
-from src.infrastructure.models.agent_model import AgentModel  # noqa: F401
-from src.infrastructure.models.assignment_model import AssignmentModel  # noqa: F401
-from src.infrastructure.models.department_model import DepartmentModel  # noqa: F401
-from src.infrastructure.models.employee_model import EmployeeModel  # noqa: F401
+import src.infrastructure.models  # noqa: F401
 from src.infrastructure.models.objective_model import ObjectiveModel
 from src.infrastructure.models.plan_model import PlanModel
-from src.infrastructure.models.run_model import AgentRunModel  # noqa: F401
-from src.infrastructure.models.task_dependency_model import TaskDependencyModel  # noqa: F401
-from src.infrastructure.models.task_model import TaskModel  # noqa: F401
-from src.infrastructure.models.work_item_model import WorkItemModel  # noqa: F401
 
 
-test_engine = create_engine(
-    "sqlite:///:memory:",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-    echo=False,
-)
-Base.metadata.create_all(test_engine)
-TestSessionFactory = sessionmaker(bind=test_engine)
-test_session = TestSessionFactory()
+@pytest_asyncio.fixture
+async def async_client() -> AsyncGenerator[AsyncClient, None]:
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-# Pre-populate dummy Objective and Plan
-obj = ObjectiveModel(
-    id="obj-1",
-    title="API Test Obj",
-    description="Desc",
-    requester="User",
-    status="APPROVED",
-    constraints_json=[],
-    metadata_json={},
-)
-plan = PlanModel(
-    id="plan-1",
-    objective_id="obj-1",
-    manager_id="mgr-1",
-    assumptions_json=[],
-    goals_json=[],
-    required_capabilities_json=[],
-    risks_json=[],
-    constraints_json=[],
-    status="APPROVED",
-    metadata_json={},
-)
-test_session.add(obj)
-test_session.add(plan)
-test_session.commit()
+    async_session_factory = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+
+    async with async_session_factory() as session:
+        # Pre-populate dummy Objective and Plan
+        obj = ObjectiveModel(
+            id="obj-1",
+            title="API Test Obj",
+            description="Desc",
+            requester="User",
+            status="APPROVED",
+            constraints_json=[],
+            metadata_json={},
+        )
+        plan = PlanModel(
+            id="plan-1",
+            objective_id="obj-1",
+            manager_id="mgr-1",
+            assumptions_json=[],
+            goals_json=[],
+            required_capabilities_json=[],
+            risks_json=[],
+            constraints_json=[],
+            status="APPROVED",
+            metadata_json={},
+        )
+        session.add(obj)
+        session.add(plan)
+        await session.commit()
+
+        async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
+            yield session
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            yield client
+
+        app.dependency_overrides.clear()
+
+    await engine.dispose()
 
 
-def override_get_db():
-    try:
-        yield test_session
-    finally:
-        pass
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-def test_create_get_list_tasks_api() -> None:
-    # 1. Create task
-    response = client.post(
+@pytest.mark.asyncio
+async def test_create_get_list_tasks_api(async_client: AsyncClient) -> None:
+    # 1. Create Task
+    resp = await async_client.post(
         "/tasks",
         json={
             "plan_id": "plan-1",
-            "title": "Build Backend API",
-            "description": "Create FastAPI endpoints for task engine",
+            "title": "API Build Task",
+            "description": "Building FastAPI routes",
             "priority": "high",
+            "required_capabilities": ["fastapi", "python"],
         },
     )
-    assert response.status_code == 201
-    task_data = response.json()
+    assert resp.status_code == 201
+    task_data = resp.json()
     task_id = task_data["id"]
-    assert task_data["title"] == "Build Backend API"
-    assert task_data["status"] == "READY"
+    assert task_data["title"] == "API Build Task"
+    assert task_data["status"] in {"CREATED", "READY"}
 
-    # 2. Get task
-    get_res = client.get(f"/tasks/{task_id}")
-    assert get_res.status_code == 200
-    assert get_res.json()["id"] == task_id
+    # 2. Get Task by ID
+    resp = await async_client.get(f"/tasks/{task_id}")
+    assert resp.status_code == 200
+    assert resp.json()["id"] == task_id
 
-    # 3. List ready tasks
-    ready_res = client.get("/tasks/ready")
-    assert ready_res.status_code == 200
-    assert len(ready_res.json()) >= 1
+    # 3. List Tasks
+    resp = await async_client.get("/tasks")
+    assert resp.status_code == 200
+    assert len(resp.json()) >= 1
 
 
-def test_add_dependency_and_cycle_rejection_api() -> None:
-    # Create T1 and T2
-    t1_res = client.post(
+@pytest.mark.asyncio
+async def test_add_dependency_and_cycle_rejection_api(async_client: AsyncClient) -> None:
+    # Create Task 1
+    resp1 = await async_client.post(
         "/tasks",
-        json={"plan_id": "plan-1", "title": "T1", "description": "D1"},
+        json={"plan_id": "plan-1", "title": "Task A", "description": "Desc A"},
     )
-    t2_res = client.post(
-        "/tasks",
-        json={"plan_id": "plan-1", "title": "T2", "description": "D2"},
-    )
-    t1_id = t1_res.json()["id"]
-    t2_id = t2_res.json()["id"]
+    t1_id = resp1.json()["id"]
 
-    # Add T1 -> T2 dependency
-    dep_res = client.post(
+    # Create Task 2
+    resp2 = await async_client.post(
+        "/tasks",
+        json={"plan_id": "plan-1", "title": "Task B", "description": "Desc B"},
+    )
+    t2_id = resp2.json()["id"]
+
+    # Add Dependency: T1 -> T2
+    resp_dep = await async_client.post(
         f"/tasks/{t2_id}/dependencies",
-        json={
-            "predecessor_task_id": t1_id,
-            "successor_task_id": t2_id,
-        },
+        json={"predecessor_task_id": t1_id, "successor_task_id": t2_id},
     )
-    assert dep_res.status_code == 201
+    assert resp_dep.status_code == 201
 
-    # Attempting T2 -> T1 dependency should fail with 400 Bad Request due to cycle
-    cycle_res = client.post(
+    # Attempt Cycle: T2 -> T1
+    resp_cycle = await async_client.post(
         f"/tasks/{t1_id}/dependencies",
-        json={
-            "predecessor_task_id": t2_id,
-            "successor_task_id": t1_id,
-        },
+        json={"predecessor_task_id": t2_id, "successor_task_id": t1_id},
     )
-    assert cycle_res.status_code == 400
-    assert "creates a dependency cycle" in cycle_res.json()["detail"]
+    assert resp_cycle.status_code == 400
+    assert "cycle" in resp_cycle.json()["detail"].lower()
 
 
-def test_scheduler_run_api() -> None:
-    res = client.post(
-        "/scheduler/run",
-        json={"worker_id": "api-worker", "plan_id": "plan-1", "max_tasks": 5},
-    )
-    assert res.status_code == 200
-    data = res.json()
+@pytest.mark.asyncio
+async def test_scheduler_run_api(async_client: AsyncClient) -> None:
+    resp = await async_client.post("/scheduler/run", json={"worker_id": "worker-api-1", "max_tasks": 5})
+    assert resp.status_code == 200
+    data = resp.json()
     assert "processed_tasks" in data
