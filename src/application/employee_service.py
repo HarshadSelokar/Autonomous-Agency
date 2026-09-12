@@ -6,15 +6,23 @@ Orchestrates employee management and integrates Employee execution with Phase 1 
 from typing import Any
 
 from src.application.context import ContextItem, ContextSource
+from src.application.event_dispatcher import EventDispatcher
 from src.application.execution_engine import AgentExecutionEngine
 from src.domain.employee import Employee, EmployeeStatus
+from src.domain.events import (
+    EmployeeCreatedEvent,
+    EmployeeDepartmentAssignedEvent,
+    EmployeeManagerAssignedEvent,
+    EmployeeStatusChangedEvent,
+    EmployeeWorkExecutedEvent,
+)
 from src.domain.exceptions import EmployeeNotFoundError, EmployeeValidationError
 from src.domain.repository import (
     AgentRepositoryInterface,
     DepartmentRepositoryInterface,
     EmployeeRepositoryInterface,
 )
-from src.domain.run import AgentRun
+from src.domain.run import AgentRun, RunStatus
 
 
 class EmployeeService:
@@ -24,11 +32,13 @@ class EmployeeService:
         agent_repo: AgentRepositoryInterface,
         execution_engine: AgentExecutionEngine,
         department_repo: DepartmentRepositoryInterface | None = None,
+        event_dispatcher: EventDispatcher | None = None,
     ) -> None:
         self.employee_repo = employee_repo
         self.agent_repo = agent_repo
         self.execution_engine = execution_engine
         self.department_repo = department_repo
+        self.event_dispatcher = event_dispatcher
 
     async def create_employee(self, employee: Employee) -> Employee:
         """Create and register a new Employee entity."""
@@ -66,7 +76,23 @@ class EmployeeService:
                     f"Referenced Department '{employee.department_id}' does not exist."
                 )
 
-        return await self.employee_repo.save(employee)
+        saved = await self.employee_repo.save(employee)
+
+        if self.event_dispatcher:
+            await self.event_dispatcher.publish(
+                EmployeeCreatedEvent(
+                    employee_id=saved.id,
+                    employee_code=saved.employee_code,
+                    name=saved.name,
+                    title=saved.title,
+                    role=saved.role,
+                    agent_id=saved.agent_id,
+                    department_id=saved.department_id,
+                    manager_id=saved.manager_id,
+                )
+            )
+
+        return saved
 
     async def get_employee(self, employee_id: str) -> Employee:
         """Get an Employee by ID, raising EmployeeNotFoundError if missing."""
@@ -84,8 +110,20 @@ class EmployeeService:
     ) -> Employee:
         """Change employee status adhering to lifecycle transition rules."""
         emp = await self.get_employee(employee_id)
+        prev_status = emp.status
         emp.transition_to(new_status)
-        return await self.employee_repo.save(emp)
+        saved = await self.employee_repo.save(emp)
+
+        if self.event_dispatcher:
+            await self.event_dispatcher.publish(
+                EmployeeStatusChangedEvent(
+                    employee_id=saved.id,
+                    previous_status=prev_status,
+                    new_status=saved.status,
+                )
+            )
+
+        return saved
 
     async def update_manager(
         self, employee_id: str, manager_id: str | None
@@ -102,8 +140,20 @@ class EmployeeService:
             if manager is None:
                 raise EmployeeValidationError(f"Manager '{manager_id}' does not exist.")
 
+        prev_manager_id = emp.manager_id
         emp.manager_id = manager_id
-        return await self.employee_repo.save(emp)
+        saved = await self.employee_repo.save(emp)
+
+        if self.event_dispatcher:
+            await self.event_dispatcher.publish(
+                EmployeeManagerAssignedEvent(
+                    employee_id=saved.id,
+                    previous_manager_id=prev_manager_id,
+                    new_manager_id=saved.manager_id,
+                )
+            )
+
+        return saved
 
     async def update_department(
         self, employee_id: str, department_id: str | None
@@ -115,8 +165,20 @@ class EmployeeService:
             if dept is None:
                 raise EmployeeValidationError(f"Department '{department_id}' does not exist.")
 
+        prev_dept_id = emp.department_id
         emp.department_id = department_id
-        return await self.employee_repo.save(emp)
+        saved = await self.employee_repo.save(emp)
+
+        if self.event_dispatcher:
+            await self.event_dispatcher.publish(
+                EmployeeDepartmentAssignedEvent(
+                    employee_id=saved.id,
+                    previous_department_id=prev_dept_id,
+                    new_department_id=saved.department_id,
+                )
+            )
+
+        return saved
 
     async def execute_work(
         self,
@@ -178,10 +240,23 @@ class EmployeeService:
         )
 
         # 4. Delegate Execution directly to Phase 1 AgentExecutionEngine
-        return await self.execution_engine.execute_run(
+        run = await self.execution_engine.execute_run(
             agent_id=emp.agent_id,
             objective=objective,
             task_id=task_id,
             response_schema=response_schema,
             extra_context_items=[org_context_item],
         )
+
+        if self.event_dispatcher:
+            await self.event_dispatcher.publish(
+                EmployeeWorkExecutedEvent(
+                    employee_id=emp.id,
+                    agent_id=emp.agent_id,
+                    run_id=run.id,
+                    objective=objective,
+                    success=(run.status == RunStatus.COMPLETED),
+                )
+            )
+
+        return run
