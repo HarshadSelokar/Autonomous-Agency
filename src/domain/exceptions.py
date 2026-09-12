@@ -110,3 +110,35 @@ class CancellationError(DomainError):
 
     pass
 
+
+class ObjectiveNotFoundError(DomainError):
+    """Raised when an objective is not found."""
+
+    def __init__(self, objective_id: str) -> None:
+        self.objective_id = objective_id
+        super().__init__(f"Objective with ID '{objective_id}' was not found.")
+
+
+class ObjectiveValidationError(DomainError):
+    """Raised when objective data fails domain validation."""
+
+    pass
+
+
+class PlanValidationError(DomainError):
+    """Raised when plan structure or validation fails."""
+
+    pass
+
+
+class AssignmentError(DomainError):
+    """Raised when work item assignment or reassignment fails."""
+
+    pass
+
+
+class EscalationError(DomainError):
+    """Raised when work escalation fails."""
+
+    pass
+
