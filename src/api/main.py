@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.routes.agents import router as agents_router
+from src.api.routes.communication import router as communication_router
 from src.api.routes.employees import router as employees_router
 from src.api.routes.objectives import router as objectives_router
 from src.api.routes.runs import router as runs_router
@@ -34,10 +35,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
-        "Agent Runtime, Employee Framework, Manager Orchestration & Task Engine - "
-        "Autonomous AI Organization Platform (Phase 1, 2, 3 & 4)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine & Communication Protocol - "
+        "Autonomous AI Organization Platform (Phase 1, 2, 3, 4 & 5)"
     ),
-    version="0.4.0",
+    version="0.5.0",
     lifespan=lifespan,
 )
 
@@ -47,6 +48,7 @@ app.include_router(employees_router)
 app.include_router(objectives_router)
 app.include_router(runs_router)
 app.include_router(tasks_router)
+app.include_router(communication_router)
 
 
 @app.get("/health", tags=["System"])
