@@ -6,11 +6,16 @@ Follows the repository pattern to keep domain decoupled from persistence details
 from abc import ABC, abstractmethod
 
 from src.domain.agent import Agent
+from src.domain.assignment import Assignment
 from src.domain.checkpoint import AgentCheckpoint
+from src.domain.decision import ManagerDecision
 from src.domain.department import Department
 from src.domain.employee import Employee
+from src.domain.objective import Objective
+from src.domain.plan import Plan
 from src.domain.run import AgentRun
 from src.domain.step import ExecutionStep
+from src.domain.work_item import WorkItem
 
 
 class AgentRepositoryInterface(ABC):
@@ -139,4 +144,104 @@ class DepartmentRepositoryInterface(ABC):
     @abstractmethod
     async def list_all(self) -> list[Department]:
         """List all Department entities."""
+        pass
+
+
+class ObjectiveRepositoryInterface(ABC):
+    """Abstract interface for Objective persistence operations."""
+
+    @abstractmethod
+    async def save(self, objective: "Objective") -> "Objective":
+        """Save or update an Objective entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, objective_id: str) -> "Objective | None":
+        """Find an Objective by ID."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> "list[Objective]":
+        """List all Objective entities."""
+        pass
+
+    @abstractmethod
+    async def list_by_manager_id(self, manager_id: str) -> "list[Objective]":
+        """List Objectives assigned to a specific manager."""
+        pass
+
+
+class PlanRepositoryInterface(ABC):
+    """Abstract interface for Plan persistence operations."""
+
+    @abstractmethod
+    async def save(self, plan: "Plan") -> "Plan":
+        """Save or update a Plan entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, plan_id: str) -> "Plan | None":
+        """Find a Plan by ID."""
+        pass
+
+    @abstractmethod
+    async def get_by_objective_id(self, objective_id: str) -> "Plan | None":
+        """Find the Plan associated with an objective."""
+        pass
+
+
+class WorkItemRepositoryInterface(ABC):
+    """Abstract interface for WorkItem persistence operations."""
+
+    @abstractmethod
+    async def save(self, work_item: "WorkItem") -> "WorkItem":
+        """Save or update a WorkItem entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, work_item_id: str) -> "WorkItem | None":
+        """Find a WorkItem by ID."""
+        pass
+
+    @abstractmethod
+    async def list_by_plan_id(self, plan_id: str) -> "list[WorkItem]":
+        """List all WorkItems in a specific Plan."""
+        pass
+
+
+class AssignmentRepositoryInterface(ABC):
+    """Abstract interface for Assignment persistence operations."""
+
+    @abstractmethod
+    async def save(self, assignment: "Assignment") -> "Assignment":
+        """Save or update an Assignment entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, assignment_id: str) -> "Assignment | None":
+        """Find an Assignment by ID."""
+        pass
+
+    @abstractmethod
+    async def list_by_work_item_id(self, work_item_id: str) -> "list[Assignment]":
+        """List all historical Assignments for a work item."""
+        pass
+
+
+class DecisionRepositoryInterface(ABC):
+    """Abstract interface for ManagerDecision persistence operations."""
+
+    @abstractmethod
+    async def save(self, decision: "ManagerDecision") -> "ManagerDecision":
+        """Save or update a ManagerDecision entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, decision_id: str) -> "ManagerDecision | None":
+        """Find a ManagerDecision by ID."""
+        pass
+
+    @abstractmethod
+    async def list_by_objective_id(self, objective_id: str) -> "list[ManagerDecision]":
+        """List all decisions associated with an objective."""
         pass
