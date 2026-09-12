@@ -5,6 +5,7 @@ Integration tests for Task & Scheduler REST API endpoints using FastAPI TestClie
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from src.api.main import app
 from src.infrastructure.database import Base, get_db
@@ -20,42 +21,48 @@ from src.infrastructure.models.task_model import TaskModel  # noqa: F401
 from src.infrastructure.models.work_item_model import WorkItemModel  # noqa: F401
 
 
+test_engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+    echo=False,
+)
+Base.metadata.create_all(test_engine)
+TestSessionFactory = sessionmaker(bind=test_engine)
+test_session = TestSessionFactory()
+
+# Pre-populate dummy Objective and Plan
+obj = ObjectiveModel(
+    id="obj-1",
+    title="API Test Obj",
+    description="Desc",
+    requester="User",
+    status="APPROVED",
+    constraints_json=[],
+    metadata_json={},
+)
+plan = PlanModel(
+    id="plan-1",
+    objective_id="obj-1",
+    manager_id="mgr-1",
+    assumptions_json=[],
+    goals_json=[],
+    required_capabilities_json=[],
+    risks_json=[],
+    constraints_json=[],
+    status="APPROVED",
+    metadata_json={},
+)
+test_session.add(obj)
+test_session.add(plan)
+test_session.commit()
+
+
 def override_get_db():
-    engine = create_engine("sqlite:///:memory:", echo=False)
-    Base.metadata.create_all(engine)
-    session_factory = sessionmaker(bind=engine)
-    session = session_factory()
-
-    # Pre-populate dummy Objective and Plan
-    obj = ObjectiveModel(
-        id="obj-1",
-        title="API Test Obj",
-        description="Desc",
-        requester="User",
-        status="APPROVED",
-        constraints_json=[],
-        metadata_json={},
-    )
-    plan = PlanModel(
-        id="plan-1",
-        objective_id="obj-1",
-        manager_id="mgr-1",
-        assumptions_json=[],
-        goals_json=[],
-        required_capabilities_json=[],
-        risks_json=[],
-        constraints_json=[],
-        status="APPROVED",
-        metadata_json={},
-    )
-    session.add(obj)
-    session.add(plan)
-    session.commit()
-
     try:
-        yield session
+        yield test_session
     finally:
-        session.close()
+        pass
 
 
 app.dependency_overrides[get_db] = override_get_db
