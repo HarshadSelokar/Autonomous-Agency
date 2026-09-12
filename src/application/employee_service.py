@@ -60,13 +60,9 @@ class EmployeeService:
                 f"Referenced Agent '{employee.agent_id}' does not exist in AgentRepository."
             )
 
-        # 3. Verify Manager if assigned
+        # 3. Verify Manager if assigned and check for hierarchy cycles
         if employee.manager_id:
-            manager = await self.employee_repo.get_by_id(employee.manager_id)
-            if manager is None:
-                raise EmployeeValidationError(
-                    f"Referenced Manager '{employee.manager_id}' does not exist."
-                )
+            await self.validate_manager_hierarchy(employee.id, employee.manager_id)
 
         # 4. Verify Department if assigned
         if employee.department_id and self.department_repo is not None:
@@ -125,20 +121,43 @@ class EmployeeService:
 
         return saved
 
-    async def update_manager(
-        self, employee_id: str, manager_id: str | None
-    ) -> Employee:
-        """Update manager assignment for an employee."""
-        emp = await self.get_employee(employee_id)
-        if manager_id and manager_id == employee_id:
+    async def validate_manager_hierarchy(
+        self, employee_id: str, proposed_manager_id: str | None
+    ) -> None:
+        """
+        Validate that proposed_manager_id exists and does not create a
+        circular management hierarchy.
+        """
+        if not proposed_manager_id:
+            return
+
+        if proposed_manager_id == employee_id:
             raise EmployeeValidationError(
                 f"Employee '{employee_id}' cannot be assigned as their own manager."
             )
 
+        visited = {employee_id}
+        current_id: str | None = proposed_manager_id
+
+        while current_id:
+            if current_id in visited:
+                raise EmployeeValidationError(
+                    f"Circular manager hierarchy detected for employee '{employee_id}' "
+                    f"via manager '{current_id}'."
+                )
+            visited.add(current_id)
+            mgr = await self.employee_repo.get_by_id(current_id)
+            if mgr is None:
+                raise EmployeeValidationError(f"Referenced Manager '{current_id}' does not exist.")
+            current_id = mgr.manager_id
+
+    async def update_manager(
+        self, employee_id: str, manager_id: str | None
+    ) -> Employee:
+        """Update manager assignment for an employee with hierarchy cycle validation."""
+        emp = await self.get_employee(employee_id)
         if manager_id:
-            manager = await self.employee_repo.get_by_id(manager_id)
-            if manager is None:
-                raise EmployeeValidationError(f"Manager '{manager_id}' does not exist.")
+            await self.validate_manager_hierarchy(employee_id, manager_id)
 
         prev_manager_id = emp.manager_id
         emp.manager_id = manager_id

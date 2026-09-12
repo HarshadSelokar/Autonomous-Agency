@@ -38,6 +38,23 @@ class EmployeeStatus(str, Enum):
     TERMINATED = "TERMINATED"
 
 
+MANAGER_CAPABILITIES: set[str] = {
+    "objective_analysis",
+    "planning",
+    "task_decomposition",
+    "employee_selection",
+    "task_assignment",
+    "progress_monitoring",
+    "result_review",
+    "blocker_resolution",
+    "escalation",
+    "replanning",
+    "decision_making",
+    "people_management",
+    "project_management",
+}
+
+
 VALID_EMPLOYEE_TRANSITIONS: dict[EmployeeStatus, set[EmployeeStatus]] = {
     EmployeeStatus.INACTIVE: {EmployeeStatus.ACTIVE, EmployeeStatus.TERMINATED},
     EmployeeStatus.ACTIVE: {
@@ -121,3 +138,31 @@ class Employee:
     def is_executable(self) -> bool:
         """Check if employee is in an active state allowed to execute work."""
         return self.status == EmployeeStatus.ACTIVE
+
+    def possesses_capability(self, capability_name: str) -> bool:
+        """Check if employee possesses a specific capability or skill."""
+        cap_lower = capability_name.lower()
+        has_cap = any(c.name.lower() == cap_lower for c in self.capabilities)
+        has_skill = any(s.name.lower() == cap_lower for s in self.skills)
+        return has_cap or has_skill
+
+    def is_manager(self) -> bool:
+        """
+        Check if employee has managerial authority based on role, title, or manager capabilities.
+        """
+        role_title = f"{self.role} {self.title}".lower()
+        mgr_keywords = {
+            "manager",
+            "director",
+            "head",
+            "lead",
+            "chief",
+            "cto",
+            "ceo",
+            "cpo",
+            "vp",
+        }
+        if any(k in role_title for k in mgr_keywords):
+            return True
+
+        return any(c.name.lower() in MANAGER_CAPABILITIES for c in self.capabilities)
