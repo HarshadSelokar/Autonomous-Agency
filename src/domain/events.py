@@ -249,3 +249,59 @@ class TaskRetryScheduledEvent(DomainEvent):
     task_id: str = ""
     retry_count: int = 0
     max_retries: int = 3
+
+
+# Phase 5 Communication Domain Events
+@dataclass(frozen=True)
+class ConversationCreatedEvent(DomainEvent):
+    conversation_id: str = ""
+    conversation_type: str = ""
+    created_by_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class ConversationParticipantAddedEvent(DomainEvent):
+    conversation_id: str = ""
+    participant_id: str = ""
+    participant_type: str = "employee"
+
+
+@dataclass(frozen=True)
+class ConversationParticipantRemovedEvent(DomainEvent):
+    conversation_id: str = ""
+    participant_id: str = ""
+
+
+@dataclass(frozen=True)
+class MessageCreatedEvent(DomainEvent):
+    message_id: str = ""
+    conversation_id: str = ""
+    sender_employee_id: str = ""
+    message_type: str = ""
+
+
+@dataclass(frozen=True)
+class MessageDeliveredEvent(DomainEvent):
+    message_id: str = ""
+    conversation_id: str = ""
+    delivered_to_employee_ids: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class MessageReadEvent(DomainEvent):
+    message_id: str = ""
+    read_by_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class MessageAcknowledgedEvent(DomainEvent):
+    message_id: str = ""
+    acknowledged_by_employee_id: str = ""
+    timestamp: str = ""
+
+
+@dataclass(frozen=True)
+class MessageDeliveryFailedEvent(DomainEvent):
+    message_id: str = ""
+    recipient_employee_id: str = ""
+    reason: str = ""
