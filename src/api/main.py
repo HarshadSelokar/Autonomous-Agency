@@ -9,6 +9,7 @@ from fastapi import FastAPI
 
 from src.api.routes.agents import router as agents_router
 from src.api.routes.employees import router as employees_router
+from src.api.routes.objectives import router as objectives_router
 from src.api.routes.runs import router as runs_router
 from src.application.provider_registry import default_provider_registry
 from src.infrastructure.config import settings
@@ -32,15 +33,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
-        "Agent Runtime & Employee Framework - Autonomous AI Organization Platform (Phase 1 & 2)"
+        "Agent Runtime, Employee & Manager Framework - "
+        "Autonomous AI Organization Platform (Phase 1, 2 & 3)"
     ),
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
 # Include Routers
 app.include_router(agents_router)
 app.include_router(employees_router)
+app.include_router(objectives_router)
 app.include_router(runs_router)
 
 
