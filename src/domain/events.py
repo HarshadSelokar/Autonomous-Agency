@@ -144,3 +144,108 @@ class ManagerDecisionCreatedEvent(DomainEvent):
 class ObjectiveCompletedEvent(DomainEvent):
     objective_id: str = ""
     manager_id: str | None = None
+
+
+# Phase 4 Task Engine Events
+@dataclass(frozen=True)
+class TaskCreatedEvent(DomainEvent):
+    task_id: str = ""
+    plan_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class TaskStatusChangedEvent(DomainEvent):
+    task_id: str = ""
+    previous_status: str = ""
+    new_status: str = ""
+    reason: str | None = None
+
+
+@dataclass(frozen=True)
+class TaskDependencyAddedEvent(DomainEvent):
+    dependency_id: str = ""
+    predecessor_task_id: str = ""
+    successor_task_id: str = ""
+    dependency_type: str = "BLOCKING"
+
+
+@dataclass(frozen=True)
+class TaskDependencyRemovedEvent(DomainEvent):
+    dependency_id: str = ""
+    predecessor_task_id: str = ""
+    successor_task_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskBlockedEvent(DomainEvent):
+    task_id: str = ""
+    block_reasons: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class TaskReadyEvent(DomainEvent):
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskAssignedEvent(DomainEvent):
+    task_id: str = ""
+    employee_id: str = ""
+    assignment_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskExecutionStartedEvent(DomainEvent):
+    task_id: str = ""
+    employee_id: str = ""
+    execution_run_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskExecutionFailedEvent(DomainEvent):
+    task_id: str = ""
+    execution_run_id: str = ""
+    error: str = ""
+
+
+@dataclass(frozen=True)
+class TaskReviewRequestedEvent(DomainEvent):
+    task_id: str = ""
+    execution_run_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskReworkRequestedEvent(DomainEvent):
+    task_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TaskApprovedEvent(DomainEvent):
+    task_id: str = ""
+    approved_by: str = ""
+
+
+@dataclass(frozen=True)
+class TaskCompletedEvent(DomainEvent):
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class TaskFailedEvent(DomainEvent):
+    task_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TaskCancelledEvent(DomainEvent):
+    task_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TaskRetryScheduledEvent(DomainEvent):
+    task_id: str = ""
+    retry_count: int = 0
+    max_retries: int = 3
