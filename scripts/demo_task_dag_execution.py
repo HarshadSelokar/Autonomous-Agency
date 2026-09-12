@@ -13,6 +13,7 @@ T3 (Backend)  T4 (Frontend)
 """
 
 import asyncio
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -170,9 +171,8 @@ async def run_dag_demo() -> None:
     print("\nInitial Graph State:")
     all_tasks = task_repo.get_by_plan_id(plan_id)
     for t in all_tasks:
-        print(
-            f"  Task {t.id} ({t.title}): status={t.status.value}, block_reasons={[r.value for r in t.block_reasons]}"
-        )
+        reasons = [r.value for r in t.block_reasons]
+        print(f"  Task {t.id} ({t.title}): status={t.status.value}, block_reasons={reasons}")
 
     # Evaluate readiness
     graph = graph_service.build_graph_for_plan(plan_id)
@@ -200,7 +200,8 @@ async def run_dag_demo() -> None:
             executed = await scheduler_service.schedule_next_task(plan_id=plan_id)
             if executed:
                 print(
-                    f"  Executed Task {executed.id}: status={executed.status.value}, run_id={executed.execution_run_id}"
+                    f"  Executed Task {executed.id}: status={executed.status.value}, "
+                    f"run_id={executed.execution_run_id}"
                 )
                 # Review and approve task
                 if executed.status == TaskStatus.REVIEW:

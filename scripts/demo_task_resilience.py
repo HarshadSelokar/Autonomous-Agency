@@ -10,12 +10,12 @@ Demonstrates:
 """
 
 import asyncio
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from src.application.dependency_graph_service import DependencyGraphService
-from src.application.readiness_evaluator import ReadinessEvaluator
 from src.application.task_claim_service import TaskClaimService
 from src.application.task_execution_service import TaskExecutionService
 from src.application.task_lifecycle_service import TaskLifecycleService
@@ -90,7 +90,6 @@ async def run_resilience_demo() -> None:
     claim_service = TaskClaimService(task_repo)
     exec_service = TaskExecutionService(task_repo)
     lifecycle_service = TaskLifecycleService(task_repo, graph_service)
-    evaluator = ReadinessEvaluator()
 
     plan_id = "plan-resilience"
 
@@ -171,9 +170,8 @@ async def run_resilience_demo() -> None:
     session.commit()
 
     t2_updated = task_repo.get_by_id("T2")
-    print(
-        f"  Task T2 status after T1 failure: status={t2_updated.status.value}, reasons={[r.value for r in t2_updated.block_reasons]}"
-    )
+    reasons_list = [r.value for r in t2_updated.block_reasons]
+    print(f"  Task T2 status: status={t2_updated.status.value}, reasons={reasons_list}")
     assert t2_updated.status == TaskStatus.BLOCKED
 
     # Demo 6: Review -> Rework -> Review -> Approved Lifecycle Flow
@@ -197,9 +195,8 @@ async def run_resilience_demo() -> None:
     reworked = await lifecycle_service.review_task(
         "T-DEMO", approved=False, reviewer_id="mgr-1", feedback="Add exception handling"
     )
-    print(
-        f"  Reviewed (Rejected) status: {reworked.status.value}, feedback='{reworked.metadata['rework_history'][0]['feedback']}'"
-    )
+    fb = reworked.metadata["rework_history"][0]["feedback"]
+    print(f"  Reviewed (Rejected) status: {reworked.status.value}, feedback='{fb}'")
 
     # Re-execute after rework
     re_executed = await exec_service.execute_task(
