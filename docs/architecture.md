@@ -1,99 +1,70 @@
-# Agent Runtime Foundation Architecture (Phase 1)
+# Autonomous AI Organization Platform Architecture
 
-## Overview
+## Core Architectural Principle
 
-The **Agent Runtime Foundation** forms the core execution environment of the Autonomous AI Organization Platform. It enforces the fundamental architectural principle:
+$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM}$$
 
-> **THE LLM IS NOT THE AGENT.**
-> An LLM is a model provider capability used by the Agent Runtime. The authoritative state and organizational truth belong strictly to the Agent Runtime and Company OS.
+1. **Employee**: Represents organizational identity, corporate role, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
+2. **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`). An Employee delegates work to an Agent.
+3. **LLM**: A model provider capability (e.g. Groq `llama-3.3-70b-versatile`) invoked by the Agent Runtime engine. The authoritative state and organizational truth belong strictly to the Agent Runtime and Company OS.
 
 ---
 
-## Architectural Boundary
+## System Architectural Boundary (Phase 1 & Phase 2)
 
 ```mermaid
 graph TD
-    Client["Client / API Caller"] --> API["API Layer (FastAPI)"]
-    API --> App["Application Layer"]
-    App --> Engine["AgentExecutionEngine"]
-    Engine --> Agent["Agent Entity & State Machine"]
-    Engine --> Run["AgentRun Lifecycle"]
-    Engine --> Context["ContextBuilder"]
+    Client["Client / REST Caller"] --> API["FastAPI Routes (/employees, /agents, /runs)"]
+    API --> Service["EmployeeService (Application Layer)"]
+    Service --> EmpRepo["EmployeeRepository (PostgreSQL/SQLite)"]
+    Service --> DeptRepo["DepartmentRepository (PostgreSQL/SQLite)"]
+    Service --> EventDisp["EventDispatcher (Domain Events)"]
+    Service --> Engine["AgentExecutionEngine (Phase 1 Runtime)"]
+    Engine --> AgentRepo["AgentRepository"]
+    Engine --> Context["ContextBuilder (Org Profile + Run Objective)"]
     Engine --> Reg["ModelProviderRegistry"]
-    Reg --> Groq["GroqModelProvider (Infrastructure)"]
+    Reg --> Groq["GroqModelProvider (Groq API)"]
     Reg --> Fake["FakeModelProvider (Offline Testing)"]
-    Groq --> GroqAPI["Groq SDK / API"]
-    Engine --> Persistence["Persistence Layer (SQLAlchemy 2.0 Async)"]
-    Persistence --> Postgres["PostgreSQL / Asyncpg / SQLite"]
 ```
 
 ---
 
-## Execution Sequence
+## Phase 2 Component Specifications
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client
-    participant API as API Layer (FastAPI)
-    participant Engine as AgentExecutionEngine
-    participant Repo as Agent & Run Repositories
-    participant Context as ContextBuilder
-    participant Registry as ModelProviderRegistry
-    participant Groq as GroqModelProvider
-    participant LLM as Groq API
-    participant Val as StructuredOutputValidator
+### 1. Employee Domain Entity & Lifecycle State Machine
+- **Identity**: `id` (UUID/slug), `employee_code` (e.g. `EMP-001`), `name`, `title`, `role`, `agent_id`, `department_id`, `manager_id`.
+- **Skills & Capabilities**: `EmployeeSkill(name, category, proficiency)`, `EmployeeCapability(name, description)`.
+- **Lifecycle States**:
+  - `INACTIVE`: Newly onboarded; cannot execute work.
+  - `ACTIVE`: Fully operational; authorized to execute work.
+  - `ON_LEAVE`: Temporarily unavailable; execution blocked.
+  - `SUSPENDED`: Temporarily halted by governance; execution blocked.
+  - `TERMINATED`: Offboarded terminal state; cannot transition to any active state.
+- **State Machine Guardrails**: Validated by `VALID_EMPLOYEE_TRANSITIONS` and `emp.is_executable()`. Self-manager assignment forbidden (`manager_id != id`).
 
-    Client->>API: POST /agents/{agent_id}/runs (Objective)
-    API->>Engine: execute_run(agent_id, objective)
-    Engine->>Repo: Load Agent & Validate State (IDLE -> READY -> RUNNING)
-    Engine->>Repo: Create AgentRun (status = CREATED -> INITIALIZING)
-    Engine->>Context: build(agent, objective)
-    Context-->>Engine: AgentExecutionContext (list of ChatMessages)
-    Engine->>Registry: get(provider_name="groq")
-    Registry-->>Engine: GroqModelProvider instance
-    Engine->>Groq: generate(ModelRequest)
-    Groq->>LLM: chat.completions.create()
-    LLM-->>Groq: Raw Completion & Usage Tokens
-    Groq-->>Engine: Normalized ModelResponse
-    Engine->>Val: validate(content, schema)
-    Val-->>Engine: Validated Output Dict
-    Engine->>Repo: Save Execution Steps, Usage & Checkpoint
-    Engine->>Repo: Transition AgentRun to COMPLETED
-    Engine->>Repo: Transition Agent to READY
-    Engine-->>API: AgentRun Result
-    API-->>Client: HTTP 201 Created (RunResponse DTO)
-```
+### 2. Employee Application Service (`EmployeeService`)
+- Integrates Employee management with Phase 1 `AgentExecutionEngine`.
+- Constructs rich organizational context (`ContextItem` priority 2) containing title, role, skills, capabilities, and responsibilities, passing it into `AgentExecutionEngine.execute_run(...)`.
+- Enforces active status guardrail before delegating to `AgentExecutionEngine`.
 
----
+### 3. Department Entity & Repositories
+- `Department`: `id`, `code`, `name`, `description`, `manager_id`, `parent_department_id`.
+- Repositories: `SQLAlchemyEmployeeRepository` and `SQLAlchemyDepartmentRepository`.
 
-## Component Specifications
+### 4. YAML Configuration Loaders
+- `load_employee_from_yaml`: Parses employee definition files (`config/employees/*.yaml`), expanding nested skills, capabilities, and responsibilities into domain entities.
 
-### 1. Agent Domain Entity & State Machine
-- **Identity**: Stable string ID (e.g. `employee_001`).
-- **State Machine**: `IDLE` → `READY` → `RUNNING` → `WAITING` | `BLOCKED` → `COMPLETED` | `FAILED` | `CANCELLED`. Validated by `VALID_AGENT_TRANSITIONS`.
+### 5. Domain Events & Event Dispatcher
+- Events: `EmployeeCreatedEvent`, `EmployeeStatusChangedEvent`, `EmployeeManagerAssignedEvent`, `EmployeeDepartmentAssignedEvent`, `EmployeeWorkExecutedEvent`.
+- `EventDispatcher`: In-memory async pub/sub dispatcher for domain event subscribers.
 
-### 2. AgentRun & Execution Steps
-- **AgentRun Statuses**: `CREATED` → `INITIALIZING` → `RUNNING` → `WAITING` → `COMPLETED` | `FAILED` | `CANCELLED`.
-- **Execution Steps**:
-  1. `INITIALIZE`: Validates agent state and creates execution scope.
-  2. `BUILD_CONTEXT`: Assembles identity, role instructions, constraints, and reference data.
-  3. `MODEL_CALL`: Resolves model provider and executes LLM generation.
-  4. `VALIDATE_RESPONSE`: Validates response string against expected Pydantic or JSON schemas.
-  5. `FINALIZE`: Persists execution result, updates token usage, and resets agent state.
-
-### 3. Model Provider Abstraction & Groq Provider
-- **Interface**: `ModelProviderInterface.generate(request: ModelRequest) -> ModelResponse`.
-- **Groq Integration**: `GroqModelProvider` located in `src/infrastructure/providers/groq_provider.py`. Uses `groq.AsyncGroq` SDK, configured via `GROQ_API_KEY` and `GROQ_MODEL`.
-- **Response Normalization**: All responses return standardized `ModelResponse` with `UsageInfo(input_tokens, output_tokens, total_tokens)`.
-
-### 4. Resilient Error Handling & Retry Policy
-- **Transient Errors (Retryable)**: `TimeoutError`, `RateLimitError`, `ProviderUnavailableError`. Executed with bounded exponential backoff via `RetryPolicy`.
-- **Non-Retryable Errors**: `AuthenticationError`, `CancellationError`, `ConfigurationError`, `StructuredOutputValidationError`. Fails immediately with clear diagnostic exception.
-
-### 5. Checkpointing & Cancellation
-- **Checkpointing**: Every step persists state snapshot via `AgentCheckpoint` into `agent_checkpoints` table.
-- **Cancellation**: Safely cancels in-flight runs via `cancel_run(run_id)`, updating `AgentRun` to `CANCELLED` and resetting `Agent` to `READY`.
+### 6. REST API Endpoints (`src/api/routes/employees.py`)
+- `POST /employees`: Register employee.
+- `GET /employees/{id}`: Retrieve employee details.
+- `GET /employees`: List all employees.
+- `PATCH /employees/{id}`: Update manager or department assignment.
+- `POST /employees/{id}/status`: Transition employee lifecycle state.
+- `POST /employees/{id}/runs`: Trigger organizational work execution.
 
 ---
 
@@ -109,13 +80,19 @@ pytest
 pytest tests/failure_injection
 ```
 
-### 3. Running Phase 1 Demonstration Scripts
+### 3. Running Phase 1 & Phase 2 Demonstration Scripts
 ```bash
-# End-to-end Research Agent demo
+# Phase 1: End-to-end Research Agent demo
 python scripts/demo_research_agent.py
 
-# Resilience & failure recovery demo
+# Phase 1: Resilience & failure recovery demo
 python scripts/demo_failure_recovery.py
+
+# Phase 2: Employee Framework execution demo
+python scripts/demo_employee_execution.py
+
+# Phase 2: Employee governance & resilience demo
+python scripts/demo_employee_resilience.py
 ```
 
 ### 4. Running the API Server
