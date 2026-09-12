@@ -1,59 +1,85 @@
-# Autonomous AI Organization Platform — Phase 1 & Phase 2
+# Autonomous AI Organization Platform — Phase 1, Phase 2 & Phase 3
 
-This repository implements the **Agent Runtime Foundation (Phase 1)** and **Employee Framework (Phase 2)** for the Autonomous AI Organization Platform.
+This repository implements **Phase 1 (Agent Runtime Foundation)**, **Phase 2 (Employee Framework)**, and **Phase 3 (Manager & Organizational Orchestration)** for the Autonomous AI Organization Platform.
 
 ## Core Architectural Principle
 
 $$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM}$$
 
-- **Employee**: Represents organizational identity, title, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
+- **Employee**: Represents organizational identity, corporate title, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
 - **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`).
 - **LLM**: Model provider capability (e.g. Groq `llama-3.3-70b-versatile`) invoked by the Agent Runtime engine.
 
 ---
 
-## Architectural Boundary
+## Organizational Chain of Command
 
-```
-Company OS  →  Employee Framework  →  Agent Runtime  →  Model Provider Interface  →  GroqModelProvider
-```
+$$\text{Objective} \rightarrow \text{Plan} \rightarrow \text{WorkItem} \rightarrow \text{Assignment} \rightarrow \text{Employee} \rightarrow \text{AgentRun}$$
 
-- **The LLM is NOT the Agent**: An LLM is only a provider used by the runtime.
-- **Authoritative State**: Owned by the Agent Runtime & Company OS, never directly by the LLM.
-- **Provider Independence**: Pure domain & application layers decoupled from Groq or any specific LLM provider.
+1. **Objective**: High-level corporate objective received from stakeholders.
+2. **Plan**: Strategic decomposition proposed by a Manager employee.
+3. **WorkItem**: Atomically scoped task unit requiring specific capabilities.
+4. **Assignment**: Match allocation connecting WorkItem to an active Employee.
+5. **Employee Execution**: Work delegated to the Employee's underlying Agent via Phase 1 `AgentExecutionEngine`.
 
 ---
 
 ## Quick Start & Running Demonstrations
 
-### 1. Run All Tests (90 Unit, Integration & Failure-Injection Tests)
+### 1. Run Full Test Suite (141 Unit, Integration & Failure-Injection Tests)
 ```bash
 pytest
 ```
 
-### 2. Run Phase 2 Demonstration Scripts
+### 2. Run Phase 3 Demonstration Scripts
 ```bash
-# Employee Framework execution & organizational context delegation
-python scripts/demo_employee_execution.py
+# Phase 3: Manager goal decomposition, capability allocation & blocker resolution demo
+python scripts/demo_manager_orchestration.py
 
-# Employee governance, state machine & guardrails resilience demo
-python scripts/demo_employee_resilience.py
+# Phase 3: Hierarchy cycle detection, plan validation & guardrails resilience demo
+python scripts/demo_manager_resilience.py
 ```
 
-### 3. Run FastAPI REST API Server
+### 3. Run Phase 1 & Phase 2 Demonstration Scripts
+```bash
+python scripts/demo_employee_execution.py
+python scripts/demo_employee_resilience.py
+python scripts/demo_research_agent.py
+python scripts/demo_failure_recovery.py
+```
+
+### 4. Run FastAPI REST API Server
 ```bash
 uvicorn src.api.main:app --reload --port 8000
 ```
 
 ---
 
-## Directory Structure
+## Key API Endpoints
 
-- `src/domain/`: Pure domain entities (`Employee`, `Department`, `Agent`, `AgentRun`, `ExecutionStep`), lifecycle state machines, domain events, exceptions, interfaces.
-- `src/application/`: `EmployeeService`, `AgentExecutionEngine`, `EmployeeLoader`, `AgentLoader`, `EventDispatcher`, context builder, retry logic, structured output validator.
-- `src/infrastructure/`: Groq SDK integration (`GroqModelProvider`), Fake provider, PostgreSQL/SQLite ORM repositories (`SQLAlchemyEmployeeRepository`, `SQLAlchemyDepartmentRepository`, `SQLAlchemyAgentRepository`), Alembic migrations.
-- `src/api/`: FastAPI REST endpoints (`/employees`, `/agents`, `/runs`), Pydantic request/response DTO schemas.
-- `config/`: Configuration-driven YAML definitions for Agents (`config/agents/`) and Employees (`config/employees/`).
-- `tests/`: Unit, integration, and failure injection test suites.
-- `scripts/`: Phase 1 and Phase 2 demonstration scripts.
-- `docs/`: System architecture specification and Mermaid sequence diagrams.
+| Category | Endpoint | Method | Description |
+| :--- | :--- | :--- | :--- |
+| **Objectives** | `/objectives` | `POST` | Create new organizational objective |
+| **Objectives** | `/objectives/{id}` | `GET` | Retrieve objective status and associated plan |
+| **Clarification** | `/objectives/{id}/clarification/request` | `POST` | Request ambiguity clarification questions |
+| **Clarification** | `/objectives/{id}/clarification/provide` | `POST` | Provide clarification answers |
+| **Planning** | `/objectives/{id}/plans` | `POST` | Manager submits proposed decomposition plan |
+| **Planning** | `/objectives/plans/{plan_id}/approve` | `POST` | Manager approves proposed plan |
+| **Work Items** | `/objectives/work-items/{id}/assign` | `POST` | Allocate work item to eligible employee |
+| **Work Items** | `/objectives/work-items/{id}/blocker` | `POST` | Log work item blocker escalation |
+| **Work Items** | `/objectives/work-items/{id}/reassign` | `POST` | Manager reassigns blocked work item |
+| **Employees** | `/employees` | `POST` | Onboard new corporate employee |
+| **Employees** | `/employees/{id}/status` | `POST` | Transition employee lifecycle state |
+| **Employees** | `/employees/{id}/runs` | `POST` | Execute organizational work via Agent Runtime |
+
+---
+
+## Project Structure
+
+- `src/domain/`: Pure domain entities (`Objective`, `Plan`, `WorkItem`, `Assignment`, `ManagerDecision`, `Employee`, `Department`, `Agent`), lifecycle state machines, domain events, exceptions, interfaces.
+- `src/application/`: `ManagerOrchestrationService`, `PlanValidator`, `EmployeeSelector`, `EmployeeService`, `AgentExecutionEngine`, `EventDispatcher`.
+- `src/infrastructure/`: Groq SDK provider (`GroqModelProvider`), Fake provider, PostgreSQL/SQLite ORM models and repositories (`SQLAlchemyObjectiveRepository`, `SQLAlchemyPlanRepository`, `SQLAlchemyWorkItemRepository`, `SQLAlchemyAssignmentRepository`, `SQLAlchemyDecisionRepository`, `SQLAlchemyEmployeeRepository`, `SQLAlchemyAgentRepository`), Alembic migrations (`006_create_phase3_tables.py`).
+- `src/api/`: FastAPI REST endpoints (`/objectives`, `/employees`, `/agents`, `/runs`), Pydantic DTO schemas.
+- `tests/`: Unit, integration, and failure injection test suites (`test_manager_failure_injection.py`).
+- `scripts/`: End-to-end demonstration scripts for Phase 1, Phase 2, and Phase 3.
+- `docs/`: Architecture specifications and Mermaid sequence diagrams (`docs/architecture.md`).
