@@ -70,3 +70,40 @@ def test_task_invalid_state_transition() -> None:
     task = Task(id="t1", plan_id="p1", title="T", description="D")
     with pytest.raises(InvalidStateTransitionError):
         task.transition_to(TaskStatus.COMPLETED)
+
+
+def test_task_self_parenting_rejected() -> None:
+    with pytest.raises(TaskValidationError, match="cannot be its own parent"):
+        Task(id="t1", plan_id="p1", parent_task_id="t1", title="T", description="D")
+
+    task = Task(id="t1", plan_id="p1", title="T", description="D")
+    with pytest.raises(TaskValidationError, match="cannot be set as its own parent"):
+        task.set_parent("t1")
+
+
+def test_task_circular_parent_hierarchy_rejected() -> None:
+    t1 = Task(id="t1", plan_id="p1", title="T1", description="D1")
+    t2 = Task(id="t2", plan_id="p1", parent_task_id="t1", title="T2", description="D2")
+    t3 = Task(id="t3", plan_id="p1", parent_task_id="t2", title="T3", description="D3")
+
+    task_map = {"t1": t1, "t2": t2, "t3": t3}
+
+    # Attempting to make t1 child of t3 creates cycle t1 -> t3 -> t2 -> t1
+    with pytest.raises(TaskValidationError, match="circular parent-child hierarchy"):
+        t1.set_parent("t3", task_map=task_map)
+
+
+def test_task_valid_parent_hierarchy() -> None:
+    parent = Task(id="parent-1", plan_id="p1", title="Parent Task", description="Parent Desc")
+    child = Task(
+        id="child-1",
+        plan_id="p1",
+        parent_task_id="parent-1",
+        title="Child Task",
+        description="Child Desc",
+    )
+
+    assert child.parent_task_id == "parent-1"
+    task_map = {"parent-1": parent, "child-1": child}
+    child.set_parent(None, task_map=task_map)
+    assert child.parent_task_id is None

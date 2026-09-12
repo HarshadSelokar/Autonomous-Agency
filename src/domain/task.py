@@ -103,10 +103,31 @@ class Task:
             raise TaskValidationError(
                 f"Invalid priority '{self.priority}'. Must be low, medium, high, or critical."
             )
+        if self.parent_task_id == self.id:
+            raise TaskValidationError(f"Task '{self.id}' cannot be its own parent.")
         if self.retry_count < 0:
             raise TaskValidationError("retry_count cannot be negative.")
         if self.max_retries < 0:
             raise TaskValidationError("max_retries cannot be negative.")
+
+    def set_parent(self, parent_id: str | None, task_map: dict[str, "Task"] | None = None) -> None:
+        if parent_id == self.id:
+            raise TaskValidationError(f"Task '{self.id}' cannot be set as its own parent.")
+        if parent_id and task_map:
+            visited = {self.id}
+            current_id: str | None = parent_id
+            while current_id:
+                if current_id in visited:
+                    raise TaskValidationError(
+                        f"Setting parent '{parent_id}' creates a circular parent-child "
+                        f"hierarchy for task '{self.id}'."
+                    )
+                visited.add(current_id)
+                parent_task = task_map.get(current_id)
+                current_id = parent_task.parent_task_id if parent_task else None
+
+        self.parent_task_id = parent_id
+        self.updated_at = datetime.now(UTC)
 
     def can_transition_to(self, target_status: TaskStatus) -> bool:
         allowed = VALID_TRANSITIONS.get(self.status, set())
