@@ -35,48 +35,37 @@ graph TD
 
 ---
 
-## Phase 3 Chain of Command Flow
+---
 
-$$\text{Objective} \rightarrow \text{Plan} \rightarrow \text{WorkItem} \rightarrow \text{Assignment} \rightarrow \text{Employee} \rightarrow \text{AgentRun}$$
+## Phase 4 Chain of Command Flow
+
+$$\text{Objective} \rightarrow \text{Plan} \rightarrow \text{Task Graph} \rightarrow \text{Readiness Evaluator} \rightarrow \text{READY Tasks} \rightarrow \text{Scheduler} \rightarrow \text{Assignment} \rightarrow \text{Employee} \rightarrow \text{AgentRun} \rightarrow \text{Review}$$
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant CEO as Corporate Requester
     participant Mgr as Manager (Employee)
-    participant Service as ManagerOrchestrationService
-    participant Validator as PlanValidator
-    participant Selector as EmployeeSelector
+    participant Engine as Task Engine (DAG)
+    participant Scheduler as TaskSchedulerService
     participant Emp as Assigned Employee
-    participant Engine as AgentExecutionEngine
+    participant Runtime as Agent Runtime
 
-    CEO->>Service: create_objective(title, description, constraints)
-    Service-->>CEO: Objective (RECEIVED)
+    CEO->>Engine: create_objective & plan (Task Graph)
+    Engine->>Engine: validate_dependencies (Cycle Check)
+    Engine->>Engine: evaluate_readiness (Identify READY tasks)
     
-    opt Ambiguity Clarification
-        Mgr->>Service: request_clarification(questions)
-        Service-->>Mgr: Objective (CLARIFICATION_REQUIRED)
-        CEO->>Service: provide_clarification(answers)
-        Service-->>CEO: Objective (READY_FOR_PLANNING)
+    loop Deterministic Scheduling Pass
+        Scheduler->>Engine: discover_ready_tasks()
+        Scheduler->>Engine: claim_task(task_id, worker_id) [Atomic Lock]
+        Scheduler->>Emp: assign_task & execute
+        Emp->>Runtime: execute_work()
+        Runtime-->>Engine: AgentRun Result
+        Engine->>Engine: transition Task to REVIEW (False Completion Prevention)
+        Mgr->>Engine: review_task(approved=True)
+        Engine->>Engine: transition Task to COMPLETED
+        Engine->>Engine: propagate_task_state_change (Unlock Downstream Successors)
     end
-
-    Mgr->>Service: submit_and_validate_plan(Plan with WorkItems)
-    Service->>Validator: validate_proposed_plan(Plan)
-    Validator-->>Service: Validated Plan
-    Service-->>Mgr: Plan (PROPOSED) / Objective (PLANNED)
-
-    Mgr->>Service: approve_plan(plan_id)
-    Service-->>Mgr: Plan (APPROVED) / Objective (EXECUTING)
-
-    loop Work Item Distribution
-        Service->>Selector: find_eligible_employees(candidates, required_capabilities)
-        Selector-->>Service: Eligible Active Employee
-        Service->>Service: assign_work_item(work_item_id, employee_id)
-        Service->>Engine: execute_work(employee_id, work_item_objective)
-        Engine-->>Service: AgentRun (COMPLETED)
-    end
-
-    Service-->>CEO: Objective (COMPLETED)
 ```
 
 ---
