@@ -129,7 +129,7 @@ class MemoryService:
             # Requires managerial / lead authority role or decision provenance
             actual_role = (actor.role or "").lower()
             actual_title = (actor.title or "").lower()
-            is_authorized = "manager" in actual_role or "manager" in actual_title or "lead" in actual_role or actor.is_manager if hasattr(actor, "is_manager") else "manager" in actual_role
+            is_authorized = actor.is_manager() if callable(getattr(actor, "is_manager", None)) else ("manager" in actual_role or "manager" in actual_title or "lead" in actual_role)
             if not is_authorized and memory.provenance != MemoryProvenance.DECISION:
                 raise UnauthorizedMemoryPromotionError(
                     f"Employee '{actor.name}' ({actor_employee_id}) lacks authority to promote memory {memory_id} to AUTHORITATIVE."

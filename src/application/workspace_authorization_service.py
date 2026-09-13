@@ -13,6 +13,23 @@ class WorkspaceAccessDeniedError(WorkspaceValidationError):
 
 
 class WorkspaceAuthorizationService:
+    def __init__(self, workspace_repo=None) -> None:
+        self.workspace_repo = workspace_repo
+
+    async def validate_task_workspace_access(
+        self,
+        workspace_id: str,
+        current_task_id: str,
+        actor_employee_id: str,
+    ) -> Workspace:
+        if not self.workspace_repo:
+            raise ValueError("workspace_repo must be provided to fetch workspace by ID.")
+        ws = await self.workspace_repo.get_by_id(workspace_id)
+        if not ws:
+            raise WorkspaceAccessDeniedError(f"Workspace '{workspace_id}' not found.")
+        self.validate_access(ws, actor_employee_id=actor_employee_id, current_task_id=current_task_id)
+        return ws
+
     def validate_access(
         self,
         workspace: Workspace,

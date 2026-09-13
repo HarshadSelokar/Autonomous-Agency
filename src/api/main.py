@@ -8,13 +8,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.routes.agents import router as agents_router
+from src.api.routes.artifacts import router as artifacts_router
 from src.api.routes.communication import router as communication_router
 from src.api.routes.decisions import router as decisions_router
 from src.api.routes.employees import router as employees_router
 from src.api.routes.meetings import router as meetings_router
+from src.api.routes.memories import router as memories_router
 from src.api.routes.objectives import router as objectives_router
 from src.api.routes.runs import router as runs_router
 from src.api.routes.tasks import router as tasks_router
+from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
 from src.infrastructure.config import settings
 from src.infrastructure.logging_config import configure_logging
@@ -34,10 +37,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication & Meetings/Decisions "
-        "(Phase 1 - Phase 6)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings & Memory/Workspace "
+        "(Phase 1 - Phase 7)"
     ),
-    version="0.6.0",
+    version="0.7.0",
     lifespan=lifespan,
 )
 
@@ -50,6 +53,10 @@ app.include_router(tasks_router)
 app.include_router(communication_router)
 app.include_router(meetings_router)
 app.include_router(decisions_router)
+app.include_router(memories_router)
+app.include_router(workspaces_router)
+app.include_router(artifacts_router)
+
 
 
 @app.get("/health", tags=["System"])

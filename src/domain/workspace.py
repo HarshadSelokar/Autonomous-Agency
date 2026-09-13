@@ -82,3 +82,15 @@ class Workspace:
 
         self.status = target_status
         self.updated_at = datetime.now(UTC)
+
+    def activate(self) -> None:
+        self.transition_to(WorkspaceStatus.ACTIVE)
+
+    def lock(self) -> None:
+        self.transition_to(WorkspaceStatus.LOCKED)
+
+    def archive(self) -> None:
+        self.transition_to(WorkspaceStatus.ARCHIVED)
+
+    def destroy(self) -> None:
+        self.transition_to(WorkspaceStatus.DESTROYED)
