@@ -144,16 +144,20 @@ pytest
 pytest tests/failure_injection
 ```
 
-### 3. Running Phase 5 Demonstration Scripts
+### 3. Running Demonstration Scripts
 ```bash
 # Phase 5: End-to-end communication protocol, blockers & outbox demo
 python -m scripts.demo_communication_protocol
 
 # Phase 5: Communication resilience, sender spoofing & Task Engine authority guards demo
 python -m scripts.demo_communication_resilience
+
+# Phase 6: End-to-end meetings, agenda, AI decision proposals & manager authority demo
+python -m scripts.demo_meeting_decision_flow
 ```
 
 ### 4. Running the API Server
 ```bash
 uvicorn src.api.main:app --reload --port 8000
 ```
+
