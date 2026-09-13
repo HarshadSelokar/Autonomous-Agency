@@ -351,3 +351,41 @@ class MeetingEndedEvent(DomainEvent):
     meeting_id: str = ""
     actual_end: str = ""
 
+
+# Phase 8 Tool & Integration Events
+@dataclass(frozen=True)
+class ToolExecutionRequestedEvent(DomainEvent):
+    execution_id: str = ""
+    tool_id: str = ""
+    capability: str = ""
+    employee_id: str = ""
+    agent_id: str = ""
+
+
+@dataclass(frozen=True)
+class ToolExecutionApprovedEvent(DomainEvent):
+    execution_id: str = ""
+    approval_id: str = ""
+    approver_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class ToolExecutionDeniedEvent(DomainEvent):
+    execution_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ToolExecutionSucceededEvent(DomainEvent):
+    execution_id: str = ""
+    tool_id: str = ""
+    evidence_id: str | None = None
+
+
+@dataclass(frozen=True)
+class ToolExecutionFailedEvent(DomainEvent):
+    execution_id: str = ""
+    tool_id: str = ""
+    error_message: str = ""
+
+
