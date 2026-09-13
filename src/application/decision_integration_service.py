@@ -1,14 +1,14 @@
 """
-DecisionIntegrationService Application Layer for Phase 6.
-Handles decision-driven Task Engine execution, Plan updates, and Communication notifications.
-Enforces the rule that Decision state transitions trigger Task/Plan/Communication operations
-strictly through existing application services, without direct DB mutations.
+DecisionIntegrationService Application Layer for Phase 6 & Phase 7.
+Handles decision-driven Task Engine execution, Plan updates, Communication notifications,
+and Authoritative Memory derivation from approved Decisions.
 """
 
 from typing import Any
 
 from src.domain.decision import Decision, DecisionStatus, DecisionValidationError
 from src.domain.events import DecisionApprovedEvent
+from src.domain.memory import MemoryAuthority, MemoryProvenance, MemoryScope, MemoryType
 from src.domain.repository import DecisionRepositoryInterface
 
 
@@ -18,11 +18,13 @@ class DecisionIntegrationService:
         decision_repo: DecisionRepositoryInterface,
         task_service: Any = None,
         communication_service: Any = None,
+        memory_service: Any = None,
         event_dispatcher: Any = None,
     ) -> None:
         self.decision_repo = decision_repo
         self.task_service = task_service
         self.communication_service = communication_service
+        self.memory_service = memory_service
         self.event_dispatcher = event_dispatcher
 
     async def execute_approved_decision_actions(
@@ -30,7 +32,7 @@ class DecisionIntegrationService:
         decision_id: str,
         actor_employee_id: str,
     ) -> dict[str, Any]:
-        """Execute task updates, plan actions, and communication notifications for an approved decision."""
+        """Execute task updates, plan actions, communication notifications, and authoritative memory creation for an approved decision."""
         decision = await self.decision_repo.get_by_id(decision_id)
         if not decision:
             raise DecisionValidationError(f"Decision {decision_id} not found.")
@@ -48,9 +50,35 @@ class DecisionIntegrationService:
                 await self.task_service.evaluate_readiness(decision.task_id)
                 executed_actions.append(f"Evaluated readiness for Task {decision.task_id}")
 
-        # 2. Communication Protocol Notification via CommunicationService
+        # 2. Authoritative Memory Derivation via MemoryService
+        if self.memory_service:
+            mem_content = (
+                f"AUTHORITATIVE DECISION: '{decision.title}'. "
+                f"Question: {decision.question}. "
+                f"Chosen Option: {decision.chosen_option or 'N/A'}. "
+                f"Rationale: {decision.rationale or 'N/A'}."
+            )
+            owner_id = f"TASK:{decision.task_id}" if decision.task_id else (f"PROJECT:{decision.plan_id}" if decision.plan_id else "COMPANY")
+            scope = MemoryScope.TASK if decision.task_id else (MemoryScope.PROJECT if decision.plan_id else MemoryScope.COMPANY)
+
+            await self.memory_service.create_memory(
+                memory_type=MemoryType.ORGANIZATIONAL,
+                scope=scope,
+                owner_id=owner_id,
+                content=mem_content,
+                authority=MemoryAuthority.AUTHORITATIVE,
+                confidence=1.0,
+                provenance=MemoryProvenance.DECISION,
+                decision_id=decision.id,
+                objective_id=decision.objective_id,
+                plan_id=decision.plan_id,
+                task_id=decision.task_id,
+                meeting_id=decision.meeting_id,
+            )
+            executed_actions.append(f"Created Authoritative Memory for Decision {decision.id}")
+
+        # 3. Communication Protocol Notification via CommunicationService
         if self.communication_service and decision.meeting_id:
-            # Broadcast notification message into meeting conversation if available
             msg_content = (
                 f"DECISION APPROVED: '{decision.title}'\n"
                 f"Chosen Option: {decision.chosen_option or 'N/A'}\n"
@@ -58,7 +86,7 @@ class DecisionIntegrationService:
             )
             executed_actions.append(f"Notified communication protocol for Decision {decision.id}")
 
-        # 3. Domain Event Dispatch
+        # 4. Domain Event Dispatch
         if self.event_dispatcher:
             event = DecisionApprovedEvent(
                 decision_id=decision.id,
