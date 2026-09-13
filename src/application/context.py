@@ -216,3 +216,42 @@ class ContextBuilder:
             items=items,
             response_schema=response_schema,
         )
+
+
+class ToolContextProvider(ContextProvider):
+    """Injects sanitized tool definitions and execution capabilities into Agent context."""
+
+    def __init__(self, registry: Any) -> None:
+        self.registry = registry
+
+    async def get_context_items(self, agent: Agent, objective: str) -> list[ContextItem]:
+        safe_tools = self.registry.get_safe_metadata_for_agent()
+        if not safe_tools:
+            return []
+
+        formatted_tools: list[str] = []
+        for t in safe_tools:
+            formatted_tools.append(
+                f" - Tool ID: {t['tool_id']} (v{t['version']}) | Risk: {t['risk_level']} | Mode: {t['permission_mode']}\n"
+                f"   Description: {t['description']}\n"
+                f"   Capabilities: {', '.join(t['capabilities'])}\n"
+                f"   Input Schema: {t['input_schema']}"
+            )
+
+        content_text = (
+            "AVAILABLE ORGANIZATIONAL TOOLS & CAPABILITIES:\n"
+            "To request a tool execution, output a structured tool request block in JSON:\n"
+            '{"tool_request": {"tool_id": "<ID>", "capability": "<CAPABILITY>", "arguments": {...}}}\n'
+            "Backend controls tool authorization, workspace boundaries, policies, and approvals.\n\n"
+            + "\n".join(formatted_tools)
+        )
+
+        return [
+            ContextItem(
+                source=ContextSource.REFERENCE_DATA,
+                content=content_text,
+                priority=10,
+                metadata={"name": "Available Tools"},
+            )
+        ]
+

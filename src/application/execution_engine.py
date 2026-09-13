@@ -37,6 +37,7 @@ class AgentExecutionEngine:
         context_builder: ContextBuilder | None = None,
         output_validator: StructuredOutputValidator | None = None,
         retry_policy: RetryPolicy | None = None,
+        tool_pipeline: Any | None = None,
     ) -> None:
         self.agent_repo = agent_repo
         self.run_repo = run_repo
@@ -46,6 +47,7 @@ class AgentExecutionEngine:
         self.context_builder = context_builder or ContextBuilder()
         self.output_validator = output_validator or StructuredOutputValidator()
         self.retry_policy = retry_policy or RetryPolicy()
+        self.tool_pipeline = tool_pipeline
 
     async def execute_run(
         self,
@@ -58,6 +60,8 @@ class AgentExecutionEngine:
         """
         Execute a complete AgentRun pipeline for the specified agent and objective.
         """
+        # ...
+
         # 1. Load Agent
         agent = await self.agent_repo.get_by_id(agent_id)
         if agent is None:
@@ -210,6 +214,31 @@ class AgentExecutionEngine:
             step_val.mark_completed({"valid": True, "keys": list(validated_output.keys())})
             await self.step_repo.save(step_val)
 
+            # STEP 4.5: Optional Tool Execution Pipeline Integration
+            tool_result_dict = None
+            if self.tool_pipeline and isinstance(validated_output, dict) and "tool_request" in validated_output:
+                from src.domain.tool import ToolCapability, ToolRequest
+                tr_data = validated_output["tool_request"]
+                req = ToolRequest(
+                    id=f"req_{run_id}",
+                    tool_id=tr_data.get("tool_id", ""),
+                    tool_version=tr_data.get("version", "1.0.0"),
+                    requested_capability=ToolCapability(tr_data.get("capability", "READ_FILE")),
+                    arguments=tr_data.get("arguments", {}),
+                    employee_id=agent.employee_id if hasattr(agent, "employee_id") and agent.employee_id else "emp-system",
+                    agent_id=agent.id,
+                    agent_run_id=run.id,
+                    task_id=task_id,
+                )
+                t_res = await self.tool_pipeline.execute_tool_request(req)
+                tool_result_dict = {
+                    "execution_id": t_res.execution_id,
+                    "status": t_res.status.value,
+                    "output": t_res.output,
+                    "error_message": t_res.error_message,
+                    "evidence_id": t_res.evidence_id,
+                }
+
             # STEP 5: Finalize
             step_counter += 1
             step_finalize = ExecutionStep(
@@ -224,6 +253,7 @@ class AgentExecutionEngine:
             run.result = {
                 "content": model_response.content,
                 "structured_output": model_response.structured_output,
+                "tool_result": tool_result_dict,
             }
             run.transition_to(RunStatus.COMPLETED)
             await self.run_repo.save(run)
