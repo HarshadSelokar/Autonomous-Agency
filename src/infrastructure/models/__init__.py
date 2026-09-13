@@ -10,6 +10,12 @@ from src.infrastructure.models.conversation_model import ConversationModel
 from src.infrastructure.models.decision_model import ManagerDecisionModel
 from src.infrastructure.models.department_model import DepartmentModel
 from src.infrastructure.models.employee_model import EmployeeModel
+from src.infrastructure.models.meeting_model import (
+    MeetingAgendaItemModel,
+    MeetingAttendanceModel,
+    MeetingModel,
+    MeetingParticipantModel,
+)
 from src.infrastructure.models.message_model import MessageModel
 from src.infrastructure.models.objective_model import ObjectiveModel
 from src.infrastructure.models.outbox_model import OutboxMessageModel
@@ -28,6 +34,10 @@ __all__ = [
     "ManagerDecisionModel",
     "DepartmentModel",
     "EmployeeModel",
+    "MeetingModel",
+    "MeetingParticipantModel",
+    "MeetingAttendanceModel",
+    "MeetingAgendaItemModel",
     "MessageModel",
     "ObjectiveModel",
     "OutboxMessageModel",
