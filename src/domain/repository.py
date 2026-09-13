@@ -270,3 +270,28 @@ class MeetingRepositoryInterface(ABC):
         """List all Meetings where the employee is a participant."""
         pass
 
+
+class MemoryRepositoryInterface(ABC):
+    """Abstract interface for MemoryEntry persistence operations."""
+
+    @abstractmethod
+    async def save(self, memory: "MemoryEntry") -> "MemoryEntry":
+        """Save or update a MemoryEntry entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, memory_id: str) -> "MemoryEntry | None":
+        """Find a MemoryEntry by ID."""
+        pass
+
+    @abstractmethod
+    async def list_by_owner(self, owner_id: str) -> "list[MemoryEntry]":
+        """List all active memories for a given owner ID."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> "list[MemoryEntry]":
+        """List all memories."""
+        pass
+
+
