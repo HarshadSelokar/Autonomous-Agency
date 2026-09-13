@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.tool import (
     ApprovalStatus,
     ToolApproval,
+    ToolCapability,
     ToolDefinition,
     ToolEvidence,
     ToolExecution,
@@ -51,19 +52,22 @@ class SQLAlchemyToolExecutionRepository:
         self.session = session
 
     async def save(self, execution: ToolExecution) -> ToolExecution:
+        cap_str = execution.capability.value if hasattr(execution.capability, "value") else str(execution.capability)
+        status_str = execution.status.value if hasattr(execution.status, "value") else str(execution.status)
+
         model = ToolExecutionModel(
             id=execution.id,
             request_id=execution.request_id,
             tool_id=execution.tool_id,
             tool_version=execution.tool_version,
-            capability=execution.capability.value,
+            capability=cap_str,
             actor_employee_id=execution.actor_employee_id,
             agent_id=execution.agent_id,
             agent_run_id=execution.agent_run_id,
             task_id=execution.task_id,
             workspace_id=execution.workspace_id,
             approval_id=execution.approval_id,
-            status=execution.status.value,
+            status=status_str,
             failure_reason=execution.failure_reason,
             execution_time_ms=execution.execution_time_ms,
             created_at=execution.created_at,
@@ -84,7 +88,7 @@ class SQLAlchemyToolExecutionRepository:
             request_id=model.request_id,
             tool_id=model.tool_id,
             tool_version=model.tool_version,
-            capability=model.capability,
+            capability=ToolCapability(model.capability),
             actor_employee_id=model.actor_employee_id,
             agent_id=model.agent_id,
             agent_run_id=model.agent_run_id,
@@ -104,14 +108,17 @@ class SQLAlchemyToolApprovalRepository:
         self.session = session
 
     async def save(self, approval: ToolApproval) -> ToolApproval:
+        cap_str = approval.capability.value if hasattr(approval.capability, "value") else str(approval.capability)
+        status_str = approval.status.value if hasattr(approval.status, "value") else str(approval.status)
+
         model = ToolApprovalModel(
             id=approval.id,
             execution_id=approval.execution_id,
             tool_id=approval.tool_id,
-            capability=approval.capability.value,
+            capability=cap_str,
             requester_employee_id=approval.requester_employee_id,
             approver_employee_id=approval.approver_employee_id,
-            status=approval.status.value,
+            status=status_str,
             rationale=approval.rationale,
             created_at=approval.created_at,
             approved_at=approval.approved_at,
@@ -130,7 +137,7 @@ class SQLAlchemyToolApprovalRepository:
             id=model.id,
             execution_id=model.execution_id,
             tool_id=model.tool_id,
-            capability=model.capability,
+            capability=ToolCapability(model.capability),
             requester_employee_id=model.requester_employee_id,
             approver_employee_id=model.approver_employee_id,
             status=ApprovalStatus(model.status),
