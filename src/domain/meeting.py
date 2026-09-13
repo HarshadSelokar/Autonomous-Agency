@@ -1,5 +1,5 @@
 """
-Meeting Domain Entity, Lifecycle, Participants, and Attendance for Phase 6.
+Meeting Domain Entity, Lifecycle, Participants, Attendance, and Agenda Management for Phase 6.
 """
 
 from dataclasses import dataclass, field
@@ -45,6 +45,13 @@ class AttendanceStatus(str, Enum):
     ABSENT = "ABSENT"
 
 
+class AgendaItemStatus(str, Enum):
+    PROPOSED = "PROPOSED"
+    IN_DISCUSSION = "IN_DISCUSSION"
+    COMPLETED = "COMPLETED"
+    SKIPPED = "SKIPPED"
+
+
 class MeetingValidationError(ObjectiveValidationError):
     """Raised when meeting domain constraints or state transitions are violated."""
 
@@ -53,6 +60,12 @@ class MeetingValidationError(ObjectiveValidationError):
 
 class MeetingStateError(MeetingValidationError):
     """Raised when an invalid meeting lifecycle transition is attempted."""
+
+    pass
+
+
+class MeetingSchedulingConflictError(MeetingValidationError):
+    """Raised when a scheduling conflict is detected for required participants."""
 
     pass
 
@@ -98,6 +111,31 @@ class MeetingAttendance:
 
 
 @dataclass
+class AgendaItem:
+    id: str
+    meeting_id: str
+    order: int
+    title: str
+    description: str | None = None
+    owner_employee_id: str | None = None
+    duration_minutes: int | None = None
+    task_id: str | None = None
+    objective_id: str | None = None
+    status: AgendaItemStatus = AgendaItemStatus.PROPOSED
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    def __post_init__(self) -> None:
+        if not self.id or not self.id.strip():
+            raise MeetingValidationError("AgendaItem ID cannot be empty.")
+        if not self.meeting_id or not self.meeting_id.strip():
+            raise MeetingValidationError("AgendaItem meeting_id cannot be empty.")
+        if not self.title or not self.title.strip():
+            raise MeetingValidationError("AgendaItem title cannot be empty.")
+        if self.order <= 0:
+            raise MeetingValidationError("AgendaItem order must be a positive integer >= 1.")
+
+
+@dataclass
 class Meeting:
     id: str
     title: str
@@ -115,13 +153,13 @@ class Meeting:
     project_id: str | None = None
     participants: dict[str, MeetingParticipant] = field(default_factory=dict)
     attendance_records: dict[str, MeetingAttendance] = field(default_factory=dict)
+    agenda_items: list[AgendaItem] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self) -> None:
         self.validate()
-        # Automatically register organizer as an ORGANIZER participant if not present
         if self.organizer_employee_id and self.organizer_employee_id not in self.participants:
             self.add_participant(
                 employee_id=self.organizer_employee_id, role=ParticipantRole.ORGANIZER
@@ -144,7 +182,6 @@ class Meeting:
         role: ParticipantRole = ParticipantRole.REQUIRED,
         agent_id: str | None = None,
     ) -> MeetingParticipant:
-        """Add a participant to the meeting. Prevents duplicates and initializes attendance."""
         if not employee_id or not employee_id.strip():
             raise MeetingValidationError("Participant employee_id cannot be empty.")
         if employee_id in self.participants and self.participants[employee_id].role == role:
@@ -160,7 +197,6 @@ class Meeting:
         )
         self.participants[employee_id] = participant
 
-        # Initialize attendance as INVITED if not present
         if employee_id not in self.attendance_records:
             self.attendance_records[employee_id] = MeetingAttendance(
                 meeting_id=self.id,
@@ -170,7 +206,6 @@ class Meeting:
         return participant
 
     def remove_participant(self, employee_id: str) -> None:
-        """Remove a participant from the meeting (cannot remove the organizer)."""
         if employee_id == self.organizer_employee_id:
             raise MeetingValidationError("Cannot remove the organizer from the meeting.")
         if employee_id not in self.participants:
@@ -180,10 +215,35 @@ class Meeting:
         del self.participants[employee_id]
         self.attendance_records.pop(employee_id, None)
 
+    def add_agenda_item(
+        self,
+        item_id: str,
+        title: str,
+        description: str | None = None,
+        owner_employee_id: str | None = None,
+        duration_minutes: int | None = None,
+        task_id: str | None = None,
+        objective_id: str | None = None,
+    ) -> AgendaItem:
+        """Add an agenda item with deterministic ordering."""
+        order = len(self.agenda_items) + 1
+        item = AgendaItem(
+            id=item_id,
+            meeting_id=self.id,
+            order=order,
+            title=title,
+            description=description,
+            owner_employee_id=owner_employee_id,
+            duration_minutes=duration_minutes,
+            task_id=task_id,
+            objective_id=objective_id,
+        )
+        self.agenda_items.append(item)
+        return item
+
     def record_attendance(
         self, employee_id: str, status: AttendanceStatus, notes: str | None = None
     ) -> MeetingAttendance:
-        """Record attendance status for a participant."""
         if employee_id not in self.participants:
             raise MeetingValidationError(
                 f"Employee {employee_id} is not an invited participant of meeting {self.id}."
@@ -198,7 +258,6 @@ class Meeting:
         return record
 
     def transition_to(self, target_status: MeetingStatus) -> None:
-        """Execute a deterministic state transition."""
         allowed = VALID_MEETING_TRANSITIONS.get(self.status, set())
         if target_status not in allowed:
             raise MeetingStateError(

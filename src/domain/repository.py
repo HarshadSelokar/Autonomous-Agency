@@ -245,3 +245,28 @@ class DecisionRepositoryInterface(ABC):
     async def list_by_objective_id(self, objective_id: str) -> "list[ManagerDecision]":
         """List all decisions associated with an objective."""
         pass
+
+
+class MeetingRepositoryInterface(ABC):
+    """Abstract interface for Meeting persistence operations."""
+
+    @abstractmethod
+    async def save(self, meeting: "Meeting") -> "Meeting":
+        """Save or update a Meeting entity."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, meeting_id: str) -> "Meeting | None":
+        """Find a Meeting by ID."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> "list[Meeting]":
+        """List all Meetings."""
+        pass
+
+    @abstractmethod
+    async def list_by_participant(self, employee_id: str) -> "list[Meeting]":
+        """List all Meetings where the employee is a participant."""
+        pass
+
