@@ -183,7 +183,30 @@ $$\text{MEMORY} \quad | \quad \text{WORKSPACE} \quad | \quad \text{ARTIFACT} \qu
 
 ---
 
-## Summary of Completed Phases (1–7)
+## Phase 8 Tool & Integration Architecture
+
+$$\text{THE LLM DOES NOT DIRECTLY EXECUTE TOOLS}$$
+
+$$\text{ModelProvider} \neq \text{AgentProvider} \neq \text{ExecutionProvider} \neq \text{ToolProvider}$$
+
+### 1. Architectural Highlights
+- **12-Stage Pipeline**: `REQUEST` → `RESOLVE` → `VALIDATE` → `AUTHORIZE` → `POLICY` → `APPROVAL` → `PROVIDER` → `SANDBOX` → `ADAPTER` → `RESULT` → `EVIDENCE` → `AUDIT`.
+- **Permission Modes**: `AUTO` (low risk), `APPROVAL` (manager approval required; self-approval prohibited), `BLOCKED` (prohibited by backend policy).
+- **Security & Redaction**: SSRF protection in `SandboxExecutionBoundary`, credential injection & redaction via `SecretsBroker`.
+- **Integrations**: Workspace file access, Phase 7 Artifacts, Phase 4 Tasks, Phase 5 Communication, sandboxed HTTP, Browser automation foundation, MCP adapter.
+
+### 2. Domain Documentation
+- [Phase 8 Tool & Integration Architecture](file:///d:/agency/docs/architecture/tools.md)
+
+### 3. REST API Endpoints (`src/api/routes/tools.py`)
+- `GET /tools`, `GET /tools/{tool_id}`, `POST /tools`
+- `POST /tool-executions`, `GET /tool-executions/{execution_id}`, `POST /tool-executions/{execution_id}/cancel`
+- `GET /tool-approvals`, `POST /tool-approvals/{approval_id}/approve`, `POST /tool-approvals/{approval_id}/reject`
+- `GET /tool-executions/{execution_id}/evidence`
+
+---
+
+## Summary of Completed Phases (1–8)
 
 | Phase | System / Component | Core Focus |
 |---|---|---|
@@ -194,5 +217,7 @@ $$\text{MEMORY} \quad | \quad \text{WORKSPACE} \quad | \quad \text{ARTIFACT} \qu
 | Phase 5 | Communication Protocol | Conversations, messages, transactional outbox, blocker reporting & escalations. |
 | Phase 6 | Meetings & Decisions | Formal meetings, discussion agendas, decision proposals, manager approval & memory derivation. |
 | Phase 7 | Memory, Workspace & Artifacts | First-class memory authority, hybrid retrieval, sandboxed workspaces, versioned SHA-256 artifacts. |
+| Phase 8 | Tools & Integrations | 12-stage tool execution pipeline, backend policy engine, manager approval workflow, SSRF & secret isolation. |
+
 
 
