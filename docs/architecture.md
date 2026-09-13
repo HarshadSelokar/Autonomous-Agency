@@ -154,10 +154,45 @@ python -m scripts.demo_communication_resilience
 
 # Phase 6: End-to-end meetings, agenda, AI decision proposals & manager authority demo
 python -m scripts.demo_meeting_decision_flow
+
+# Phase 7: End-to-end memory, workspace, artifacts & authority security demo
+python -m scripts.demo_memory_workspace_flow
 ```
 
-### 4. Running the API Server
-```bash
-uvicorn src.api.main:app --reload --port 8000
-```
+---
+
+## Phase 7 Memory, Workspace & Artifact Architecture
+
+$$\text{MEMORY} \quad | \quad \text{WORKSPACE} \quad | \quad \text{ARTIFACT} \quad | \quad \text{CONTEXT}$$
+
+### 1. Separation of Responsibilities
+- **Memory (`MemoryEntry`)**: Organizational knowledge, facts, procedures, experiences, and decisions. Backend-controlled authority prevents LLM outputs from automatically becoming authoritative organizational truth.
+- **Workspace (`Workspace`)**: Isolated, sandboxed working environments (`TASK`, `PROJECT`, `EMPLOYEE`, `AGENT`, `SHARED`). Enforces boundary isolation preventing Task $T1$ agents from accessing Task $T2$ or private employee workspaces.
+- **Artifact (`Artifact`)**: First-class, SHA-256 checksummed, versioned binary outputs stored via `StorageProviderInterface` (local disk / S3) with metadata persisted in PostgreSQL.
+- **Context (`MemoryContextBuilder`)**: Priority-ranked, authority-weighted memory context packaged safely with prompt security framing (`=== BEGIN UNTRUSTED ORGANIZATIONAL MEMORY CONTEXT ===`).
+
+### 2. Domain Documentation
+- [Phase 7 Memory Architecture](file:///d:/agency/docs/architecture/memory.md)
+- [Phase 7 Workspace Architecture](file:///d:/agency/docs/architecture/workspace.md)
+- [Phase 7 Artifact Architecture](file:///d:/agency/docs/architecture/artifacts.md)
+
+### 3. REST API Endpoints (`src/api/routes/memories.py`, `workspaces.py`, `artifacts.py`)
+- `POST /memories`, `GET /memories`, `GET /memories/{id}`, `POST /memories/{id}/confirm`, `POST /memories/{id}/promote`
+- `POST /workspaces`, `GET /workspaces`, `GET /workspaces/{id}`, `POST /workspaces/{id}/lock`, `POST /workspaces/{id}/archive`
+- `POST /workspaces/{workspace_id}/artifacts`, `GET /artifacts/{id}`, `GET /workspaces/{workspace_id}/artifacts`, `POST /artifacts/{id}/versions`
+
+---
+
+## Summary of Completed Phases (1–7)
+
+| Phase | System / Component | Core Focus |
+|---|---|---|
+| Phase 1 | Agent Runtime Foundation | State machine, execution context, model provider abstraction (Groq, Fake). |
+| Phase 2 | Employee Framework | Corporate identities, skill capability matching, status lifecycle. |
+| Phase 3 | Manager Orchestration | Objective breakdown, planning, manager hierarchy cycle checks. |
+| Phase 4 | Task & Dependency Engine | Dependency graph (DAG), readiness evaluation, atomic claims, worker scheduler. |
+| Phase 5 | Communication Protocol | Conversations, messages, transactional outbox, blocker reporting & escalations. |
+| Phase 6 | Meetings & Decisions | Formal meetings, discussion agendas, decision proposals, manager approval & memory derivation. |
+| Phase 7 | Memory, Workspace & Artifacts | First-class memory authority, hybrid retrieval, sandboxed workspaces, versioned SHA-256 artifacts. |
+
 
