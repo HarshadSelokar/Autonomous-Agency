@@ -305,3 +305,49 @@ class MessageDeliveryFailedEvent(DomainEvent):
     message_id: str = ""
     recipient_employee_id: str = ""
     reason: str = ""
+
+
+@dataclass(frozen=True)
+class DecisionProposedEvent(DomainEvent):
+    decision_id: str = ""
+    title: str = ""
+    proposer_employee_id: str = ""
+    provenance: str = ""
+
+
+@dataclass(frozen=True)
+class DecisionApprovedEvent(DomainEvent):
+    decision_id: str = ""
+    title: str = ""
+    approver_employee_id: str = ""
+    chosen_option: str | None = None
+    meeting_id: str | None = None
+    task_id: str | None = None
+    objective_id: str | None = None
+
+
+@dataclass(frozen=True)
+class DecisionRejectedEvent(DomainEvent):
+    decision_id: str = ""
+    approver_employee_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class DecisionSupersededEvent(DomainEvent):
+    old_decision_id: str = ""
+    new_decision_id: str = ""
+    actor_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class MeetingStartedEvent(DomainEvent):
+    meeting_id: str = ""
+    actual_start: str = ""
+
+
+@dataclass(frozen=True)
+class MeetingEndedEvent(DomainEvent):
+    meeting_id: str = ""
+    actual_end: str = ""
+
