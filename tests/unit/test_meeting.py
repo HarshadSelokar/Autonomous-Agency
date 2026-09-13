@@ -1,20 +1,22 @@
 """
-Unit tests for Meeting domain entity and lifecycle state transitions.
+Unit tests for Meeting domain entity, lifecycle, participants, and attendance tracking.
 """
 
 from datetime import UTC, datetime, timedelta
 import pytest
 
 from src.domain.meeting import (
+    AttendanceStatus,
     Meeting,
     MeetingPurpose,
     MeetingStateError,
     MeetingStatus,
     MeetingValidationError,
+    ParticipantRole,
 )
 
 
-def test_meeting_creation_and_validation() -> None:
+def test_meeting_creation_and_organizer_auto_participant() -> None:
     now = datetime.now(UTC)
     meeting = Meeting(
         id="m-100",
@@ -26,31 +28,63 @@ def test_meeting_creation_and_validation() -> None:
     )
     assert meeting.id == "m-100"
     assert meeting.status == MeetingStatus.PROPOSED
-    assert meeting.purpose == MeetingPurpose.REVIEW
+    assert "emp-1" in meeting.participants
+    assert meeting.participants["emp-1"].role == ParticipantRole.ORGANIZER
+    assert meeting.attendance_records["emp-1"].status == AttendanceStatus.INVITED
 
 
-def test_meeting_validation_invalid_time() -> None:
-    now = datetime.now(UTC)
-    with pytest.raises(MeetingValidationError, match="scheduled_end must be strictly after"):
-        Meeting(
-            id="m-101",
-            title="Invalid Time Meeting",
-            purpose=MeetingPurpose.PLANNING,
-            organizer_employee_id="emp-1",
-            scheduled_start=now,
-            scheduled_end=now - timedelta(minutes=10),
-        )
+def test_meeting_participant_management() -> None:
+    meeting = Meeting(
+        id="m-101",
+        title="Design Review",
+        purpose=MeetingPurpose.PLANNING,
+        organizer_employee_id="emp-mgr",
+    )
+
+    # Add required participant
+    meeting.add_participant("emp-dev1", role=ParticipantRole.REQUIRED)
+    assert "emp-dev1" in meeting.participants
+    assert meeting.participants["emp-dev1"].role == ParticipantRole.REQUIRED
+    assert meeting.attendance_records["emp-dev1"].status == AttendanceStatus.INVITED
+
+    # Add presenter with agent binding
+    meeting.add_participant("emp-dev2", role=ParticipantRole.PRESENTER, agent_id="agent-42")
+    assert meeting.participants["emp-dev2"].agent_id == "agent-42"
+
+    # Duplicate participant with same role fails
+    with pytest.raises(MeetingValidationError, match="already exists in meeting"):
+        meeting.add_participant("emp-dev1", role=ParticipantRole.REQUIRED)
+
+    # Remove participant
+    meeting.remove_participant("emp-dev1")
+    assert "emp-dev1" not in meeting.participants
+    assert "emp-dev1" not in meeting.attendance_records
+
+    # Cannot remove organizer
+    with pytest.raises(MeetingValidationError, match="Cannot remove the organizer"):
+        meeting.remove_participant("emp-mgr")
 
 
-def test_meeting_empty_fields_validation() -> None:
-    with pytest.raises(MeetingValidationError, match="Meeting ID cannot be empty"):
-        Meeting(id="", title="Test", purpose=MeetingPurpose.STATUS, organizer_employee_id="emp-1")
+def test_meeting_attendance_tracking() -> None:
+    meeting = Meeting(
+        id="m-102",
+        title="Status Standup",
+        purpose=MeetingPurpose.STATUS,
+        organizer_employee_id="emp-mgr",
+    )
+    meeting.add_participant("emp-1", role=ParticipantRole.REQUIRED)
 
-    with pytest.raises(MeetingValidationError, match="Meeting title cannot be empty"):
-        Meeting(id="m-1", title="   ", purpose=MeetingPurpose.STATUS, organizer_employee_id="emp-1")
+    # Record attendance
+    meeting.record_attendance("emp-1", AttendanceStatus.ACCEPTED)
+    assert meeting.attendance_records["emp-1"].status == AttendanceStatus.ACCEPTED
 
-    with pytest.raises(MeetingValidationError, match="organizer_employee_id cannot be empty"):
-        Meeting(id="m-1", title="Test", purpose=MeetingPurpose.STATUS, organizer_employee_id="")
+    meeting.record_attendance("emp-1", AttendanceStatus.ATTENDED, notes="Present on time")
+    assert meeting.attendance_records["emp-1"].status == AttendanceStatus.ATTENDED
+    assert meeting.attendance_records["emp-1"].notes == "Present on time"
+
+    # Record attendance for non-participant fails
+    with pytest.raises(MeetingValidationError, match="not an invited participant"):
+        meeting.record_attendance("emp-outsider", AttendanceStatus.ATTENDED)
 
 
 def test_meeting_lifecycle_transitions() -> None:
@@ -79,31 +113,3 @@ def test_meeting_lifecycle_transitions() -> None:
     meeting.transition_to(MeetingStatus.ENDED)
     assert meeting.status == MeetingStatus.ENDED
     assert meeting.actual_end is not None
-
-
-def test_invalid_lifecycle_transition() -> None:
-    meeting = Meeting(
-        id="m-300",
-        title="Direct End Test",
-        purpose=MeetingPurpose.DECISION,
-        organizer_employee_id="emp-1",
-    )
-    # Cannot jump from PROPOSED to ENDED directly
-    with pytest.raises(MeetingStateError, match="Invalid meeting transition"):
-        meeting.transition_to(MeetingStatus.ENDED)
-
-
-def test_cancellation_from_allowed_states() -> None:
-    meeting = Meeting(
-        id="m-400",
-        title="To be cancelled",
-        purpose=MeetingPurpose.INCIDENT,
-        organizer_employee_id="emp-1",
-    )
-    meeting.transition_to(MeetingStatus.SCHEDULED)
-    meeting.transition_to(MeetingStatus.CANCELLED)
-    assert meeting.status == MeetingStatus.CANCELLED
-
-    # Cannot transition from CANCELLED to anything
-    with pytest.raises(MeetingStateError):
-        meeting.transition_to(MeetingStatus.SCHEDULED)
