@@ -602,3 +602,115 @@ class TaskEscalatedEvent(DomainEvent):
     escalated_by: str = ""
     escalated_to: str = ""
     reason: str = ""
+
+
+# Phase 11 Human Governance Events
+@dataclass(frozen=True)
+class GovernancePolicyCreatedEvent(DomainEvent):
+    policy_id: str = ""
+    name: str = ""
+    level: str = ""
+
+
+@dataclass(frozen=True)
+class ApprovalRequestedEvent(DomainEvent):
+    request_id: str = ""
+    action_type: str = ""
+    requested_by_actor_id: str = ""
+    risk_level: str = ""
+
+
+@dataclass(frozen=True)
+class ApprovalGrantedEvent(DomainEvent):
+    request_id: str = ""
+    approved_by_actor_id: str = ""
+
+
+@dataclass(frozen=True)
+class ApprovalRejectedEvent(DomainEvent):
+    request_id: str = ""
+    rejected_by_actor_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ApprovalExpiredEvent(DomainEvent):
+    request_id: str = ""
+
+
+@dataclass(frozen=True)
+class AutonomyPausedEvent(DomainEvent):
+    scope: str = ""
+    scope_id: str = ""
+    paused_by_actor_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class AutonomyResumedEvent(DomainEvent):
+    scope: str = ""
+    scope_id: str = ""
+    resumed_by_actor_id: str = ""
+
+
+@dataclass(frozen=True)
+class EmergencyStopActivatedEvent(DomainEvent):
+    stop_id: str = ""
+    scope: str = ""
+    scope_id: str = ""
+    activated_by_actor_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class GovernanceViolationDetectedEvent(DomainEvent):
+    violation_id: str = ""
+    category: str = ""
+    actor_id: str = ""
+    severity: str = ""
+
+
+@dataclass(frozen=True)
+class GovernanceOverrideAppliedEvent(DomainEvent):
+    override_id: str = ""
+    action_id: str = ""
+    actor_id: str = ""
+    reason: str = ""
+
+
+# Phase 12 Model Routing Events
+@dataclass(frozen=True)
+class ModelSelectionRequestedEvent(DomainEvent):
+    request_id: str = ""
+    task_id: str | None = None
+    strategy: str = ""
+
+
+@dataclass(frozen=True)
+class ModelSelectedEvent(DomainEvent):
+    decision_id: str = ""
+    selected_model_id: str = ""
+    provider_name: str = ""
+    is_fallback: bool = False
+
+
+@dataclass(frozen=True)
+class ModelFallbackUsedEvent(DomainEvent):
+    decision_id: str = ""
+    primary_model_id: str = ""
+    fallback_model_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ModelUnavailableEvent(DomainEvent):
+    model_id: str = ""
+    provider_name: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ModelHealthChangedEvent(DomainEvent):
+    model_id: str = ""
+    provider_name: str = ""
+    is_healthy: bool = True
