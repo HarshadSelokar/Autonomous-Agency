@@ -1,12 +1,14 @@
-# Autonomous AI Organization Platform — Phase 1 to Phase 13
+# Autonomous AI Organization Platform — Phase 1 to Phase 14
 
-This repository implements **Phases 1–13** of the Autonomous AI Organization Platform, including the Phase 13 Pixel Office visual presentation, real-time event projection, and state synchronization layer over authoritative backend Company OS state.
+This repository implements **Phases 1–14** of the Autonomous AI Organization Platform, including the Phase 14 Enterprise Department Expansion, Cross-Department Requests, Evidence-Verified Handoffs, and Multi-Department Collaboration Framework over the unified Company OS.
 
 ## Core Architectural Principle
 
-$$\text{COMPANY OS} \rightarrow \text{Authoritative State} \rightarrow \text{Event Projection} \rightarrow \text{Pixel Office} \rightarrow \text{Visualization}$$
+$$\text{Company} \rightarrow \text{Departments} \rightarrow \text{Managers} \rightarrow \text{Employees} \rightarrow \text{Agents} \rightarrow \text{Tasks} \rightarrow \text{Tools} \rightarrow \text{Evidence} \rightarrow \text{Verification}$$
 
-$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{PIXEL OFFICE}$$
+$$\text{DEPARTMENTS PROVIDE SPECIALIZATION. COMPANY OS PROVIDES COORDINATION.}$$
+
+$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{DEPARTMENT} \neq \text{PIXEL OFFICE}$$
 
 - **Employee**: Represents organizational identity, corporate title, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
 - **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`).

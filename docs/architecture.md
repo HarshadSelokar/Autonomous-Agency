@@ -11,6 +11,8 @@ $$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{PIXEL OFFICE}$$
 3. **LLM**: A model provider capability (e.g. Groq `llama-3.3-70b-versatile`) invoked by the Agent Runtime engine. The authoritative state and organizational truth belong strictly to the Agent Runtime and Company OS.
 4. **Pixel Office**: Visual presentation & real-time event projection layer that visualizes backend reality without inventing or manufacturing organizational truth. See [docs/architecture/pixel-office.md](file:///d:/agency/docs/architecture/pixel-office.md) for full specification.
 
+5. **Departments**: Organizational boundaries providing specialization across 13 enterprise functions (Executive, Product, Engineering, QA, DevOps, Marketing, Sales, Customer Success, Finance, Legal, HR, Research, Operations) operating on the unified Company OS. See [docs/architecture/departments.md](file:///d:/agency/docs/architecture/departments.md) for full specification.
+
 ---
 
 ## Phase 3 Organizational Orchestration Architectural Boundary
