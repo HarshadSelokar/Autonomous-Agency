@@ -152,7 +152,7 @@ class AgentExecutionEngine:
                     actor_id=agent.id,
                     task_id=task_id,
                 )
-                if autonomy.value if hasattr(autonomy, "value") else str(autonomy) == "BLOCKED":
+                if (autonomy.value if hasattr(autonomy, "value") else str(autonomy)) == "BLOCKED":
                     raise AgentValidationError(f"Execution blocked by Governance Policy for objective '{objective}'")
 
             # Model Router Selection
