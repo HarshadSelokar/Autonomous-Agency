@@ -2,11 +2,14 @@
 
 ## Core Architectural Principle
 
-$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM}$$
+$$\text{COMPANY OS} \rightarrow \text{Authoritative State} \rightarrow \text{Event Projection} \rightarrow \text{Pixel Office} \rightarrow \text{Visualization}$$
+
+$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{PIXEL OFFICE}$$
 
 1. **Employee**: Represents organizational identity, corporate role, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
 2. **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`). An Employee delegates work to an Agent.
 3. **LLM**: A model provider capability (e.g. Groq `llama-3.3-70b-versatile`) invoked by the Agent Runtime engine. The authoritative state and organizational truth belong strictly to the Agent Runtime and Company OS.
+4. **Pixel Office**: Visual presentation & real-time event projection layer that visualizes backend reality without inventing or manufacturing organizational truth. See [docs/architecture/pixel-office.md](file:///d:/agency/docs/architecture/pixel-office.md) for full specification.
 
 ---
 

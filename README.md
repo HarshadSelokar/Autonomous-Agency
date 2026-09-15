@@ -1,10 +1,12 @@
-# Autonomous AI Organization Platform — Phase 1, Phase 2 & Phase 3
+# Autonomous AI Organization Platform — Phase 1 to Phase 13
 
-This repository implements **Phase 1 (Agent Runtime Foundation)**, **Phase 2 (Employee Framework)**, and **Phase 3 (Manager & Organizational Orchestration)** for the Autonomous AI Organization Platform.
+This repository implements **Phases 1–13** of the Autonomous AI Organization Platform, including the Phase 13 Pixel Office visual presentation, real-time event projection, and state synchronization layer over authoritative backend Company OS state.
 
 ## Core Architectural Principle
 
-$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM}$$
+$$\text{COMPANY OS} \rightarrow \text{Authoritative State} \rightarrow \text{Event Projection} \rightarrow \text{Pixel Office} \rightarrow \text{Visualization}$$
+
+$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{PIXEL OFFICE}$$
 
 - **Employee**: Represents organizational identity, corporate title, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
 - **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`).
