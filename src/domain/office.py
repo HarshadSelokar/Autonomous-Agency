@@ -156,4 +156,5 @@ class OfficeCompanyProjection:
     active_recoveries_count: int
     attention_items: List[HumanAttentionItem] = field(default_factory=list)
     recent_activities: List[OfficeActivityItem] = field(default_factory=list)
+    departments: List[DepartmentLayoutProjection] = field(default_factory=list)
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

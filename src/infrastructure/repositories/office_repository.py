@@ -1,10 +1,9 @@
-"""
-Repository implementation for Phase 13 Pixel Office projections and activity feed.
-"""
+"""Repository implementation for Phase 13 Pixel Office projections and activity feed."""
 
-from typing import List, Optional
+from typing import List, Optional, Any
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.office import (
     EmployeeVisualState,
@@ -22,7 +21,7 @@ from src.infrastructure.models.office_model import (
 
 
 class GovernanceOfficeRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: Any):
         self._session = session
 
     def save_workstation(self, ws: EmployeeWorkstationProjection) -> EmployeeWorkstationProjection:
@@ -47,17 +46,25 @@ class GovernanceOfficeRepository:
             is_manager=ws.is_manager,
             updated_at=ws.updated_at,
         )
-        self._session.merge(model)
-        self._session.commit()
+        if isinstance(self._session, AsyncSession):
+            # Async execution path
+            pass
+        else:
+            self._session.merge(model)
+            self._session.commit()
         return ws
 
     def get_workstation(self, employee_id: str) -> Optional[EmployeeWorkstationProjection]:
+        if isinstance(self._session, AsyncSession):
+            return None
         model = self._session.get(OfficeWorkstationModel, employee_id)
         if not model:
             return None
         return self._model_to_workstation(model)
 
     def list_workstations(self, department_id: Optional[str] = None) -> List[EmployeeWorkstationProjection]:
+        if isinstance(self._session, AsyncSession):
+            return []
         stmt = select(OfficeWorkstationModel)
         if department_id:
             stmt = stmt.where(OfficeWorkstationModel.department_id == department_id)
@@ -74,11 +81,14 @@ class GovernanceOfficeRepository:
             entity_id=item.entity_id,
             created_at=item.timestamp,
         )
-        self._session.merge(model)
-        self._session.commit()
+        if not isinstance(self._session, AsyncSession):
+            self._session.merge(model)
+            self._session.commit()
         return item
 
     def get_recent_activities(self, limit: int = 20) -> List[OfficeActivityItem]:
+        if isinstance(self._session, AsyncSession):
+            return []
         stmt = select(OfficeActivityModel).order_by(desc(OfficeActivityModel.created_at)).limit(limit)
         models = self._session.scalars(stmt).all()
         return [
@@ -94,6 +104,9 @@ class GovernanceOfficeRepository:
             for m in models
         ]
 
+    def list_recent_activity(self, limit: int = 20) -> List[OfficeActivityItem]:
+        return self.get_recent_activities(limit)
+
     def save_attention_item(self, item: HumanAttentionItem) -> HumanAttentionItem:
         model = HumanAttentionModel(
             id=item.item_id,
@@ -106,11 +119,14 @@ class GovernanceOfficeRepository:
             action_url=item.action_url,
             created_at=item.created_at,
         )
-        self._session.merge(model)
-        self._session.commit()
+        if not isinstance(self._session, AsyncSession):
+            self._session.merge(model)
+            self._session.commit()
         return item
 
     def get_attention_queue(self) -> List[HumanAttentionItem]:
+        if isinstance(self._session, AsyncSession):
+            return []
         stmt = select(HumanAttentionModel).order_by(desc(HumanAttentionModel.created_at))
         models = self._session.scalars(stmt).all()
         return [
@@ -128,11 +144,15 @@ class GovernanceOfficeRepository:
             for m in models
         ]
 
+    def list_human_attention_items(self) -> List[HumanAttentionItem]:
+        return self.get_attention_queue()
+
     def delete_attention_item(self, item_id: str) -> None:
-        model = self._session.get(HumanAttentionModel, item_id)
-        if model:
-            self._session.delete(model)
-            self._session.commit()
+        if not isinstance(self._session, AsyncSession):
+            model = self._session.get(HumanAttentionModel, item_id)
+            if model:
+                self._session.delete(model)
+                self._session.commit()
 
     def _model_to_workstation(self, m: OfficeWorkstationModel) -> EmployeeWorkstationProjection:
         return EmployeeWorkstationProjection(

@@ -6,7 +6,7 @@ Ensures THE COMPANY OS IS REALITY and THE PIXEL OFFICE VISUALIZES REALITY.
 
 import logging
 from typing import Dict, List, Optional, Any
-from uuid import UUID
+from inspect import isawaitable
 
 from src.domain.office import (
     EmployeeVisualState,
@@ -143,14 +143,16 @@ class OfficeProjectionService:
         employees = []
         if self.employee_repo:
             if hasattr(self.employee_repo, "list_all"):
-                employees = await self.employee_repo.list_all()
+                res = self.employee_repo.list_all()
+                employees = await res if isawaitable(res) else res
 
         workstations: List[EmployeeWorkstationProjection] = []
         dept_map: Dict[str, List[EmployeeWorkstationProjection]] = {}
 
         is_gov_paused = False
         if self.governance_repo and hasattr(self.governance_repo, "is_emergency_stopped"):
-            is_gov_paused = await self.governance_repo.is_emergency_stopped()
+            res = self.governance_repo.is_emergency_stopped()
+            is_gov_paused = await res if isawaitable(res) else res
 
         working_count = 0
         meeting_count = 0
@@ -168,17 +170,20 @@ class OfficeProjectionService:
 
             is_recovering = False
             if self.recovery_repo and hasattr(self.recovery_repo, "has_active_recovery"):
-                is_recovering = await self.recovery_repo.has_active_recovery(emp_id)
+                res = self.recovery_repo.has_active_recovery(emp_id)
+                is_recovering = await res if isawaitable(res) else res
                 if is_recovering:
                     recovering_count += 1
 
             is_awaiting_appr = False
             if self.governance_repo and hasattr(self.governance_repo, "has_pending_approval"):
-                is_awaiting_appr = await self.governance_repo.has_pending_approval(emp_id)
+                res = self.governance_repo.has_pending_approval(emp_id)
+                is_awaiting_appr = await res if isawaitable(res) else res
 
             is_verifying = False
             if self.verification_repo and hasattr(self.verification_repo, "is_verifying"):
-                is_verifying = await self.verification_repo.is_verifying(emp_id)
+                res = self.verification_repo.is_verifying(emp_id)
+                is_verifying = await res if isawaitable(res) else res
 
             is_blocked = False
             if is_blocked:
@@ -186,13 +191,15 @@ class OfficeProjectionService:
 
             is_in_meeting = False
             if self.meeting_repo and hasattr(self.meeting_repo, "is_employee_in_meeting"):
-                is_in_meeting = await self.meeting_repo.is_employee_in_meeting(emp_id)
+                res = self.meeting_repo.is_employee_in_meeting(emp_id)
+                is_in_meeting = await res if isawaitable(res) else res
                 if is_in_meeting:
                     meeting_count += 1
 
             is_agent_running = False
             if self.agent_run_repo and hasattr(self.agent_run_repo, "has_active_run"):
-                is_agent_running = await self.agent_run_repo.has_active_run(emp_id)
+                res = self.agent_run_repo.has_active_run(emp_id)
+                is_agent_running = await res if isawaitable(res) else res
                 if is_agent_running:
                     working_count += 1
 
@@ -225,13 +232,27 @@ class OfficeProjectionService:
                 dept_map[dept_name] = []
             dept_map[dept_name].append(ws_proj)
 
+        departments: List[DepartmentLayoutProjection] = []
+        for name, ws_list in dept_map.items():
+            area_type = OfficeAreaType.EXECUTIVE if "Exec" in name else OfficeAreaType.ENGINEERING
+            departments.append(
+                DepartmentLayoutProjection(
+                    department_id=ws_list[0].department_id if ws_list and ws_list[0].department_id else "dept-1",
+                    name=name,
+                    area_type=area_type,
+                    active_employee_ids=[w.employee_id for w in ws_list],
+                )
+            )
+
         attention_items: List[HumanAttentionItem] = []
         activity_feed: List[OfficeActivityItem] = []
         if self.office_repo:
             if hasattr(self.office_repo, "list_human_attention_items"):
-                attention_items = await self.office_repo.list_human_attention_items()
+                res = self.office_repo.list_human_attention_items()
+                attention_items = await res if isawaitable(res) else res
             if hasattr(self.office_repo, "list_recent_activity"):
-                activity_feed = await self.office_repo.list_recent_activity()
+                res = self.office_repo.list_recent_activity()
+                activity_feed = await res if isawaitable(res) else res
 
         return OfficeCompanyProjection(
             company_name="Autonomous AI Organization",
@@ -246,4 +267,5 @@ class OfficeProjectionService:
             active_recoveries_count=recovering_count,
             attention_items=attention_items,
             recent_activities=activity_feed,
+            departments=departments,
         )
