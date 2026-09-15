@@ -142,8 +142,8 @@ class Employee:
     def possesses_capability(self, capability_name: str) -> bool:
         """Check if employee possesses a specific capability or skill."""
         cap_lower = capability_name.lower()
-        has_cap = any(c.name.lower() == cap_lower for c in self.capabilities)
-        has_skill = any(s.name.lower() == cap_lower for s in self.skills)
+        has_cap = any((c.name.lower() if hasattr(c, "name") else str(c).lower()) == cap_lower for c in self.capabilities)
+        has_skill = any((s.name.lower() if hasattr(s, "name") else str(s).lower()) == cap_lower for s in self.skills)
         return has_cap or has_skill
 
     def is_manager(self) -> bool:
