@@ -498,4 +498,90 @@ class SoftwareDeliveredEvent(DomainEvent):
     commit_hash: str = ""
 
 
+# Phase 10 Verification & Recovery Events
+@dataclass(frozen=True)
+class VerificationRequestedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    outcome_id: str = ""
 
+
+@dataclass(frozen=True)
+class VerificationStartedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class VerificationPassedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    evidence_count: int = 0
+
+
+@dataclass(frozen=True)
+class VerificationFailedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    failed_check_count: int = 0
+    recommended_recovery: str = ""
+
+
+@dataclass(frozen=True)
+class VerificationInconclusiveEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class RecoveryRequestedEvent(DomainEvent):
+    recovery_action_id: str = ""
+    failure_id: str = ""
+    task_id: str = ""
+    strategy: str = ""
+
+
+@dataclass(frozen=True)
+class RecoveryStartedEvent(DomainEvent):
+    recovery_action_id: str = ""
+    task_id: str = ""
+    strategy: str = ""
+
+
+@dataclass(frozen=True)
+class RecoverySucceededEvent(DomainEvent):
+    recovery_action_id: str = ""
+    task_id: str = ""
+    strategy: str = ""
+
+
+@dataclass(frozen=True)
+class RecoveryFailedEvent(DomainEvent):
+    recovery_action_id: str = ""
+    task_id: str = ""
+    strategy: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class HumanVerificationRequestedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class HumanVerificationApprovedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    approved_by_actor_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class HumanVerificationRejectedEvent(DomainEvent):
+    verification_id: str = ""
+    task_id: str = ""
+    rejected_by_actor_id: str = ""
+    reason: str = ""
