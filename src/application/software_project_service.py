@@ -39,12 +39,14 @@ from src.domain.task_dependency import DependencyType, TaskDependency
 from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemyCodeChangeRepository,
     SQLAlchemyCodeReviewRepository,
+    SQLAlchemyEngineeringPlanRepository,
     SQLAlchemySoftwareDefectRepository,
     SQLAlchemySoftwareDeliveryRepository,
     SQLAlchemySoftwareProjectRepository,
     SQLAlchemySoftwareRequirementRepository,
     SQLAlchemyTestRunRepository,
 )
+
 from src.infrastructure.repositories.task_dependency_repository import SQLAlchemyTaskDependencyRepository
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
@@ -59,7 +61,9 @@ class SoftwareProjectService:
         employee_repo: EmployeeRepositoryInterface,
         assignment_repo: AssignmentRepositoryInterface,
         objective_repo: ObjectiveRepositoryInterface,
+        plan_repo: SQLAlchemyEngineeringPlanRepository | None = None,
         change_repo: SQLAlchemyCodeChangeRepository | None = None,
+
         review_repo: SQLAlchemyCodeReviewRepository | None = None,
         test_repo: SQLAlchemyTestRunRepository | None = None,
         defect_repo: SQLAlchemySoftwareDefectRepository | None = None,
@@ -74,6 +78,7 @@ class SoftwareProjectService:
         self.employee_repo = employee_repo
         self.assignment_repo = assignment_repo
         self.objective_repo = objective_repo
+        self.plan_repo = plan_repo
         self.change_repo = change_repo
         self.review_repo = review_repo
         self.test_repo = test_repo
@@ -81,6 +86,7 @@ class SoftwareProjectService:
         self.delivery_repo = delivery_repo
         self.employee_selector = employee_selector or EmployeeSelector()
         self.event_dispatcher = event_dispatcher
+
 
     async def create_software_project(
         self,
@@ -272,9 +278,13 @@ class SoftwareProjectService:
             tech_stack=tech_stack,
             task_ids=[t.id for t in created_tasks],
         )
+        if self.plan_repo:
+            await self.plan_repo.save(plan)
+
         project.engineering_plan = plan
         project.status = SoftwareProjectStatus.PLANNING
         await self.project_repo.save(project)
+
 
         if self.event_dispatcher:
             await self.event_dispatcher.publish(
@@ -330,12 +340,17 @@ class SoftwareProjectService:
 
         reqs = await self.req_repo.list_by_project(project_id)
 
+        plan = project.engineering_plan
+        if not plan and self.plan_repo:
+            plan = await self.plan_repo.get_by_project(project_id)
+
         task_statuses = {}
-        if project.engineering_plan:
-            for t_id in project.engineering_plan.task_ids:
+        if plan:
+            for t_id in plan.task_ids:
                 t = await self.task_repo.get_by_id(t_id)
                 if t:
                     task_statuses[t_id] = t.status.value
+
 
         changes = await self.change_repo.list_by_project(project_id) if self.change_repo else []
         test_runs = await self.test_repo.list_by_project(project_id) if self.test_repo else []

@@ -61,6 +61,42 @@ class SQLAlchemySoftwareProjectRepository:
         return project_model_to_domain(model) if model else None
 
 
+class SQLAlchemyEngineeringPlanRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def save(self, plan: EngineeringPlan) -> EngineeringPlan:
+        model = EngineeringPlanModel(
+            id=plan.plan_id,
+            project_id=plan.project_id,
+            manager_employee_id=plan.manager_employee_id,
+            architecture_overview=plan.architecture_overview,
+            tech_stack=plan.tech_stack,
+            task_ids=plan.task_ids,
+            created_at=plan.created_at,
+        )
+        merged = await self.session.merge(model)
+        await self.session.flush()
+        return plan
+
+    async def get_by_project(self, project_id: str) -> EngineeringPlan | None:
+        stmt = select(EngineeringPlanModel).where(EngineeringPlanModel.project_id == project_id)
+        result = await self.session.execute(stmt)
+        model = result.unique().scalar_one_or_none()
+        if not model:
+            return None
+        return EngineeringPlan(
+            plan_id=model.id,
+            project_id=model.project_id,
+            manager_employee_id=model.manager_employee_id,
+            architecture_overview=model.architecture_overview,
+            tech_stack=model.tech_stack or [],
+            task_ids=model.task_ids or [],
+            created_at=model.created_at,
+        )
+
+
+
 class SQLAlchemySoftwareRequirementRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
