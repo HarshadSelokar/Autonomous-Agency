@@ -287,7 +287,7 @@ class VerificationEngine:
                 reason="File exists as expected" if passed else f"File target '{rule.target}' condition mismatch",
             )
 
-        elif rule.rule_type == VerificationType.TEST_VERIFICATION:
+        if rule.rule_type == VerificationType.TEST_VERIFICATION:
             test_ev = [e for e in valid_evidences if e.source_type == "TestRun"]
             if not test_ev:
                 return VerificationCheckResult(
@@ -299,16 +299,33 @@ class VerificationEngine:
                     passed=False,
                     reason="No test run evidence recorded",
                 )
-            all_passed = all(e.payload.get("exit_code", 1) == rule.expected_condition.get("exit_code", 0) and e.payload.get("failed_count", 0) == 0 for e in test_ev)
+            # Freshness: Sort evidence by created_at desc to inspect the latest test run
+            test_ev.sort(key=lambda x: x.created_at, reverse=True)
+            latest_test = test_ev[0]
+            passed = (latest_test.payload.get("exit_code", 1) == rule.expected_condition.get("exit_code", 0) and latest_test.payload.get("failed_count", 0) == 0)
             return VerificationCheckResult(
                 check_id=check_id,
                 rule_id=rule.rule_id,
                 rule_name=rule.name,
                 rule_type=rule.rule_type,
                 severity=rule.severity,
-                passed=all_passed,
-                evidence_ids=[e.evidence_id for e in test_ev],
-                reason="All tests passed successfully" if all_passed else "Test run recorded failures",
+                passed=passed,
+                evidence_ids=[latest_test.evidence_id],
+                reason="Latest test run passed successfully" if passed else f"Latest test run failed with exit code {latest_test.payload.get('exit_code')}",
+            )
+
+        elif rule.rule_type == VerificationType.HUMAN_VERIFICATION:
+            human_ev = [e for e in valid_evidences if e.source_type == "HumanReview" or e.payload.get("is_human") is True]
+            approved = any(e.payload.get("approved") is True for e in human_ev)
+            return VerificationCheckResult(
+                check_id=check_id,
+                rule_id=rule.rule_id,
+                rule_name=rule.name,
+                rule_type=rule.rule_type,
+                severity=RuleSeverity.WARNING if not approved else RuleSeverity.CRITICAL,
+                passed=approved,
+                evidence_ids=[e.evidence_id for e in human_ev],
+                reason="Human verification approved" if approved else "Pending authorized human verification",
             )
 
         elif rule.rule_type == VerificationType.ARTIFACT_VERIFICATION:
