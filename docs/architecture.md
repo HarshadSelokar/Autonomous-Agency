@@ -206,7 +206,30 @@ $$\text{ModelProvider} \neq \text{AgentProvider} \neq \text{ExecutionProvider} \
 
 ---
 
-## Summary of Completed Phases (1–8)
+## Phase 9 AI Software Company Architecture
+
+$$\text{Company Objective} \rightarrow \text{Engineering Manager} \rightarrow \text{Requirements} \rightarrow \text{Engineering Plan} \rightarrow \text{Task Graph} \rightarrow \text{Employee Assignment} \rightarrow \text{Workspace} \rightarrow \text{Tool Execution} \rightarrow \text{Test Execution} \rightarrow \text{Code Review} \rightarrow \text{Rework (if required)} \rightarrow \text{Evidence} \rightarrow \text{Delivery}$$
+
+### 1. Architectural Highlights
+- **Role Capabilities**: Software Manager, Backend/Frontend Developer, QA Engineer, Code Reviewer mapped through Phase 2 `Employee` capabilities.
+- **Task Graph Decomposition**: Phase 3 Manager planning decomposes software requirements into Phase 4 Task DAG (Architecture $\rightarrow$ Feature Dev $\rightarrow$ QA Execution $\rightarrow$ Code Review).
+- **Code Review Rework Loop**: Code review rejection (`CHANGES_REQUESTED`) automatically triggers Task REWORK in Phase 4 Task Engine.
+- **Defect-to-Task Pipeline**: Software defects automatically generate bugfix tasks in Task Engine and close upon verified test run evidence (`exit_code == 0`).
+- **Delivery Governance**: Release delivery requires complete requirements, passing test evidence, closed defects, and manager approval (with self-approval blocked).
+
+### 2. Domain Documentation
+- [Phase 9 AI Software Company Architecture](file:///d:/agency/docs/architecture/software_company.md)
+
+### 3. REST API Endpoints (`src/api/routes/software_projects.py`)
+- `POST /software-projects`, `GET /software-projects/{id}`, `POST /software-projects/{id}/requirements`
+- `POST /software-projects/{id}/plan`, `GET /software-projects/{id}/status`
+- `POST /code-changes`, `POST /code-changes/{id}/review-request`, `POST /code-reviews/{id}/findings`
+- `POST /test-runs`, `POST /software-projects/{id}/defects`
+- `POST /software-projects/{id}/delivery-request`, `POST /software-deliveries/{id}/approve`
+
+---
+
+## Summary of Completed Phases (1–9)
 
 | Phase | System / Component | Core Focus |
 |---|---|---|
@@ -218,6 +241,8 @@ $$\text{ModelProvider} \neq \text{AgentProvider} \neq \text{ExecutionProvider} \
 | Phase 6 | Meetings & Decisions | Formal meetings, discussion agendas, decision proposals, manager approval & memory derivation. |
 | Phase 7 | Memory, Workspace & Artifacts | First-class memory authority, hybrid retrieval, sandboxed workspaces, versioned SHA-256 artifacts. |
 | Phase 8 | Tools & Integrations | 12-stage tool execution pipeline, backend policy engine, manager approval workflow, SSRF & secret isolation. |
+| Phase 9 | AI Software Company | Software project domain, requirement analysis, engineering task decomposition, code review rework loops, test run evidence & release delivery governance. |
+
 
 
 
