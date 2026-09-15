@@ -11,6 +11,8 @@ from src.api.routes.agents import router as agents_router
 from src.api.routes.artifacts import router as artifacts_router
 from src.api.routes.communication import router as communication_router
 from src.api.routes.decisions import router as decisions_router
+from src.api.routes.department_requests import router as department_requests_router
+from src.api.routes.departments import router as departments_router
 from src.api.routes.employees import router as employees_router
 from src.api.routes.governance import router as governance_router
 from src.api.routes.meetings import router as meetings_router
@@ -43,16 +45,18 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing & Pixel Office "
-        "(Phase 1 - Phase 13)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office & Department Expansion "
+        "(Phase 1 - Phase 14)"
     ),
-    version="0.13.0",
+    version="0.14.0",
     lifespan=lifespan,
 )
 
 # Include Routers
 app.include_router(agents_router)
 app.include_router(employees_router)
+app.include_router(departments_router)
+app.include_router(department_requests_router)
 app.include_router(objectives_router)
 app.include_router(runs_router)
 app.include_router(tasks_router)
