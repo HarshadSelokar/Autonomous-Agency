@@ -3,14 +3,13 @@ VerificationEngine Application Service for Phase 10.
 """
 
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+
 import uuid
+from typing import Any
 
 from src.domain.events import (
     DomainEvent,
     HumanVerificationApprovedEvent,
-    HumanVerificationRejectedEvent,
     HumanVerificationRequestedEvent,
     VerificationFailedEvent,
     VerificationInconclusiveEvent,
@@ -19,8 +18,8 @@ from src.domain.events import (
     VerificationStartedEvent,
 )
 from src.domain.verification import (
-    ExpectedOutcome,
     EvidenceTrustLevel,
+    ExpectedOutcome,
     RuleSeverity,
     VerificationCheckResult,
     VerificationEvidence,
@@ -35,7 +34,7 @@ from src.infrastructure.repositories.verification_repository import Verification
 class VerificationEngine:
     """Generic Verification Engine responsible for evidence-based task outcome verification."""
 
-    def __init__(self, repository: VerificationRepository, outbox_publisher: Optional[Any] = None):
+    def __init__(self, repository: VerificationRepository, outbox_publisher: Any | None = None):
         self._repository = repository
         self._outbox_publisher = outbox_publisher
 
@@ -47,10 +46,10 @@ class VerificationEngine:
         self,
         task_id: str,
         description: str,
-        criteria: List[str],
-        rules: List[VerificationRule],
-        required_evidence_types: Optional[List[str]] = None,
-        policy: Optional[Dict[str, Any]] = None,
+        criteria: list[str],
+        rules: list[VerificationRule],
+        required_evidence_types: list[str] | None = None,
+        policy: dict[str, Any] | None = None,
     ) -> ExpectedOutcome:
         outcome = ExpectedOutcome(
             outcome_id=f"outcome-{uuid.uuid4().hex[:8]}",
@@ -68,17 +67,17 @@ class VerificationEngine:
         self,
         source_type: str,
         source_id: str,
-        task_id: Optional[str] = None,
-        workspace_id: Optional[str] = None,
-        agent_run_id: Optional[str] = None,
-        employee_id: Optional[str] = None,
-        tool_execution_id: Optional[str] = None,
-        artifact_id: Optional[str] = None,
+        task_id: str | None = None,
+        workspace_id: str | None = None,
+        agent_run_id: str | None = None,
+        employee_id: str | None = None,
+        tool_execution_id: str | None = None,
+        artifact_id: str | None = None,
         trust_level: EvidenceTrustLevel = EvidenceTrustLevel.EXECUTED,
-        checksum: Optional[str] = None,
-        commit_sha: Optional[str] = None,
-        artifact_version: Optional[str] = None,
-        payload: Optional[Dict[str, Any]] = None,
+        checksum: str | None = None,
+        commit_sha: str | None = None,
+        artifact_version: str | None = None,
+        payload: dict[str, Any] | None = None,
     ) -> VerificationEvidence:
         evidence = VerificationEvidence(
             evidence_id=f"ev-{uuid.uuid4().hex[:8]}",
@@ -102,7 +101,7 @@ class VerificationEngine:
     def verify_task(
         self,
         task_id: str,
-        evidence_ids: Optional[List[str]] = None,
+        evidence_ids: list[str] | None = None,
     ) -> VerificationResult:
         outcome_model = self._repository.get_outcome_by_task(task_id)
         if not outcome_model:
@@ -115,30 +114,33 @@ class VerificationEngine:
             )
         else:
             # Reconstruct domain outcome from model
+            rules_data_list: List[Dict[str, Any]] = outcome_model.rules_data if isinstance(outcome_model.rules_data, list) else []
             rules = [
                 VerificationRule(
-                    rule_id=r["rule_id"],
+                    rule_id=str(r["rule_id"]),
                     rule_type=VerificationType(r["rule_type"]),
-                    name=r["name"],
-                    description=r["description"],
-                    target=r["target"],
-                    expected_condition=r["expected_condition"],
+                    name=str(r["name"]),
+                    description=str(r["description"]),
+                    target=str(r["target"]),
+                    expected_condition=r["expected_condition"] if isinstance(r.get("expected_condition"), dict) else {},
                     severity=RuleSeverity(r.get("severity", "CRITICAL")),
-                    retryable=r.get("retryable", True),
-                    requires_human=r.get("requires_human", False),
+                    retryable=bool(r.get("retryable", True)),
+                    requires_human=bool(r.get("requires_human", False)),
                     min_trust_level=EvidenceTrustLevel(r.get("min_trust_level", "EXECUTED")),
-                    operator=r.get("operator", "AND"),
+                    operator=str(r.get("operator", "AND")),
                 )
-                for r in outcome_model.rules_data
+                for r in rules_data_list
             ]
+            criteria_list: List[str] = outcome_model.criteria if isinstance(outcome_model.criteria, list) else []
+            req_ev_list: List[str] = outcome_model.required_evidence_types if isinstance(outcome_model.required_evidence_types, list) else []
             outcome = ExpectedOutcome(
                 outcome_id=outcome_model.id,
                 task_id=outcome_model.task_id,
                 description=outcome_model.description,
-                criteria=outcome_model.criteria,
+                criteria=criteria_list,
                 rules=rules,
-                required_evidence_types=outcome_model.required_evidence_types,
-                policy=outcome_model.policy,
+                required_evidence_types=req_ev_list,
+                policy=outcome_model.policy if isinstance(outcome_model.policy, dict) else {},
             )
 
         verification_id = f"verif-{uuid.uuid4().hex[:8]}"
@@ -147,7 +149,7 @@ class VerificationEngine:
 
         # Collect evidence for task
         collected_evidence_models = self._repository.get_evidence_by_task(task_id)
-        evidence_map: Dict[str, VerificationEvidence] = {}
+        evidence_map: dict[str, VerificationEvidence] = {}
 
         for em in collected_evidence_models:
             evidence_map[em.id] = VerificationEvidence(
@@ -168,9 +170,9 @@ class VerificationEngine:
                 created_at=em.created_at,
             )
 
-        passed_checks: List[VerificationCheckResult] = []
-        failed_checks: List[VerificationCheckResult] = []
-        used_evidence_ids: List[str] = list(evidence_map.keys())
+        passed_checks: list[VerificationCheckResult] = []
+        failed_checks: list[VerificationCheckResult] = []
+        used_evidence_ids: list[str] = list(evidence_map.keys())
 
         # Evaluate each rule
         for rule in outcome.rules:
@@ -252,7 +254,7 @@ class VerificationEngine:
     def _evaluate_rule(
         self,
         rule: VerificationRule,
-        evidences: List[VerificationEvidence],
+        evidences: list[VerificationEvidence],
         task_id: str,
     ) -> VerificationCheckResult:
         check_id = f"chk-{uuid.uuid4().hex[:8]}"
