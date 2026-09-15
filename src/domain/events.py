@@ -714,3 +714,13 @@ class ModelHealthChangedEvent(DomainEvent):
     model_id: str = ""
     provider_name: str = ""
     is_healthy: bool = True
+
+
+# Phase 13 Pixel Office Events
+@dataclass(frozen=True)
+class OfficeStateUpdatedEvent(DomainEvent):
+    employee_id: str = ""
+    visual_state: str = ""
+    activity_summary: str = ""
+    task_id: str | None = None
+    project_id: str | None = None
