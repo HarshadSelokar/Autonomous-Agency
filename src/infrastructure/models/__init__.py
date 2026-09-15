@@ -60,6 +60,11 @@ from src.infrastructure.models.model_routing_model import (
     ModelProviderHealthModel,
     ModelSelectionDecisionModel,
 )
+from src.infrastructure.models.office_model import (
+    HumanAttentionModel,
+    OfficeActivityModel,
+    OfficeWorkstationModel,
+)
 from src.infrastructure.models.work_item_model import WorkItemModel
 from src.infrastructure.models.workspace_model import WorkspaceModel
 
@@ -111,5 +116,8 @@ __all__ = [
     "ModelProfileModel",
     "ModelSelectionDecisionModel",
     "ModelProviderHealthModel",
+    "OfficeWorkstationModel",
+    "OfficeActivityModel",
+    "HumanAttentionModel",
 ]
 
