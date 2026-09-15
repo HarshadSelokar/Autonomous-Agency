@@ -38,6 +38,8 @@ class AgentExecutionEngine:
         output_validator: StructuredOutputValidator | None = None,
         retry_policy: RetryPolicy | None = None,
         tool_pipeline: Any | None = None,
+        governance_service: Any | None = None,
+        model_router: Any | None = None,
     ) -> None:
         self.agent_repo = agent_repo
         self.run_repo = run_repo
@@ -48,6 +50,8 @@ class AgentExecutionEngine:
         self.output_validator = output_validator or StructuredOutputValidator()
         self.retry_policy = retry_policy or RetryPolicy()
         self.tool_pipeline = tool_pipeline
+        self.governance_service = governance_service
+        self.model_router = model_router
 
     async def execute_run(
         self,
@@ -137,6 +141,34 @@ class AgentExecutionEngine:
             await self.step_repo.save(step_context)
 
             # STEP 3: Resolve Model Provider & Execute Model Call
+            target_provider = agent.model_configuration.provider
+            target_model = agent.model_configuration.model
+
+            # Governance Autonomy Check
+            if self.governance_service and hasattr(self.governance_service, "evaluate_autonomy"):
+                autonomy, risk, _ = self.governance_service.evaluate_autonomy(
+                    action_type="AGENT_RUN",
+                    action_target=objective,
+                    actor_id=agent.id,
+                    task_id=task_id,
+                )
+                if autonomy.value if hasattr(autonomy, "value") else str(autonomy) == "BLOCKED":
+                    raise AgentValidationError(f"Execution blocked by Governance Policy for objective '{objective}'")
+
+            # Model Router Selection
+            if self.model_router and hasattr(self.model_router, "route_model"):
+                from src.domain.model_routing import ModelCapability, ModelSelectionRequest, RoutingStrategy
+                sel_req = ModelSelectionRequest(
+                    request_id=f"req_{run_id}",
+                    task_id=task_id,
+                    agent_id=agent.id,
+                    required_capabilities=[ModelCapability.TEXT_GENERATION],
+                    strategy=RoutingStrategy.CAPABILITY_BASED,
+                )
+                decision = self.model_router.route_model(sel_req)
+                target_provider = decision.selected_provider_name
+                target_model = decision.selected_model_id
+
             step_counter += 1
             step_model = ExecutionStep(
                 id=f"step_{run_id}_{step_counter}",
@@ -144,15 +176,15 @@ class AgentExecutionEngine:
                 step_number=step_counter,
                 step_type=StepType.MODEL_CALL,
                 input_data={
-                    "provider": agent.model_configuration.provider,
-                    "model": agent.model_configuration.model,
+                    "provider": target_provider,
+                    "model": target_model,
                 },
             )
             await self.step_repo.save(step_model)
 
-            provider = self.provider_registry.get(agent.model_configuration.provider)
+            provider = self.provider_registry.get(target_provider)
             model_request = ModelRequest(
-                model=agent.model_configuration.model,
+                model=target_model,
                 messages=chat_messages,
                 temperature=agent.model_configuration.temperature,
                 max_tokens=agent.model_configuration.max_tokens,
