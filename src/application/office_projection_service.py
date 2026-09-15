@@ -37,6 +37,8 @@ class OfficeProjectionService:
         recovery_repository: Any = None,
         agent_run_repository: Any = None,
         office_repository: Any = None,
+        team_repository: Any = None,
+        workforce_repository: Any = None,
     ) -> None:
         self.employee_repo = employee_repository
         self.department_repo = department_repository
@@ -48,6 +50,8 @@ class OfficeProjectionService:
         self.recovery_repo = recovery_repository
         self.agent_run_repo = agent_run_repository
         self.office_repo = office_repository
+        self.team_repo = team_repository
+        self.workforce_repo = workforce_repository
 
     def derive_employee_visual_state(
         self,

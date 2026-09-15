@@ -1,18 +1,18 @@
 """Unit tests for OfficeProjectionService and OfficeRealtimeBroadcaster."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from src.domain.office import (
-    EmployeeVisualState,
-    HumanAttentionType,
-)
-from src.domain.events import OfficeStateUpdatedEvent
+import pytest
+
 from src.application.office_projection_service import OfficeProjectionService
 from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
+)
+from src.domain.events import OfficeStateUpdatedEvent
+from src.domain.office import (
+    EmployeeVisualState,
 )
 
 
@@ -152,3 +152,13 @@ async def test_office_realtime_broadcaster():
 
     broadcaster.unregister_connection("conn-1")
     assert broadcaster.active_connection_count == 0
+
+
+@pytest.mark.asyncio
+async def test_office_projection_with_team_repository():
+    mock_team_repo = AsyncMock()
+    mock_team_repo.list_all = AsyncMock(return_value=[])
+
+    service = OfficeProjectionService(team_repository=mock_team_repo)
+    assert service.team_repo is mock_team_repo
+
