@@ -97,16 +97,16 @@ def employee_domain_to_model(employee: Employee) -> EmployeeModel:
     """Map pure Domain Employee entity to SQLAlchemy EmployeeModel."""
     skills_json = [
         {
-            "name": s.name,
-            "category": s.category,
-            "proficiency": s.proficiency.value,
+            "name": s.name if hasattr(s, "name") else str(s),
+            "category": getattr(s, "category", "general"),
+            "proficiency": getattr(s, "proficiency", "intermediate").value if hasattr(getattr(s, "proficiency", None), "value") else str(getattr(s, "proficiency", "intermediate")),
         }
         for s in employee.skills
     ]
     capabilities_json = [
         {
-            "name": c.name,
-            "description": c.description,
+            "name": c.name if hasattr(c, "name") else str(c),
+            "description": c.description if hasattr(c, "description") else "",
         }
         for c in employee.capabilities
     ]
