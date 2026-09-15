@@ -585,3 +585,20 @@ class HumanVerificationRejectedEvent(DomainEvent):
     task_id: str = ""
     rejected_by_actor_id: str = ""
     reason: str = ""
+
+
+@dataclass(frozen=True)
+class TaskReassignedEvent(DomainEvent):
+    task_id: str = ""
+    previous_employee_id: str | None = None
+    new_employee_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TaskEscalatedEvent(DomainEvent):
+    task_id: str = ""
+    objective_id: str = ""
+    escalated_by: str = ""
+    escalated_to: str = ""
+    reason: str = ""
