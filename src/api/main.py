@@ -23,8 +23,10 @@ from src.api.routes.office import router as office_router
 from src.api.routes.runs import router as runs_router
 from src.api.routes.software_projects import router as software_projects_router
 from src.api.routes.tasks import router as tasks_router
+from src.api.routes.teams import router as teams_router
 from src.api.routes.tools import router as tools_router
 from src.api.routes.verifications import router as verifications_router
+from src.api.routes.workforce import router as workforce_router
 from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
 from src.infrastructure.config import settings
@@ -45,10 +47,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office & Enterprise Departments "
-        "(Phase 1 - Phase 14)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments & Dynamic Workforce "
+        "(Phase 1 - Phase 15)"
     ),
-    version="0.14.0",
+    version="0.15.0",
     lifespan=lifespan,
 )
 
@@ -72,6 +74,8 @@ app.include_router(verifications_router)
 app.include_router(governance_router)
 app.include_router(model_routing_router)
 app.include_router(office_router)
+app.include_router(workforce_router)
+app.include_router(teams_router)
 
 
 

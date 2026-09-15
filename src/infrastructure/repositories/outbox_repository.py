@@ -3,8 +3,9 @@ SQLAlchemy Repository implementation for Transactional Outbox.
 """
 
 import inspect
-from typing import Any, Sequence
 import uuid
+from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy import select
 
@@ -44,6 +45,14 @@ class SQLAlchemyOutboxRepository:
         if inspect.isawaitable(flush_res):
             await flush_res
         return model
+
+    async def save_event(self, event: Any) -> OutboxMessageModel:
+        import dataclasses
+        import json
+        event_type = type(event).__name__
+        payload = dataclasses.asdict(event) if dataclasses.is_dataclass(event) else str(event)
+        payload_json = json.dumps(payload, default=str)
+        return await self.create_outbox_message(event_type=event_type, payload_json=payload_json)
 
     async def get_pending_messages(self, limit: int = 50) -> list[OutboxMessageModel]:
         stmt = (

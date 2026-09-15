@@ -49,7 +49,7 @@ class SQLAlchemyWorkforceRepository:
             model.deadline = updated.deadline
             model.risk_level = updated.risk_level
             model.governance_required = updated.governance_required
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def get_demand(self, demand_id: str) -> WorkforceDemand | None:
@@ -73,7 +73,7 @@ class SQLAlchemyWorkforceRepository:
             model.available_capacity = updated.available_capacity
             model.active_assignments_count = updated.active_assignments_count
             model.snapshot_time = updated.snapshot_time
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def list_capacity_snapshots(self) -> list[CapacitySnapshot]:
@@ -99,7 +99,7 @@ class SQLAlchemyWorkforceRepository:
             model.gap_count = updated.gap_count
             model.severity = updated.severity
             model.affected_project_ids_json = updated.affected_project_ids_json
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def list_capability_gaps(self) -> list[CapabilityGap]:
@@ -118,7 +118,7 @@ class SQLAlchemyWorkforceRepository:
             model.candidate_employee_ids_json = updated.candidate_employee_ids_json
             model.final_score = updated.final_score
             model.reasoning = updated.reasoning
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def get_recommendation(self, rec_id: str) -> StaffingRecommendation | None:
@@ -143,7 +143,7 @@ class SQLAlchemyWorkforceRepository:
             model.allocation_percentage = updated.allocation_percentage
             model.status = updated.status
             model.end_time = updated.end_time
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def list_allocations(self) -> list[WorkforceAllocation]:
@@ -167,7 +167,7 @@ class SQLAlchemyWorkforceRepository:
             model.status = updated.status
             model.governance_approval_id = updated.governance_approval_id
             model.processed_at = updated.processed_at
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def get_change_request(self, req_id: str) -> WorkforceChangeRequest | None:
@@ -189,7 +189,7 @@ class SQLAlchemyWorkforceRepository:
             updated = WorkforceDecisionModel.from_domain(dec)
             model.decision_type = updated.decision_type
             model.reason = updated.reason
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def list_decisions(self) -> list[WorkforceDecision]:
@@ -208,7 +208,7 @@ class SQLAlchemyWorkforceRepository:
             model.title = updated.title
             model.capabilities_json = updated.capabilities_json
             model.skills_json = updated.skills_json
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def list_employee_templates(self) -> list[EmployeeTemplate]:
@@ -226,7 +226,7 @@ class SQLAlchemyWorkforceRepository:
             updated = WorkforcePlanModel.from_domain(plan)
             model.status = updated.status
             model.approved_at = updated.approved_at
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def get_plan(self, plan_id: str) -> WorkforcePlan | None:

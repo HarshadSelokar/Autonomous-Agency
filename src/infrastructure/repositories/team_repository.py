@@ -34,7 +34,7 @@ class SQLAlchemyTeamRepository:
             await self.session.execute(delete(TeamMemberModel).where(TeamMemberModel.team_id == team.id))
             model.members = [TeamMemberModel.from_domain(m) for m in team.members]
 
-        await self.session.flush()
+        await self.session.commit()
         return model.to_domain()
 
     async def get_by_id(self, team_id: str) -> Team | None:
