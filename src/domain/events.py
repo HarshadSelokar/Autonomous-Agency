@@ -724,3 +724,101 @@ class OfficeStateUpdatedEvent(DomainEvent):
     activity_summary: str = ""
     task_id: str | None = None
     project_id: str | None = None
+
+
+# Phase 14 Department Expansion Events
+@dataclass(frozen=True)
+class DepartmentCreatedEvent(DomainEvent):
+    department_id: str = ""
+    name: str = ""
+    code: str = ""
+    status: str = "PLANNED"
+
+
+@dataclass(frozen=True)
+class DepartmentStatusChangedEvent(DomainEvent):
+    department_id: str = ""
+    previous_status: str = ""
+    new_status: str = ""
+    reason: str | None = None
+
+
+@dataclass(frozen=True)
+class DepartmentManagerAssignedEvent(DomainEvent):
+    department_id: str = ""
+    previous_manager_id: str | None = None
+    new_manager_id: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentRequestCreatedEvent(DomainEvent):
+    request_id: str = ""
+    requester_department_id: str = ""
+    receiving_department_id: str = ""
+    requester_employee_id: str = ""
+    purpose: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentRequestAcceptedEvent(DomainEvent):
+    request_id: str = ""
+    receiving_manager_id: str = ""
+    delivery_owner_id: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentRequestRejectedEvent(DomainEvent):
+    request_id: str = ""
+    rejected_by_actor_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentRequestDeliveredEvent(DomainEvent):
+    request_id: str = ""
+    delivery_owner_id: str = ""
+    handoff_id: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentRequestVerifiedEvent(DomainEvent):
+    request_id: str = ""
+    verification_id: str = ""
+    success: bool = True
+
+
+@dataclass(frozen=True)
+class DepartmentHandoffCreatedEvent(DomainEvent):
+    handoff_id: str = ""
+    request_id: str = ""
+    sender_department_id: str = ""
+    receiving_department_id: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentHandoffAcceptedEvent(DomainEvent):
+    handoff_id: str = ""
+    accepted_by_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentHandoffRejectedEvent(DomainEvent):
+    handoff_id: str = ""
+    rejected_by_employee_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentEscalatedEvent(DomainEvent):
+    department_id: str = ""
+    request_id: str | None = None
+    escalated_by: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class DepartmentHealthChangedEvent(DomainEvent):
+    department_id: str = ""
+    previous_health: str = "HEALTHY"
+    new_health: str = "HEALTHY"
+    reason: str = ""
