@@ -179,3 +179,10 @@ class TaskClaimError(DomainError):
     """Raised when claiming a task fails due to concurrency or state conflict."""
 
     pass
+
+
+class UnauthorizedApprovalError(DomainError):
+    """Raised when an unauthorized approval (e.g. self-approval) is attempted."""
+
+    pass
+
