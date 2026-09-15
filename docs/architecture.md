@@ -219,17 +219,34 @@ $$\text{Company Objective} \rightarrow \text{Engineering Manager} \rightarrow \t
 
 ### 2. Domain Documentation
 - [Phase 9 AI Software Company Architecture](file:///d:/agency/docs/architecture/software_company.md)
+- [Phase 10 Verification & Recovery Architecture](file:///d:/agency/docs/architecture/verification.md)
 
-### 3. REST API Endpoints (`src/api/routes/software_projects.py`)
-- `POST /software-projects`, `GET /software-projects/{id}`, `POST /software-projects/{id}/requirements`
-- `POST /software-projects/{id}/plan`, `GET /software-projects/{id}/status`
-- `POST /code-changes`, `POST /code-changes/{id}/review-request`, `POST /code-reviews/{id}/findings`
-- `POST /test-runs`, `POST /software-projects/{id}/defects`
-- `POST /software-projects/{id}/delivery-request`, `POST /software-deliveries/{id}/approve`
+### 3. REST API Endpoints (`src/api/routes/verifications.py`)
+- `POST /verifications/outcomes`, `POST /verifications/evidence`
+- `POST /verifications/verify`, `GET /verifications/{id}`
+- `POST /verifications/{id}/override`
 
 ---
 
-## Summary of Completed Phases (1–9)
+## Phase 11 Human Governance & Phase 12 Model Routing Architecture
+
+$$\text{HUMAN GOVERNANCE} \rightarrow \text{POLICY / RISK / AUTHORITY} \rightarrow \text{MODEL ROUTING} \rightarrow \text{AGENT EXECUTION} \rightarrow \text{TOOLS} \rightarrow \text{VERIFICATION} \rightarrow \text{RECOVERY}$$
+
+### 1. Architectural Highlights
+- **Human Governance Engine**: Precedence-based policy hierarchy (`SYSTEM` > `COMPANY` > `DEPARTMENT` > `PROJECT` > `TASK`), automatic action risk classification, human approval requests, self-approval prevention (separation of duties), emergency stop kill switch across 8 scopes, and audited human overrides.
+- **Provider-Neutral Model Router**: Capability-based candidate filtering, governance allowlist/blocklist validation, strategy-driven scoring (`QUALITY_AWARE`, `COST_AWARE`, `LATENCY_AWARE`, `HEALTH_AWARE`), dynamic provider health monitoring, automatic outage fallback, and explainable decision logs.
+
+### 2. Domain Documentation
+- [Phase 11 Human Governance Architecture](file:///d:/agency/docs/architecture/governance.md)
+- [Phase 12 Model Routing Architecture](file:///d:/agency/docs/architecture/model-routing.md)
+
+### 3. REST API Endpoints (`src/api/routes/governance.py`, `model_routing.py`)
+- `POST /governance/policies`, `POST /governance/approvals`, `POST /governance/approvals/{id}/approve`, `POST /governance/approvals/{id}/reject`, `POST /governance/stop`, `POST /governance/interventions`, `GET /governance/violations`
+- `POST /models`, `POST /models/route`, `POST /models/health`
+
+---
+
+## Summary of Completed Phases (1–12)
 
 | Phase | System / Component | Core Focus |
 |---|---|---|
@@ -242,6 +259,9 @@ $$\text{Company Objective} \rightarrow \text{Engineering Manager} \rightarrow \t
 | Phase 7 | Memory, Workspace & Artifacts | First-class memory authority, hybrid retrieval, sandboxed workspaces, versioned SHA-256 artifacts. |
 | Phase 8 | Tools & Integrations | 12-stage tool execution pipeline, backend policy engine, manager approval workflow, SSRF & secret isolation. |
 | Phase 9 | AI Software Company | Software project domain, requirement analysis, engineering task decomposition, code review rework loops, test run evidence & release delivery governance. |
+| Phase 10 | Verification & Recovery Engine | Generic outcome verification, evidence trust levels, failure classification, deterministic recovery strategies (retry, rework, reassign, escalate), failure budget controls, and audited human overrides. |
+| Phase 11 | Human Governance | Precedence-based policies, risk classification, approval workflows, self-approval prevention, emergency stop kill switch, intervention logging, policy violation tracking. |
+| Phase 12 | Model Routing & Intelligent Selection | Provider-neutral model registry, strategy-based scoring, governance allowlist validation, provider health monitoring, and automatic outage fallback. |
 
 
 
