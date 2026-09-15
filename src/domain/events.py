@@ -389,3 +389,113 @@ class ToolExecutionFailedEvent(DomainEvent):
     error_message: str = ""
 
 
+# Phase 9 AI Software Company Events
+@dataclass(frozen=True)
+class SoftwareProjectCreatedEvent(DomainEvent):
+    project_id: str = ""
+    objective_id: str = ""
+    name: str = ""
+    repository_path: str = ""
+
+
+@dataclass(frozen=True)
+class SoftwareRequirementCreatedEvent(DomainEvent):
+    requirement_id: str = ""
+    project_id: str = ""
+    title: str = ""
+    priority: str = "MEDIUM"
+
+
+@dataclass(frozen=True)
+class EngineeringPlanCreatedEvent(DomainEvent):
+    plan_id: str = ""
+    project_id: str = ""
+    manager_employee_id: str = ""
+    task_count: int = 0
+
+
+@dataclass(frozen=True)
+class CodeChangeCreatedEvent(DomainEvent):
+    change_id: str = ""
+    project_id: str = ""
+    task_id: str = ""
+    author_employee_id: str = ""
+    branch_name: str = ""
+
+
+@dataclass(frozen=True)
+class CodeReviewRequestedEvent(DomainEvent):
+    review_id: str = ""
+    change_id: str = ""
+    reviewer_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class CodeReviewApprovedEvent(DomainEvent):
+    review_id: str = ""
+    change_id: str = ""
+    reviewer_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class CodeReviewChangesRequestedEvent(DomainEvent):
+    review_id: str = ""
+    change_id: str = ""
+    reviewer_employee_id: str = ""
+    findings: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class TestRunStartedEvent(DomainEvent):
+    test_run_id: str = ""
+    task_id: str = ""
+    workspace_id: str = ""
+    command: str = ""
+
+
+@dataclass(frozen=True)
+class TestRunSucceededEvent(DomainEvent):
+    test_run_id: str = ""
+    task_id: str = ""
+    passed_count: int = 0
+
+
+@dataclass(frozen=True)
+class TestRunFailedEvent(DomainEvent):
+    test_run_id: str = ""
+    task_id: str = ""
+    failed_count: int = 0
+    error_summary: str = ""
+
+
+@dataclass(frozen=True)
+class SoftwareDefectCreatedEvent(DomainEvent):
+    defect_id: str = ""
+    project_id: str = ""
+    title: str = ""
+    severity: str = "MEDIUM"
+    originating_task_id: str | None = None
+
+
+@dataclass(frozen=True)
+class SoftwareDefectFixedEvent(DomainEvent):
+    defect_id: str = ""
+    fix_task_id: str = ""
+
+
+@dataclass(frozen=True)
+class SoftwareDeliveryApprovedEvent(DomainEvent):
+    delivery_id: str = ""
+    project_id: str = ""
+    approved_by_employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class SoftwareDeliveredEvent(DomainEvent):
+    delivery_id: str = ""
+    project_id: str = ""
+    version: str = ""
+    commit_hash: str = ""
+
+
+
