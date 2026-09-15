@@ -5,6 +5,7 @@ GovernanceService Application Service for Phase 11 Human Governance.
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
+import threading
 import uuid
 
 from src.domain.events import (
@@ -35,6 +36,8 @@ from src.domain.governance import (
     ViolationCategory,
 )
 from src.infrastructure.repositories.governance_repository import GovernanceRepository
+
+_service_lock = threading.RLock()
 
 
 class GovernanceService:
@@ -204,36 +207,43 @@ class GovernanceService:
         approver_actor_id: str,
         approver_roles: Optional[List[str]] = None,
     ) -> GovernanceApprovalRequest:
-        model = self._repository.get_approval_request(request_id)
-        if not model:
-            raise ValueError(f"Approval request {request_id} not found")
+        with _service_lock:
+            model = self._repository.get_approval_request(request_id)
+            if not model:
+                raise ValueError(f"Approval request {request_id} not found")
 
-        req = self._model_to_approval_request(model)
+            req = self._model_to_approval_request(model)
 
-        if req.status != ApprovalStatus.PENDING:
-            raise ValueError(f"Approval request {request_id} is in state {req.status}, expected PENDING")
+            if req.status != ApprovalStatus.PENDING:
+                raise ValueError(f"Approval request {request_id} is in state {req.status}, expected PENDING")
 
-        if req.is_expired():
-            req.status = ApprovalStatus.EXPIRED
+            if req.is_expired():
+                req.status = ApprovalStatus.EXPIRED
+                self._repository.save_approval_request(req)
+                self.record_violation(
+                    category=ViolationCategory.STALE_APPROVAL,
+                    summary=f"Approval request {request_id} expired prior to execution attempt",
+                    actor_id=req.requested_by_actor_id,
+                    task_id=req.task_id,
+                )
+                self._publish_event(ApprovalExpiredEvent(request_id=request_id))
+                raise ValueError(f"Approval request {request_id} has expired")
+
+            # Enforce Separation of Duties (Self-approval prevention)
+            if req.prohibit_self_approval and req.requested_by_actor_id == approver_actor_id:
+                self.record_violation(
+                    category=ViolationCategory.SEPARATION_OF_DUTIES_VIOLATION,
+                    summary=f"Actor {approver_actor_id} attempted to self-approve request {request_id}",
+                    actor_id=approver_actor_id,
+                    task_id=req.task_id,
+                )
+                raise ValueError(f"Self-approval prohibited: Actor {approver_actor_id} requested this action")
+
+            req.status = ApprovalStatus.APPROVED
+            req.approved_by_actor_id = approver_actor_id
             self._repository.save_approval_request(req)
-            self._publish_event(ApprovalExpiredEvent(request_id=request_id))
-            raise ValueError(f"Approval request {request_id} has expired")
-
-        # Enforce Separation of Duties (Self-approval prevention)
-        if req.prohibit_self_approval and req.requested_by_actor_id == approver_actor_id:
-            self.record_violation(
-                category=ViolationCategory.SEPARATION_OF_DUTIES_VIOLATION,
-                summary=f"Actor {approver_actor_id} attempted to self-approve request {request_id}",
-                actor_id=approver_actor_id,
-                task_id=req.task_id,
-            )
-            raise ValueError(f"Self-approval prohibited: Actor {approver_actor_id} requested this action")
-
-        req.status = ApprovalStatus.APPROVED
-        req.approved_by_actor_id = approver_actor_id
-        self._repository.save_approval_request(req)
-        self._publish_event(ApprovalGrantedEvent(request_id=request_id, approved_by_actor_id=approver_actor_id))
-        return req
+            self._publish_event(ApprovalGrantedEvent(request_id=request_id, approved_by_actor_id=approver_actor_id))
+            return req
 
     def reject_request(
         self,
