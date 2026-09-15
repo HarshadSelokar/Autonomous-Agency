@@ -70,6 +70,21 @@ from src.infrastructure.models.cross_department_model import (
     DepartmentRequestModel,
     DepartmentServiceContractModel,
 )
+from src.infrastructure.models.workforce_model import (
+    CapabilityGapModel,
+    CapacitySnapshotModel,
+    EmployeeTemplateModel,
+    StaffingRecommendationModel,
+    WorkforceAllocationModel,
+    WorkforceChangeRequestModel,
+    WorkforceDecisionModel,
+    WorkforceDemandModel,
+    WorkforcePlanModel,
+)
+from src.infrastructure.models.team_model import (
+    TeamMemberModel,
+    TeamModel,
+)
 from src.infrastructure.models.work_item_model import WorkItemModel
 from src.infrastructure.models.workspace_model import WorkspaceModel
 
@@ -127,5 +142,17 @@ __all__ = [
     "DepartmentRequestModel",
     "DepartmentHandoffModel",
     "DepartmentServiceContractModel",
+    "WorkforceDemandModel",
+    "CapacitySnapshotModel",
+    "CapabilityGapModel",
+    "StaffingRecommendationModel",
+    "WorkforceAllocationModel",
+    "WorkforceChangeRequestModel",
+    "WorkforceDecisionModel",
+    "EmployeeTemplateModel",
+    "WorkforcePlanModel",
+    "TeamModel",
+    "TeamMemberModel",
 ]
+
 
