@@ -5,19 +5,17 @@ Ensures THE COMPANY OS IS REALITY and THE PIXEL OFFICE VISUALIZES REALITY.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
 from inspect import isawaitable
+from typing import Any
 
 from src.domain.office import (
-    EmployeeVisualState,
-    OfficeAreaType,
-    HumanAttentionType,
-    EmployeeWorkstationProjection,
     DepartmentLayoutProjection,
-    OfficeMeetingRoomProjection,
-    OfficeProjectAreaProjection,
+    EmployeeVisualState,
+    EmployeeWorkstationProjection,
     HumanAttentionItem,
+    HumanAttentionType,
     OfficeActivityItem,
+    OfficeAreaType,
     OfficeCompanyProjection,
 )
 
@@ -97,19 +95,19 @@ class OfficeProjectionService:
         employee_name: str,
         employee_title: str,
         role: str,
-        department_id: Optional[str],
+        department_id: str | None,
         visual_state: EmployeeVisualState,
-        desk_id: Optional[str] = None,
+        desk_id: str | None = None,
         area_type: OfficeAreaType = OfficeAreaType.ENGINEERING,
-        manager_id: Optional[str] = None,
-        current_task_id: Optional[str] = None,
-        current_task_title: Optional[str] = None,
-        current_project_id: Optional[str] = None,
-        current_project_name: Optional[str] = None,
-        current_activity_summary: Optional[str] = None,
-        active_agent_id: Optional[str] = None,
-        active_tool_name: Optional[str] = None,
-        active_model_id: Optional[str] = None,
+        manager_id: str | None = None,
+        current_task_id: str | None = None,
+        current_task_title: str | None = None,
+        current_project_id: str | None = None,
+        current_project_name: str | None = None,
+        current_activity_summary: str | None = None,
+        active_agent_id: str | None = None,
+        active_tool_name: str | None = None,
+        active_model_id: str | None = None,
         is_manager: bool = False,
     ) -> EmployeeWorkstationProjection:
         """Build an employee workstation projection."""
@@ -136,18 +134,17 @@ class OfficeProjectionService:
 
     async def build_company_overview(
         self,
-        organization_id: Optional[str] = None,
-        viewer_id: Optional[str] = None,
+        organization_id: str | None = None,
+        viewer_id: str | None = None,
     ) -> OfficeCompanyProjection:
         """Assemble the authoritative company overview for the Pixel Office."""
         employees = []
-        if self.employee_repo:
-            if hasattr(self.employee_repo, "list_all"):
-                res = self.employee_repo.list_all()
-                employees = await res if isawaitable(res) else res
+        if self.employee_repo and hasattr(self.employee_repo, "list_all"):
+            res = self.employee_repo.list_all()
+            employees = await res if isawaitable(res) else res
 
-        workstations: List[EmployeeWorkstationProjection] = []
-        dept_map: Dict[str, List[EmployeeWorkstationProjection]] = {}
+        workstations: list[EmployeeWorkstationProjection] = []
+        dept_map: dict[str, list[EmployeeWorkstationProjection]] = {}
 
         is_gov_paused = False
         if self.governance_repo and hasattr(self.governance_repo, "is_emergency_stopped"):
@@ -215,7 +212,21 @@ class OfficeProjectionService:
                 is_agent_running=is_agent_running,
             )
 
-            area_type = OfficeAreaType.EXECUTIVE if "Exec" in title or "Manager" in title else OfficeAreaType.ENGINEERING
+            # Map department / title to OfficeAreaType
+            t_upper = title.upper()
+            d_upper = dept_name.upper()
+            if "EXEC" in t_upper or "MANAGER" in t_upper or "EXEC" in d_upper:
+                area_type = OfficeAreaType.EXECUTIVE
+            elif "PROD" in d_upper:
+                area_type = OfficeAreaType.PRODUCT
+            elif "QA" in d_upper or "TEST" in d_upper:
+                area_type = OfficeAreaType.QA
+            elif "DEVOPS" in d_upper or "INFRA" in d_upper:
+                area_type = OfficeAreaType.DEVOPS
+            elif "MKT" in d_upper or "SALES" in d_upper:
+                area_type = OfficeAreaType.COLLABORATION
+            else:
+                area_type = OfficeAreaType.ENGINEERING
 
             ws_proj = self.project_workstation(
                 employee_id=emp_id,
@@ -232,9 +243,20 @@ class OfficeProjectionService:
                 dept_map[dept_name] = []
             dept_map[dept_name].append(ws_proj)
 
-        departments: List[DepartmentLayoutProjection] = []
+        departments: list[DepartmentLayoutProjection] = []
         for name, ws_list in dept_map.items():
-            area_type = OfficeAreaType.EXECUTIVE if "Exec" in name else OfficeAreaType.ENGINEERING
+            d_upper = name.upper()
+            if "EXEC" in d_upper:
+                area_type = OfficeAreaType.EXECUTIVE
+            elif "PROD" in d_upper:
+                area_type = OfficeAreaType.PRODUCT
+            elif "QA" in d_upper:
+                area_type = OfficeAreaType.QA
+            elif "DEVOPS" in d_upper:
+                area_type = OfficeAreaType.DEVOPS
+            else:
+                area_type = OfficeAreaType.ENGINEERING
+
             departments.append(
                 DepartmentLayoutProjection(
                     department_id=ws_list[0].department_id if ws_list and ws_list[0].department_id else "dept-1",
@@ -244,8 +266,8 @@ class OfficeProjectionService:
                 )
             )
 
-        attention_items: List[HumanAttentionItem] = []
-        activity_feed: List[OfficeActivityItem] = []
+        attention_items: list[HumanAttentionItem] = []
+        activity_feed: list[OfficeActivityItem] = []
         if self.office_repo:
             if hasattr(self.office_repo, "list_human_attention_items"):
                 res = self.office_repo.list_human_attention_items()
