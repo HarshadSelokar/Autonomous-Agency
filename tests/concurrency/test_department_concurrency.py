@@ -1,42 +1,40 @@
-"""Concurrency test suite for Phase 14 Department Expansion.
-
-Tests concurrent cross-department request creation and acceptance.
-"""
+"""Concurrency test suite for Phase 14 Department framework."""
 
 import asyncio
 import pytest
 from unittest.mock import AsyncMock
-
-from src.domain.department import Department, DepartmentRequestPriority, DepartmentStatus
-from src.application.department_service import DepartmentService
+from src.domain.department import Department
+from src.domain.cross_department import DepartmentPriority
+from src.application.cross_department_service import CrossDepartmentService
 
 
 @pytest.mark.asyncio
-async def test_concurrent_cross_department_requests():
-    mock_repo = AsyncMock()
-    mock_repo.get_by_id.return_value = Department(
-        id="dept-eng",
-        name="Engineering",
-        code="ENG",
-        status=DepartmentStatus.ACTIVE,
-    )
-    mock_repo.save_request.side_effect = lambda x: x
+async def test_simultaneous_cross_department_requests():
+    mock_dept_repo = AsyncMock()
+    mock_req_repo = AsyncMock()
+    mock_handoff_repo = AsyncMock()
 
-    service = DepartmentService(department_repository=mock_repo)
+    mock_dept_repo.get_by_id.side_effect = lambda d_id: Department(id=d_id, name=d_id, code=d_id.upper())
+    mock_req_repo.save.side_effect = lambda req: req
+
+    service = CrossDepartmentService(
+        department_repository=mock_dept_repo,
+        request_repository=mock_req_repo,
+        handoff_repository=mock_handoff_repo,
+    )
 
     tasks = [
-        service.create_request(
-            requester_department_id=f"dept-req-{i}",
-            receiving_department_id="dept-eng",
-            requester_employee_id=f"emp-{i}",
-            purpose=f"Feature {i}",
-            requested_outcome=f"Deliverable {i}",
-            priority=DepartmentRequestPriority.MEDIUM,
+        service.submit_request(
+            requester_department_id="dept-sales",
+            receiving_department_id="dept-fin",
+            requester_employee_id="emp-sales-rep",
+            purpose=f"Pricing approval #{i}",
+            requested_outcome="Custom quote approved",
+            priority=DepartmentPriority.HIGH,
         )
         for i in range(10)
     ]
 
     results = await asyncio.gather(*tasks)
     assert len(results) == 10
-    for r in results:
-        assert r.receiving_department_id == "dept-eng"
+    assert len({r.request_id for r in results}) == 10
