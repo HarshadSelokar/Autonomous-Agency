@@ -1,4 +1,4 @@
-"""Integration tests for Phase 14 Department and Cross-Department Request APIs."""
+"""Integration tests for Phase 14 Department & Cross-Department API endpoints."""
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -37,61 +37,92 @@ async def api_client() -> AsyncClient:
 
 @pytest.mark.asyncio
 async def test_department_api_crud(api_client: AsyncClient):
-    payload = {
-        "id": "dept-fin-api",
-        "name": "Finance",
-        "code": "FIN-API",
-        "description": "Financial Management",
-        "purpose": "Manage corporate budget and analysis",
-        "responsibilities": ["budgeting"],
-        "capabilities": ["FINANCIAL_ANALYSIS"],
+    # 1. Create Department via POST /departments
+    create_payload = {
+        "id": "dept-api-legal",
+        "name": "Legal & Compliance",
+        "code": "LEG-API",
+        "description": "Legal contract review department",
+        "purpose": "Provide legal oversight",
+        "capabilities": ["CONTRACT_REVIEW", "COMPLIANCE_ANALYSIS"],
     }
-
-    res = await api_client.post("/departments", json=payload)
-    assert res.status_code == 201, res.text
+    res = await api_client.post("/departments", json=create_payload)
+    assert res.status_code == 201
     data = res.json()
-    assert data["id"] == "dept-fin-api"
-    assert data["code"] == "FIN-API"
+    assert data["id"] == "dept-api-legal"
+    assert data["status"] == "ACTIVE"
 
-    res = await api_client.get("/departments/dept-fin-api")
-    assert res.status_code == 200
-    assert res.json()["name"] == "Finance"
-
+    # 2. List Departments via GET /departments
     res = await api_client.get("/departments")
     assert res.status_code == 200
-    assert len(res.json()) >= 1
+    depts = res.json()
+    assert len(depts) >= 1
+
+    # 3. Get Department by ID via GET /departments/{id}
+    res = await api_client.get("/departments/dept-api-legal")
+    assert res.status_code == 200
+    assert res.json()["name"] == "Legal & Compliance"
+
+    # 4. Update Status via POST /departments/{id}/status
+    res = await api_client.post("/departments/dept-api-legal/status", json={"status": "PAUSED", "reason": "Audit"})
+    assert res.status_code == 200
+    assert res.json()["status"] == "PAUSED"
+
+
+@pytest.mark.asyncio
+async def test_bootstrap_departments_api(api_client: AsyncClient):
+    res = await api_client.post("/departments/bootstrap")
+    assert res.status_code == 200
+    depts = res.json()
+    assert len(depts) >= 13
 
 
 @pytest.mark.asyncio
 async def test_cross_department_request_api_flow(api_client: AsyncClient):
-    # 1. Create two departments
-    await api_client.post(
-        "/departments",
-        json={"id": "dept-prod-api", "name": "Product", "code": "PROD-API"},
-    )
-    await api_client.post(
-        "/departments",
-        json={"id": "dept-eng-api", "name": "Engineering", "code": "ENG-API"},
-    )
+    # 1. Bootstrap departments
+    await api_client.post("/departments/bootstrap")
 
-    # 2. Create Cross-Department Request
+    # 2. Submit Request via POST /department-requests
     req_payload = {
-        "receiving_department_id": "dept-eng-api",
-        "requester_employee_id": "emp-prod-mgr",
-        "purpose": "Build Search API",
-        "requested_outcome": "Working REST endpoint",
+        "requester_department_id": "dept-prod",
+        "receiving_department_id": "dept-eng",
+        "requester_employee_id": "emp-prod-lead",
+        "purpose": "Build authentication module",
+        "requested_outcome": "OAuth2 endpoints ready",
         "priority": "HIGH",
     }
-    res = await api_client.post("/departments/dept-prod-api/requests", json=req_payload)
-    assert res.status_code == 201, res.text
+    res = await api_client.post("/department-requests", json=req_payload)
+    assert res.status_code == 201
     req_data = res.json()
     req_id = req_data["request_id"]
     assert req_data["status"] == "REQUESTED"
 
-    # 3. Accept Request
-    res = await api_client.post(
-        f"/department-requests/{req_id}/accept",
-        json={"receiving_manager_id": "emp-eng-mgr", "delivery_owner_employee_id": "emp-dev"},
-    )
+    # 3. Accept Request via POST /department-requests/{id}/accept
+    accept_payload = {
+        "receiving_manager_id": "emp-eng-mgr",
+        "delivery_owner_employee_id": "emp-dev-lead",
+    }
+    res = await api_client.post(f"/department-requests/{req_id}/accept", json=accept_payload)
     assert res.status_code == 200
     assert res.json()["status"] == "ACCEPTED"
+
+    # 4. Submit Handoff via POST /department-requests/{id}/handoff
+    handoff_payload = {
+        "sender_employee_id": "emp-dev-lead",
+        "expected_outcome": "OAuth2 endpoints deployed",
+        "artifact_ids": ["art-oauth-spec"],
+    }
+    res = await api_client.post(f"/department-requests/{req_id}/handoff", json=handoff_payload)
+    assert res.status_code == 201
+    handoff_data = res.json()
+    handoff_id = handoff_data["handoff_id"]
+    assert handoff_data["status"] == "PROPOSED"
+
+    # 5. Verify Handoff via POST /department-requests/handoffs/{id}/verify
+    verify_payload = {
+        "verifier_employee_id": "emp-prod-lead",
+        "is_approved": True,
+    }
+    res = await api_client.post(f"/department-requests/handoffs/{handoff_id}/verify", json=verify_payload)
+    assert res.status_code == 200
+    assert res.json()["is_verified"] is True
