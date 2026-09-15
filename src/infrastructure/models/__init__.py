@@ -24,6 +24,16 @@ from src.infrastructure.models.outbox_model import OutboxMessageModel
 from src.infrastructure.models.plan_model import PlanModel
 from src.infrastructure.models.run_model import AgentRunModel
 from src.infrastructure.models.step_model import ExecutionStepModel
+from src.infrastructure.models.software_company_model import (
+    CodeChangeModel,
+    CodeReviewModel,
+    EngineeringPlanModel,
+    SoftwareDefectModel,
+    SoftwareDeliveryModel,
+    SoftwareProjectModel,
+    SoftwareRequirementModel,
+    TestRunModel,
+)
 from src.infrastructure.models.task_dependency_model import TaskDependencyModel
 from src.infrastructure.models.task_model import TaskModel
 from src.infrastructure.models.work_item_model import WorkItemModel
@@ -55,4 +65,13 @@ __all__ = [
     "TaskModel",
     "WorkItemModel",
     "WorkspaceModel",
+    "SoftwareProjectModel",
+    "SoftwareRequirementModel",
+    "EngineeringPlanModel",
+    "CodeChangeModel",
+    "CodeReviewModel",
+    "TestRunModel",
+    "SoftwareDefectModel",
+    "SoftwareDeliveryModel",
 ]
+
