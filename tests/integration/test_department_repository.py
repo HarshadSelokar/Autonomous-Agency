@@ -1,21 +1,22 @@
-"""Integration tests for Phase 14 SQLAlchemyDepartmentRepository."""
+"""Integration tests for Department & Cross-Department repositories."""
 
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.domain.department import (
-    Department,
+from src.domain.department import Department, DepartmentStatus
+from src.domain.cross_department import (
     DepartmentHandoff,
-    DepartmentHealth,
-    DepartmentMetrics,
+    DepartmentPriority,
     DepartmentRequest,
-    DepartmentRequestPriority,
     DepartmentRequestStatus,
-    DepartmentServiceContract,
-    DepartmentStatus,
+    HandoffStatus,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
+from src.infrastructure.repositories.cross_department_repository import (
+    SQLAlchemyDepartmentHandoffRepository,
+    SQLAlchemyDepartmentRequestRepository,
+)
 
 
 @pytest.fixture
@@ -36,79 +37,67 @@ async def test_department_repository_crud(db_session):
     repo = SQLAlchemyDepartmentRepository(db_session)
 
     dept = Department(
-        id="dept-mktg",
+        id="dept-mkt",
         name="Marketing",
-        code="MKTG",
-        description="Marketing and Communications",
-        purpose="Drive brand awareness and lead generation",
+        code="MKT",
+        description="Marketing and Content",
         status=DepartmentStatus.ACTIVE,
-        responsibilities=["campaigns", "content"],
-        capabilities=["MARKETING_RESEARCH", "CONTENT_CREATION"],
+        purpose="Drive awareness and campaigns",
+        capabilities=["MARKET_RESEARCH", "CONTENT_CREATION"],
     )
 
     saved = await repo.save(dept)
-    assert saved.id == "dept-mktg"
+    assert saved.id == "dept-mkt"
+    assert saved.capabilities == ["MARKET_RESEARCH", "CONTENT_CREATION"]
 
-    fetched = await repo.get_by_id("dept-mktg")
+    fetched = await repo.get_by_id("dept-mkt")
     assert fetched is not None
     assert fetched.name == "Marketing"
-    assert "CONTENT_CREATION" in fetched.capabilities
 
     all_depts = await repo.list_all()
     assert len(all_depts) >= 1
 
 
 @pytest.mark.asyncio
-async def test_department_request_and_handoff_persistence(db_session):
-    repo = SQLAlchemyDepartmentRepository(db_session)
+async def test_cross_department_request_repository_crud(db_session):
+    req_repo = SQLAlchemyDepartmentRequestRepository(db_session)
+    handoff_repo = SQLAlchemyDepartmentHandoffRepository(db_session)
 
     req = DepartmentRequest(
         request_id="req-1",
         requester_department_id="dept-prod",
         receiving_department_id="dept-eng",
-        requester_employee_id="emp-prod",
-        purpose="Develop REST API",
-        requested_outcome="Working REST endpoint",
-        priority=DepartmentRequestPriority.HIGH,
-        status=DepartmentRequestStatus.REQUESTED,
+        requester_employee_id="emp-p1",
+        receiving_manager_id="emp-e1",
+        purpose="Build feature X",
+        requested_outcome="API deployed",
+        priority=DepartmentPriority.HIGH,
     )
 
-    saved_req = await repo.save_request(req)
+    saved_req = await req_repo.save(req)
     assert saved_req.request_id == "req-1"
+    assert saved_req.status == DepartmentRequestStatus.REQUESTED
 
-    fetched_req = await repo.get_request("req-1")
-    assert fetched_req is not None
-    assert fetched_req.priority == DepartmentRequestPriority.HIGH
+    # Accept request
+    saved_req.status = DepartmentRequestStatus.ACCEPTED
+    saved_req.delivery_owner_employee_id = "emp-dev-1"
+    updated_req = await req_repo.save(saved_req)
+    assert updated_req.status == DepartmentRequestStatus.ACCEPTED
 
+    # Create Handoff
     handoff = DepartmentHandoff(
         handoff_id="h-1",
         request_id="req-1",
         sender_department_id="dept-eng",
-        receiving_department_id="dept-qa",
-        sender_employee_id="emp-eng",
-        expected_outcome="Passing test suite",
+        receiver_department_id="dept-prod",
+        sender_employee_id="emp-dev-1",
+        expected_outcome="Feature delivered",
+        artifact_ids=["art-1"],
     )
-    saved_h = await repo.save_handoff(handoff)
+
+    saved_h = await handoff_repo.save(handoff)
     assert saved_h.handoff_id == "h-1"
 
-    fetched_h = await repo.get_handoff("h-1")
+    fetched_h = await handoff_repo.get_by_request_id("req-1")
     assert fetched_h is not None
-    assert fetched_h.status == "PENDING_VERIFICATION"
-
-
-@pytest.mark.asyncio
-async def test_department_metrics_persistence(db_session):
-    repo = SQLAlchemyDepartmentRepository(db_session)
-
-    metrics = DepartmentMetrics(
-        department_id="dept-eng",
-        active_task_count=5,
-        blocked_task_count=1,
-        health=DepartmentHealth.HEALTHY,
-    )
-
-    await repo.save_metrics(metrics)
-    fetched_m = await repo.get_metrics("dept-eng")
-    assert fetched_m is not None
-    assert fetched_m.health == DepartmentHealth.HEALTHY
-    assert fetched_m.active_task_count == 5
+    assert fetched_h.sender_department_id == "dept-eng"

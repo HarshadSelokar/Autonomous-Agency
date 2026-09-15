@@ -65,6 +65,11 @@ from src.infrastructure.models.office_model import (
     OfficeActivityModel,
     OfficeWorkstationModel,
 )
+from src.infrastructure.models.cross_department_model import (
+    DepartmentHandoffModel,
+    DepartmentRequestModel,
+    DepartmentServiceContractModel,
+)
 from src.infrastructure.models.work_item_model import WorkItemModel
 from src.infrastructure.models.workspace_model import WorkspaceModel
 
@@ -119,5 +124,8 @@ __all__ = [
     "OfficeWorkstationModel",
     "OfficeActivityModel",
     "HumanAttentionModel",
+    "DepartmentRequestModel",
+    "DepartmentHandoffModel",
+    "DepartmentServiceContractModel",
 ]
 
