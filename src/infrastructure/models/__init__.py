@@ -8,7 +8,11 @@ from src.infrastructure.models.artifact_model import ArtifactModel
 from src.infrastructure.models.assignment_model import AssignmentModel
 from src.infrastructure.models.checkpoint_model import AgentCheckpointModel
 from src.infrastructure.models.conversation_model import ConversationModel
-from src.infrastructure.models.decision_model import DecisionAuditModel, DecisionModel, ManagerDecisionModel
+from src.infrastructure.models.decision_model import (
+    DecisionAuditModel,
+    DecisionModel,
+    ManagerDecisionModel,
+)
 from src.infrastructure.models.department_model import DepartmentModel
 from src.infrastructure.models.employee_model import EmployeeModel
 from src.infrastructure.models.meeting_model import (
@@ -23,7 +27,6 @@ from src.infrastructure.models.objective_model import ObjectiveModel
 from src.infrastructure.models.outbox_model import OutboxMessageModel
 from src.infrastructure.models.plan_model import PlanModel
 from src.infrastructure.models.run_model import AgentRunModel
-from src.infrastructure.models.step_model import ExecutionStepModel
 from src.infrastructure.models.software_company_model import (
     CodeChangeModel,
     CodeReviewModel,
@@ -34,6 +37,9 @@ from src.infrastructure.models.software_company_model import (
     SoftwareRequirementModel,
     TestRunModel,
 )
+from src.infrastructure.models.step_model import ExecutionStepModel
+from src.infrastructure.models.task_dependency_model import TaskDependencyModel
+from src.infrastructure.models.task_model import TaskModel
 from src.infrastructure.models.verification_model import (
     ExpectedOutcomeModel,
     FailureRecordModel,
@@ -41,8 +47,19 @@ from src.infrastructure.models.verification_model import (
     VerificationEvidenceModel,
     VerificationModel,
 )
-from src.infrastructure.models.task_dependency_model import TaskDependencyModel
-from src.infrastructure.models.task_model import TaskModel
+from src.infrastructure.models.governance_model import (
+    EmergencyStopModel,
+    GovernanceApprovalRequestModel,
+    GovernanceOverrideModel,
+    GovernancePolicyModel,
+    HumanInterventionModel,
+    PolicyViolationModel,
+)
+from src.infrastructure.models.model_routing_model import (
+    ModelProfileModel,
+    ModelProviderHealthModel,
+    ModelSelectionDecisionModel,
+)
 from src.infrastructure.models.work_item_model import WorkItemModel
 from src.infrastructure.models.workspace_model import WorkspaceModel
 
@@ -85,5 +102,14 @@ __all__ = [
     "VerificationEvidenceModel",
     "FailureRecordModel",
     "RecoveryActionModel",
+    "GovernancePolicyModel",
+    "GovernanceApprovalRequestModel",
+    "HumanInterventionModel",
+    "EmergencyStopModel",
+    "GovernanceOverrideModel",
+    "PolicyViolationModel",
+    "ModelProfileModel",
+    "ModelSelectionDecisionModel",
+    "ModelProviderHealthModel",
 ]
 
