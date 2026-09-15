@@ -5,11 +5,11 @@ Handles demand analysis, employee capacity snapshots, capability gap detection,
 staffing recommendation generation with explainable scoring, and workforce planning.
 """
 
-from datetime import UTC, datetime
 import logging
+from datetime import datetime
 
 from src.application.employee_selector import EmployeeSelector
-from src.domain.employee import Employee, EmployeeStatus
+from src.domain.employee import Employee
 from src.domain.events import (
     CapabilityGapDetectedEvent,
     StaffingPlanCreatedEvent,
@@ -25,8 +25,8 @@ from src.domain.workforce import (
     WorkforceDemand,
     WorkforcePlan,
 )
-from src.infrastructure.repositories.workforce_repository import SQLAlchemyWorkforceRepository
 from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository
+from src.infrastructure.repositories.workforce_repository import SQLAlchemyWorkforceRepository
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,8 @@ class WorkforcePlanningService:
             active_tasks = task_map.get(emp.id, 0)
             available = max(0.0, 1.0 - (allocated / 100.0 if allocated > 1.0 else allocated))
 
-            for cap in emp.capabilities:
+            emp_caps = [c.name if hasattr(c, "name") else str(c) for c in emp.capabilities]
+            for cap in emp_caps:
                 snap = CapacitySnapshot(
                     employee_id=emp.id,
                     capability=cap,
@@ -211,14 +212,14 @@ class WorkforcePlanningService:
             require_all=True,
         )
 
-        candidates_with_scores: list[tuple[Employee, float, dict]] = []
+        candidates_with_scores: list[tuple[Employee, float, dict[str, Any]]] = []
 
         for emp in eligible:
             avail = snap_map.get(emp.id, 1.0)
             rel = rel_map.get(emp.id, 1.0)
 
-            # Scoring factors
-            cap_score = 1.0 if demand.capability in emp.capabilities else 0.7
+            emp_caps = [c.name if hasattr(c, "name") else str(c) for c in emp.capabilities]
+            cap_score = 1.0 if demand.capability in emp_caps else 0.7
             avail_score = min(1.0, max(0.0, avail))
             workload_score = 1.0 if avail >= 0.5 else (avail / 0.5)
             rel_score = min(1.0, max(0.0, rel))

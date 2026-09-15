@@ -16,7 +16,13 @@ from src.api.schemas.workforce import (
 )
 from src.application.team_formation_service import TeamFormationService
 from src.application.workforce_planning_service import WorkforcePlanningService
-from src.domain.workforce import WorkforceChangeRequestType
+from src.domain.workforce import (
+    CapabilityGap,
+    StaffingRecommendation,
+    WorkforceChangeRequest,
+    WorkforceChangeRequestType,
+    WorkforceDemand,
+)
 from src.infrastructure.database import get_db_session
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository
@@ -124,7 +130,7 @@ async def approve_change(
     request_id: str,
     payload: ApproveWorkforceChangeSchema,
     team_service: TeamFormationService = Depends(get_team_service),
-):
+) -> dict[str, str]:
     try:
         decision = await team_service.approve_workforce_change(
             change_request_id=request_id,
@@ -168,7 +174,7 @@ async def get_workforce_health(
     )
 
 
-def _map_demand(d) -> WorkforceDemandResponseSchema:
+def _map_demand(d: WorkforceDemand) -> WorkforceDemandResponseSchema:
     return WorkforceDemandResponseSchema(
         id=d.id,
         source_type=d.source_type,
@@ -185,7 +191,7 @@ def _map_demand(d) -> WorkforceDemandResponseSchema:
     )
 
 
-def _map_gap(g) -> CapabilityGapResponseSchema:
+def _map_gap(g: CapabilityGap) -> CapabilityGapResponseSchema:
     return CapabilityGapResponseSchema(
         id=g.id,
         capability=g.capability,
@@ -198,7 +204,7 @@ def _map_gap(g) -> CapabilityGapResponseSchema:
     )
 
 
-def _map_recommendation(r) -> StaffingRecommendationResponseSchema:
+def _map_recommendation(r: StaffingRecommendation) -> StaffingRecommendationResponseSchema:
     return StaffingRecommendationResponseSchema(
         id=r.id,
         demand_id=r.demand_id,
@@ -213,7 +219,7 @@ def _map_recommendation(r) -> StaffingRecommendationResponseSchema:
     )
 
 
-def _map_request(req) -> WorkforceChangeRequestResponseSchema:
+def _map_request(req: WorkforceChangeRequest) -> WorkforceChangeRequestResponseSchema:
     return WorkforceChangeRequestResponseSchema(
         id=req.id,
         request_type=req.request_type.value if hasattr(req.request_type, "value") else str(req.request_type),
