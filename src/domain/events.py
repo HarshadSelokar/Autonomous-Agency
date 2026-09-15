@@ -817,3 +817,125 @@ class DepartmentHealthChangedEvent(DomainEvent):
     previous_health: str = ""
     new_health: str = ""
     reason: str = ""
+
+
+# Phase 15 Dynamic Workforce Events
+
+@dataclass(frozen=True)
+class WorkforceDemandCreatedEvent(DomainEvent):
+    demand_id: str = ""
+    source_type: str = ""
+    source_id: str = ""
+    capability: str = ""
+    required_count: int = 1
+
+
+@dataclass(frozen=True)
+class CapabilityGapDetectedEvent(DomainEvent):
+    gap_id: str = ""
+    capability: str = ""
+    required_count: int = 0
+    available_count: int = 0
+    gap_count: int = 0
+    severity: str = "LOW"
+
+
+@dataclass(frozen=True)
+class StaffingPlanCreatedEvent(DomainEvent):
+    plan_id: str = ""
+    planning_horizon: str = ""
+    status: str = "DRAFT"
+
+
+@dataclass(frozen=True)
+class StaffingRecommendationCreatedEvent(DomainEvent):
+    recommendation_id: str = ""
+    demand_id: str = ""
+    candidate_count: int = 0
+    final_score: float = 0.0
+
+
+@dataclass(frozen=True)
+class StaffingRecommendationAcceptedEvent(DomainEvent):
+    recommendation_id: str = ""
+    accepted_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class StaffingRecommendationRejectedEvent(DomainEvent):
+    recommendation_id: str = ""
+    rejected_by_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TeamFormationRequestedEvent(DomainEvent):
+    request_id: str = ""
+    team_name: str = ""
+    requested_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class TeamFormedEvent(DomainEvent):
+    team_id: str = ""
+    team_name: str = ""
+    team_type: str = ""
+    manager_id: str | None = None
+    member_count: int = 0
+
+
+@dataclass(frozen=True)
+class TeamMemberAddedEvent(DomainEvent):
+    team_id: str = ""
+    employee_id: str = ""
+    role_in_team: str = "MEMBER"
+    allocation_percentage: float = 100.0
+
+
+@dataclass(frozen=True)
+class TeamMemberRemovedEvent(DomainEvent):
+    team_id: str = ""
+    employee_id: str = ""
+
+
+@dataclass(frozen=True)
+class TeamPausedEvent(DomainEvent):
+    team_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TeamDissolvedEvent(DomainEvent):
+    team_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class EmployeeReallocatedEvent(DomainEvent):
+    allocation_id: str = ""
+    employee_id: str = ""
+    team_id: str | None = None
+    allocation_percentage: float = 100.0
+
+
+@dataclass(frozen=True)
+class WorkforceChangeRequestedEvent(DomainEvent):
+    request_id: str = ""
+    request_type: str = ""
+    target_id: str = ""
+    requested_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class WorkforceDecisionMadeEvent(DomainEvent):
+    decision_id: str = ""
+    change_request_id: str | None = None
+    actor_id: str = ""
+    decision_type: str = "APPROVED"
+
+
+@dataclass(frozen=True)
+class WorkforceEscalatedEvent(DomainEvent):
+    gap_id: str = ""
+    reason: str = ""
+
