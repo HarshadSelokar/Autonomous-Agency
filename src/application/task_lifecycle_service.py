@@ -155,3 +155,48 @@ class TaskLifecycleService:
             await _maybe_await(self.graph_service.propagate_task_state_change(task.id))
 
         return task
+
+    async def request_rework(self, task_id: str, reason: str = "") -> Task:
+        """
+        Transition task back to REWORK / IN_PROGRESS status for employee fix.
+        """
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
+        task.transition_to(TaskStatus.REWORK)
+        if "rework_history" not in task.metadata:
+            task.metadata["rework_history"] = []
+        task.metadata["rework_history"].append({"reason": reason, "timestamp": str(datetime.now(UTC)) if hasattr(datetime, "now") else ""})
+        await _maybe_await(self.task_repo.save(task))
+        if self.event_dispatcher:
+            await _maybe_await(
+                self.event_dispatcher.publish(TaskReworkRequestedEvent(task_id=task.id, reason=reason))
+            )
+        return task
+
+    async def complete_task_with_verification(
+        self,
+        task_id: str,
+        verification_engine: Any,
+        recovery_engine: Any | None = None,
+    ) -> tuple[Task, Any]:
+        """
+        Executes Phase 10 verification flow:
+        Agent claim -> Verification Engine -> Result.
+        If verified: COMPLETED.
+        If failed: Recovery Engine triggered.
+        """
+        task = await _maybe_await(self.task_repo.get_by_id(task_id))
+        result = verification_engine.verify_task(task_id)
+
+        if result.is_verified:
+            task.transition_to(TaskStatus.APPROVED)
+            task.transition_to(TaskStatus.COMPLETED)
+            await _maybe_await(self.task_repo.save(task))
+            if self.event_dispatcher:
+                await _maybe_await(self.event_dispatcher.publish(TaskCompletedEvent(task_id=task.id)))
+            if self.graph_service:
+                await _maybe_await(self.graph_service.propagate_task_state_change(task.id))
+        else:
+            if recovery_engine:
+                recovery_engine.process_verification_failure(result)
+
+        return task, result
