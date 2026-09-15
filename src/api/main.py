@@ -19,6 +19,7 @@ from src.api.routes.runs import router as runs_router
 from src.api.routes.software_projects import router as software_projects_router
 from src.api.routes.tasks import router as tasks_router
 from src.api.routes.tools import router as tools_router
+from src.api.routes.verifications import router as verifications_router
 from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
 from src.infrastructure.config import settings
@@ -60,6 +61,7 @@ app.include_router(workspaces_router)
 app.include_router(artifacts_router)
 app.include_router(tools_router)
 app.include_router(software_projects_router)
+app.include_router(verifications_router)
 
 
 

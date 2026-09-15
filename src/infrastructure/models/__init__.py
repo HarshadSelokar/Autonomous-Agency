@@ -34,6 +34,13 @@ from src.infrastructure.models.software_company_model import (
     SoftwareRequirementModel,
     TestRunModel,
 )
+from src.infrastructure.models.verification_model import (
+    ExpectedOutcomeModel,
+    FailureRecordModel,
+    RecoveryActionModel,
+    VerificationEvidenceModel,
+    VerificationModel,
+)
 from src.infrastructure.models.task_dependency_model import TaskDependencyModel
 from src.infrastructure.models.task_model import TaskModel
 from src.infrastructure.models.work_item_model import WorkItemModel
@@ -73,5 +80,10 @@ __all__ = [
     "TestRunModel",
     "SoftwareDefectModel",
     "SoftwareDeliveryModel",
+    "VerificationModel",
+    "ExpectedOutcomeModel",
+    "VerificationEvidenceModel",
+    "FailureRecordModel",
+    "RecoveryActionModel",
 ]
 
