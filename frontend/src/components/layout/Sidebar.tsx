@@ -14,6 +14,7 @@ import {
   FlaskConical,
   Server,
   DollarSign,
+  Target,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) =>
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
     { id: 'canvas', label: 'Pixel Office Canvas', icon: Grid },
     { id: 'business', label: 'Business & Finance', icon: DollarSign },
+    { id: 'gtm', label: 'Product & GTM', icon: Target },
     { id: 'departments', label: 'Departments', icon: Building },
     { id: 'teams', label: 'Dynamic Teams', icon: Users },
     { id: 'projects', label: 'Software Projects', icon: FolderKanban },
