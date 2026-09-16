@@ -45,11 +45,13 @@ class SwarmGovernanceService:
         """
         Defensive sanitization ensuring agent messages are treated strictly as data, preventing prompt injection.
         """
+        import re
         sanitized = dict(payload)
-        # Strip potential policy override instructions
         if "instructions" in sanitized and isinstance(sanitized["instructions"], str):
             text = sanitized["instructions"]
             for forbidden in ["OVERRIDE POLICY", "GRANT ADMIN", "BYPASS GOVERNANCE"]:
-                if forbidden in text.upper():
-                    sanitized["instructions"] = text.upper().replace(forbidden, "[STRIPPED_POLICY_VIOLATION]")
+                pattern = re.compile(re.escape(forbidden), re.IGNORECASE)
+                text = pattern.sub("[STRIPPED_POLICY_VIOLATION]", text)
+            sanitized["instructions"] = text
         return sanitized
+

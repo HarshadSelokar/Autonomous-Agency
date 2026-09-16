@@ -110,7 +110,8 @@ app.include_router(workforce_router)
 app.include_router(company_router)
 app.include_router(knowledge_router)
 app.include_router(experiments_router)
-app.include_router(research_router)
-app.include_router(innovation_router)
+app.include_router(research_router, prefix="/api/v1")
+app.include_router(innovation_router, prefix="/api/v1")
 app.include_router(swarms_router)
+
 
