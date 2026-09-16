@@ -12,6 +12,7 @@ $$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{PIXEL OFFICE}$$
 4. **Pixel Office**: Visual presentation & real-time event projection layer that visualizes backend reality without inventing or manufacturing organizational truth. See [docs/architecture/pixel-office.md](file:///d:/agency/docs/architecture/pixel-office.md) for full specification.
 
 5. **Departments**: Organizational boundaries providing specialization across 13 enterprise functions (Executive, Product, Engineering, QA, DevOps, Marketing, Sales, Customer Success, Finance, Legal, HR, Research, Operations) operating on the unified Company OS. See [docs/architecture/departments.md](file:///d:/agency/docs/architecture/departments.md) for full specification.
+6. **Production Infrastructure (Phase 20)**: Hardened containerized platform with PostgreSQL connection pooling, Redis caching & resilience, S3 Object Storage with SHA-256 integrity verification, background worker lifecycle management, transactional outbox processing, OpenTelemetry tracing, Prometheus metrics, and automated disaster recovery. See [docs/deployment.md](file:///d:/agency/docs/deployment.md), [docs/production.md](file:///d:/agency/docs/production.md), and [docs/operations.md](file:///d:/agency/docs/operations.md) for operational guides.
 
 ---
 

@@ -1,10 +1,10 @@
-# Autonomous AI Organization Platform — Phase 1 to Phase 19
+# Autonomous AI Organization Platform — Phase 1 to Phase 20
 
-This repository implements **Phases 1–19** of the Autonomous AI Organization Platform, including Phase 19 Autonomous Research, Discovery & Innovation Engine with prompt injection scanning, evidence integrity hashing, source independence enforcement, benchmark evaluations, and governed innovation proposal approval above the unified Company OS.
+This repository implements **Phases 1–20** of the Autonomous AI Organization Platform, culminating in Phase 20 Production Deployment & Infrastructure with PostgreSQL/Redis connection pooling, S3 Object Storage with SHA-256 checksum integrity, background worker lifecycle management, transactional outbox processing, OpenTelemetry/Prometheus observability, Nginx TLS reverse proxying, automated database backup/restore, and containerization above the unified Company Operating System.
 
 ## Core Architectural Principle
 
-$$\text{Company} \rightarrow \text{Strategy} \rightarrow \text{Discovery} \rightarrow \text{Research} \rightarrow \text{Evidence} \rightarrow \text{Hypothesis} \rightarrow \text{Knowledge} \rightarrow \text{Opportunity} \rightarrow \text{Innovation Proposal} \rightarrow \text{Governance} \rightarrow \text{Initiative}$$
+$$\text{Company} \rightarrow \text{Infrastructure} \rightarrow \text{Strategy} \rightarrow \text{Discovery} \rightarrow \text{Research} \rightarrow \text{Evidence} \rightarrow \text{Hypothesis} \rightarrow \text{Knowledge} \rightarrow \text{Innovation}$$
 
 $$\text{RAW INFORMATION} \rightarrow \text{SOURCE} \rightarrow \text{EVIDENCE} \rightarrow \text{FINDING} \rightarrow \text{HYPOTHESIS} \rightarrow \text{BENCHMARK} \rightarrow \text{KNOWLEDGE} \rightarrow \text{OPPORTUNITY} \rightarrow \text{PROPOSAL} \rightarrow \text{INITIATIVE}$$
 
@@ -45,7 +45,12 @@ python scripts/demo_manager_orchestration.py
 python scripts/demo_manager_resilience.py
 ```
 
-### 3. Run Phase 1 & Phase 2 Demonstration Scripts
+### 3. Run Phase 20 Production Infrastructure Demonstration Script
+```bash
+python -m scripts.demo_production_infrastructure
+```
+
+### 4. Run Phase 1 to Phase 19 Demonstration Scripts
 ```bash
 python scripts/demo_employee_execution.py
 python scripts/demo_employee_resilience.py
@@ -53,7 +58,7 @@ python scripts/demo_research_agent.py
 python scripts/demo_failure_recovery.py
 ```
 
-### 4. Run FastAPI REST API Server
+### 5. Run FastAPI REST API Server
 ```bash
 uvicorn src.api.main:app --reload --port 8000
 ```

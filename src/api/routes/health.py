@@ -17,6 +17,18 @@ from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRe
 router = APIRouter(prefix="/health", tags=["Health & Readiness"])
 
 
+@router.get("", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK)
+async def root_health_check() -> dict[str, Any]:
+    """Root health endpoint."""
+    return {
+        "status": "healthy",
+        "app_name": settings.APP_NAME,
+        "environment": settings.APP_ENV,
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+
+
 @router.get("/live", status_code=status.HTTP_200_OK)
 async def liveness_check() -> dict[str, Any]:
     """Liveness probe: verifies process is alive."""
