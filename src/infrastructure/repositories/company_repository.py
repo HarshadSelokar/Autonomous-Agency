@@ -108,7 +108,7 @@ class SQLAlchemyCompanyRepository:
             .order_by(CompanyOperatingCycleModel.cycle_number.desc())
         )
         res = await self.session.execute(stmt)
-        model = res.scalar_one_or_none()
+        model = res.scalars().first()
         return model.to_domain() if model else None
 
     async def list_cycles_for_company(self, company_id: str) -> Sequence[CompanyOperatingCycle]:
@@ -157,7 +157,7 @@ class SQLAlchemyCompanyRepository:
             .order_by(CompanyStrategyModel.version.desc())
         )
         res = await self.session.execute(stmt)
-        model = res.scalar_one_or_none()
+        model = res.scalars().first()
         return model.to_domain() if model else None
 
     async def list_strategies_for_company(self, company_id: str) -> Sequence[CompanyStrategy]:
@@ -286,7 +286,7 @@ class SQLAlchemyCompanyRepository:
             .order_by(CompanyHealthSnapshotModel.evaluated_at.desc())
         )
         res = await self.session.execute(stmt)
-        model = res.scalar_one_or_none()
+        model = res.scalars().first()
         return model.to_domain() if model else None
 
     # ---------------------------------------------------------
