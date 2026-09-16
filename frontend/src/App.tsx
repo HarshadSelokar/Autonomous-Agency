@@ -31,6 +31,7 @@ import { RecoveryDashboard } from './components/dashboards/RecoveryDashboard';
 import { WorkforceDashboard } from './components/dashboards/WorkforceDashboard';
 import { InfrastructureDashboard } from './components/dashboards/InfrastructureDashboard';
 import { ResearchInnovationDashboard } from './components/dashboards/ResearchInnovationDashboard';
+import { BusinessOperationsDashboard } from './components/dashboards/BusinessOperationsDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
@@ -161,9 +162,10 @@ export const App: React.FC = () => {
         {activeView === 'workforce' && <WorkforceDashboard overview={overview} />}
         {activeView === 'infrastructure' && <InfrastructureDashboard />}
         {activeView === 'research' && <ResearchInnovationDashboard overview={overview} />}
+        {activeView === 'business' && <BusinessOperationsDashboard />}
 
         {/* Fallback for other view tabs */}
-        {!['overview', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research'].includes(activeView) && (
+        {!['overview', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business'].includes(activeView) && (
           <div className="flex-1 bg-[#090d16] p-8 flex items-center justify-center text-gray-500 text-xs">
             Viewing Operational Domain: <span className="font-bold text-indigo-400 ml-1 uppercase">{activeView}</span>
           </div>
