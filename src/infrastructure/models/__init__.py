@@ -186,7 +186,28 @@ __all__ = [
     "ResourceAllocationPlanModel",
     "ContinuousImprovementProposalModel",
     "StrategySimulationModel",
+    "KnowledgeItemModel",
+    "KnowledgeClaimModel",
+    "KnowledgeProvenanceModel",
+    "KnowledgeValidationModel",
+    "KnowledgeConflictModel",
+    "KnowledgeRelationshipModel",
+    "KnowledgeProcedureModel",
+    "OrganizationalExperimentModel",
+    "KnowledgeUsageRecordModel",
 ]
+
+from src.infrastructure.models.knowledge_model import (
+    KnowledgeClaimModel,
+    KnowledgeConflictModel,
+    KnowledgeItemModel,
+    KnowledgeProcedureModel,
+    KnowledgeProvenanceModel,
+    KnowledgeRelationshipModel,
+    KnowledgeUsageRecordModel,
+    KnowledgeValidationModel,
+    OrganizationalExperimentModel,
+)
 
 
 
