@@ -939,3 +939,81 @@ class WorkforceEscalatedEvent(DomainEvent):
     gap_id: str = ""
     reason: str = ""
 
+
+# Phase 16 Autonomous Company Events
+
+@dataclass(frozen=True)
+class CompanyOperatingCycleStartedEvent(DomainEvent):
+    cycle_id: str = ""
+    company_id: str = ""
+    cycle_number: int = 1
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCycleStateChangedEvent(DomainEvent):
+    cycle_id: str = ""
+    company_id: str = ""
+    previous_state: str = ""
+    new_state: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyHealthEvaluatedEvent(DomainEvent):
+    snapshot_id: str = ""
+    company_id: str = ""
+    overall_status: str = "HEALTHY"
+
+
+@dataclass(frozen=True)
+class StrategyProposedEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+    proposal_type: str = ""
+    proposed_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class StrategyApprovedEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+    approved_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class StrategyRolledBackEvent(DomainEvent):
+    company_id: str = ""
+    previous_version: int = 1
+    new_version: int = 1
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyRiskDetectedEvent(DomainEvent):
+    risk_id: str = ""
+    company_id: str = ""
+    title: str = ""
+    severity: str = "LOW"
+
+
+@dataclass(frozen=True)
+class CompanyOpportunityDetectedEvent(DomainEvent):
+    opportunity_id: str = ""
+    company_id: str = ""
+    title: str = ""
+    expected_value: float = 0.0
+
+
+@dataclass(frozen=True)
+class ContinuousImprovementProposedEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class StrategySimulationExecutedEvent(DomainEvent):
+    simulation_id: str = ""
+    company_id: str = ""
+    title: str = ""
+
+
