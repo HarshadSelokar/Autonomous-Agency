@@ -321,4 +321,133 @@ class SwarmRepositoryInterface(ABC):
         pass
 
 
+class BusinessRepositoryInterface(ABC):
+    """Abstract interface for Business Operations & Financial persistence (Phase 23)."""
+
+    @abstractmethod
+    async def save_account(self, account: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_account_by_id(self, account_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_accounts(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_transaction(self, transaction: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_transaction_by_id(self, transaction_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def get_transaction_by_idempotency_key(self, idempotency_key: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_transactions(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_invoice(self, invoice: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_invoice_by_id(self, invoice_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_invoices(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_revenue(self, revenue: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_revenues(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_expense(self, expense: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_expenses(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_payment(self, payment: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_payment_by_id(self, payment_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def get_payment_by_idempotency_key(self, idempotency_key: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_payments(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_procurement(self, request: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_procurement_by_id(self, request_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_procurements(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_budget(self, budget: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_budget_by_id(self, budget_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_budgets(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_reconciliation(self, reconciliation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_reconciliation_by_id(self, reconciliation_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_reconciliations(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_metric(self, metric: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_metrics(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_cash_flow(self, snapshot: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_latest_cash_flow(self) -> Any | None:
+        pass
+
+
+
 
