@@ -1565,6 +1565,118 @@ class ProductRequirementCreatedEvent(DomainEvent):
     source_feedback_id: str | None = None
 
 
+# Phase 25 Multi-Company & Simulation Events
+
+@dataclass(frozen=True)
+class CompanyCreatedEvent(DomainEvent):
+    company_id: str = ""
+    name: str = ""
+    slug: str = ""
+    company_type: str = "AUTONOMOUS"
+
+
+@dataclass(frozen=True)
+class CompanyInitializedEvent(DomainEvent):
+    company_id: str = ""
+    template_id: str | None = None
+
+
+@dataclass(frozen=True)
+class CompanyActivatedEvent(DomainEvent):
+    company_id: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyPausedEvent(DomainEvent):
+    company_id: str = ""
+    paused_by: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyResumedEvent(DomainEvent):
+    company_id: str = ""
+    resumed_by: str = ""
+
+
+@dataclass(frozen=True)
+class CompanySuspendedEvent(DomainEvent):
+    company_id: str = ""
+    suspended_by: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyArchivedEvent(DomainEvent):
+    company_id: str = ""
+    archived_by: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyMemberAddedEvent(DomainEvent):
+    company_id: str = ""
+    user_id: str = ""
+    role: str = "MEMBER"
+
+
+@dataclass(frozen=True)
+class CompanyMemberRemovedEvent(DomainEvent):
+    company_id: str = ""
+    user_id: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyRelationshipCreatedEvent(DomainEvent):
+    relationship_id: str = ""
+    company_a_id: str = ""
+    company_b_id: str = ""
+    relationship_type: str = "PARTNER"
+
+
+@dataclass(frozen=True)
+class CompanyDataShareRequestedEvent(DomainEvent):
+    share_request_id: str = ""
+    source_company_id: str = ""
+    target_company_id: str = ""
+    data_scope: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyDataShareApprovedEvent(DomainEvent):
+    share_request_id: str = ""
+    approved_by: str = ""
+    governance_approval_id: str | None = None
+
+
+@dataclass(frozen=True)
+class SimulationCreatedEvent(DomainEvent):
+    simulation_id: str = ""
+    company_id: str = ""
+    scenario_id: str = ""
+
+
+@dataclass(frozen=True)
+class SimulationStartedEvent(DomainEvent):
+    simulation_id: str = ""
+    company_id: str = ""
+
+
+@dataclass(frozen=True)
+class SimulationCompletedEvent(DomainEvent):
+    simulation_id: str = ""
+    company_id: str = ""
+    result_id: str = ""
+
+
+@dataclass(frozen=True)
+class SimulationResultProducedEvent(DomainEvent):
+    result_id: str = ""
+    simulation_id: str = ""
+    company_id: str = ""
+    scenario_name: str = ""
+
+
+
 
 
 

@@ -1,93 +1,95 @@
 """
-Unit tests for Autonomous Company domain entities.
+Unit tests for Phase 25 Multi-Company & Simulation domain models.
 """
 
 import pytest
-
 from src.domain.company import (
-    AutonomousCompany,
-    CompanyKPISnapshot,
-    CompanyOperatingCycle,
-    CompanyOpportunity,
-    CompanyRisk,
-    CompanyStatus,
-    MetricTrend,
-    OperatingCycleState,
-    RiskSeverity,
+    Company,
+    CompanyLifecycle,
+    CompanyContext,
+    CompanyRole,
+    ExecutionEnvironment,
+)
+from src.domain.simulation import (
+    CompanySimulation,
+    SimulationStatus,
+)
+from src.domain.exceptions import (
+    InvalidLifecycleTransitionError,
+    TenantIsolationViolationError,
+    SimulationProductionMutationError,
 )
 
 
-def test_autonomous_company_creation():
-    company = AutonomousCompany(name="Global Autonomous Corp", code="GAC")
-    assert company.name == "Global Autonomous Corp"
-    assert company.code == "GAC"
-    assert company.status == CompanyStatus.ACTIVE
+def test_company_lifecycle_valid_transitions():
+    company = Company(name="Acme Autonomous Corp", slug="acme-corp")
+    assert company.lifecycle == CompanyLifecycle.PROPOSED
+
+    # PROPOSED -> INITIALIZING -> ACTIVE -> PAUSED -> ACTIVE -> SUSPENDED -> ACTIVE -> ARCHIVED
+    company.transition_lifecycle(CompanyLifecycle.INITIALIZING)
+    assert company.lifecycle == CompanyLifecycle.INITIALIZING
+
+    company.transition_lifecycle(CompanyLifecycle.ACTIVE)
+    assert company.lifecycle == CompanyLifecycle.ACTIVE
+
+    company.transition_lifecycle(CompanyLifecycle.PAUSED)
+    assert company.lifecycle == CompanyLifecycle.PAUSED
+
+    company.transition_lifecycle(CompanyLifecycle.ACTIVE)
+    assert company.lifecycle == CompanyLifecycle.ACTIVE
+
+    company.transition_lifecycle(CompanyLifecycle.SUSPENDED)
+    assert company.lifecycle == CompanyLifecycle.SUSPENDED
+
+    company.transition_lifecycle(CompanyLifecycle.ACTIVE)
+    assert company.lifecycle == CompanyLifecycle.ACTIVE
+
+    company.transition_lifecycle(CompanyLifecycle.ARCHIVED)
+    assert company.lifecycle == CompanyLifecycle.ARCHIVED
 
 
-def test_operating_cycle_lifecycle():
-    cycle = CompanyOperatingCycle(company_id="comp-1", cycle_number=1)
-    assert cycle.state == OperatingCycleState.CREATED
+def test_company_lifecycle_invalid_transition():
+    company = Company(name="Acme Corp", slug="acme")
+    # Cannot jump directly from PROPOSED to ACTIVE or PAUSED
+    with pytest.raises(InvalidLifecycleTransitionError):
+        company.transition_lifecycle(CompanyLifecycle.ACTIVE)
 
-    cycle.transition_to(OperatingCycleState.OBSERVING)
-    assert cycle.state == OperatingCycleState.OBSERVING
+    company.transition_lifecycle(CompanyLifecycle.INITIALIZING)
+    company.transition_lifecycle(CompanyLifecycle.ACTIVE)
+    company.transition_lifecycle(CompanyLifecycle.ARCHIVED)
 
-    cycle.transition_to(OperatingCycleState.ANALYZING)
-    assert cycle.state == OperatingCycleState.ANALYZING
-
-    cycle.transition_to(OperatingCycleState.PLANNING)
-    assert cycle.state == OperatingCycleState.PLANNING
-
-    cycle.transition_to(OperatingCycleState.PRIORITIZING)
-    assert cycle.state == OperatingCycleState.PRIORITIZING
-
-    cycle.transition_to(OperatingCycleState.AWAITING_GOVERNANCE)
-    assert cycle.state == OperatingCycleState.AWAITING_GOVERNANCE
-
-    cycle.transition_to(OperatingCycleState.EXECUTING)
-    assert cycle.state == OperatingCycleState.EXECUTING
-
-    cycle.transition_to(OperatingCycleState.MEASURING)
-    assert cycle.state == OperatingCycleState.MEASURING
-
-    cycle.transition_to(OperatingCycleState.LEARNING)
-    assert cycle.state == OperatingCycleState.LEARNING
-
-    cycle.transition_to(OperatingCycleState.COMPLETED)
-    assert cycle.state == OperatingCycleState.COMPLETED
-    assert cycle.completed_at is not None
+    # ARCHIVED is terminal, cannot transition out
+    with pytest.raises(InvalidLifecycleTransitionError):
+        company.transition_lifecycle(CompanyLifecycle.ACTIVE)
 
 
-def test_invalid_operating_cycle_transition():
-    cycle = CompanyOperatingCycle(company_id="comp-1")
-    with pytest.raises(ValueError, match="Invalid operating cycle state transition"):
-        cycle.transition_to(OperatingCycleState.EXECUTING)
+def test_company_context_tenant_isolation():
+    ctx_company_a = CompanyContext(company_id="comp-A", user_id="user-1", role=CompanyRole.ADMIN)
+
+    # Same company access -> succeeds
+    ctx_company_a.verify_company_access("comp-A", "workspace")
+
+    # Cross company access -> raises TenantIsolationViolationError
+    with pytest.raises(TenantIsolationViolationError) as exc_info:
+        ctx_company_a.verify_company_access("comp-B", "task")
+
+    assert "comp-A" in str(exc_info.value)
+    assert "comp-B" in str(exc_info.value)
 
 
-def test_company_kpi_snapshot():
-    kpi = CompanyKPISnapshot(
-        company_id="comp-1",
-        metric_name="task_success_rate",
-        value=0.98,
-        target_value=0.95,
-        trend=MetricTrend.UP,
+def test_simulation_safety_assertion():
+    sim = CompanySimulation(
+        company_id="comp-A",
+        name="Q4 Staffing Growth Simulation",
+        environment=ExecutionEnvironment.SIMULATION,
+        status=SimulationStatus.RUNNING,
     )
-    assert kpi.value == 0.98
-    assert kpi.trend == MetricTrend.UP
 
+    # Safe simulation query -> succeeds
+    sim.assert_simulation_safety("QUERY_SIMULATED_REVENUE")
 
-def test_company_risk_and_opportunity():
-    risk = CompanyRisk(
-        company_id="comp-1",
-        title="Capacity Constraint",
-        severity=RiskSeverity.HIGH,
-        probability=0.7,
-        impact=0.8,
-    )
-    assert risk.severity == RiskSeverity.HIGH
+    # Blocked production mutating action -> raises SimulationProductionMutationError
+    with pytest.raises(SimulationProductionMutationError) as exc_info:
+        sim.assert_simulation_safety("CHARGE_CREDIT_CARD")
 
-    opp = CompanyOpportunity(
-        company_id="comp-1",
-        title="Automated Test Expansion",
-        expected_value=50000.0,
-    )
-    assert opp.expected_value == 50000.0
+    assert "CHARGE_CREDIT_CARD" in str(exc_info.value)

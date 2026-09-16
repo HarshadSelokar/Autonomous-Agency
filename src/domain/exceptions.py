@@ -325,5 +325,80 @@ class DuplicateCustomerError(GTMError):
         super().__init__(f"Customer record for identifier '{customer_identifier}' already exists.")
 
 
+# --- Phase 25 Multi-Company & Simulation Exceptions ---
+
+class MultiCompanyError(DomainError):
+    """Base exception for Multi-Company & Tenancy operations."""
+
+    pass
+
+
+class TenantIsolationViolationError(MultiCompanyError):
+    """Raised when cross-company resource access is attempted without authorization."""
+
+    def __init__(self, requestor_company_id: str, target_company_id: str, resource_type: str = "resource") -> None:
+        self.requestor_company_id = requestor_company_id
+        self.target_company_id = target_company_id
+        self.resource_type = resource_type
+        super().__init__(
+            f"Tenant isolation violation: Company '{requestor_company_id}' context attempted unauthorized access to {resource_type} belonging to Company '{target_company_id}'."
+        )
+
+
+class CrossCompanyAccessDeniedError(MultiCompanyError):
+    """Raised when cross-company relationship or data sharing request is denied or unapproved."""
+
+    def __init__(self, source_company_id: str, target_company_id: str, reason: str = "No approved relationship or active data-share request") -> None:
+        self.source_company_id = source_company_id
+        self.target_company_id = target_company_id
+        self.reason = reason
+        super().__init__(
+            f"Cross-company access denied between '{source_company_id}' and '{target_company_id}': {reason}."
+        )
+
+
+class CompanyQuotaExceededError(MultiCompanyError):
+    """Raised when a company breaches its allocated resource quotas."""
+
+    def __init__(self, company_id: str, quota_name: str, limit: float, requested: float) -> None:
+        self.company_id = company_id
+        self.quota_name = quota_name
+        self.limit = limit
+        self.requested = requested
+        super().__init__(
+            f"Company '{company_id}' quota '{quota_name}' exceeded: limit is {limit}, requested {requested}."
+        )
+
+
+class SimulationError(MultiCompanyError):
+    """Base exception for Company Simulation errors."""
+
+    pass
+
+
+class SimulationProductionMutationError(SimulationError):
+    """Raised when a simulation operation attempts to mutate production state or trigger external side effects."""
+
+    def __init__(self, simulation_id: str, attempted_action: str) -> None:
+        self.simulation_id = simulation_id
+        self.attempted_action = attempted_action
+        super().__init__(
+            f"Simulation safety violation in simulation '{simulation_id}': Attempted production-mutating action '{attempted_action}'."
+        )
+
+
+class InvalidLifecycleTransitionError(MultiCompanyError):
+    """Raised when an invalid company lifecycle transition is attempted."""
+
+    def __init__(self, company_id: str, current_lifecycle: str, target_lifecycle: str) -> None:
+        self.company_id = company_id
+        self.current_lifecycle = current_lifecycle
+        self.target_lifecycle = target_lifecycle
+        super().__init__(
+            f"Invalid company lifecycle transition for '{company_id}': Cannot transition from '{current_lifecycle}' to '{target_lifecycle}'."
+        )
+
+
+
 
 
