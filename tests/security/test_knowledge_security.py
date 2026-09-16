@@ -76,8 +76,8 @@ async def test_experiment_isolation_and_governance_security_enforcement(db_sessi
     assert exp.is_isolated is True
 
     # Security Invariant 2: Cannot force-set is_isolated to False
-    exp.is_isolated = False
-    assert exp.is_isolated is True
+    with pytest.raises(ValueError, match="strictly isolated"):
+        exp.is_isolated = False
 
     # Security Invariant 3: HIGH risk experiment CANNOT start without Phase 11 governance approval
     with pytest.raises(ValueError, match="requires Phase 11 governance approval"):

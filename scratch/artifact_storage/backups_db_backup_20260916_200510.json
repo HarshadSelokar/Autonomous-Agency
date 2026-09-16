@@ -1,0 +1,6 @@
+{
+  "timestamp": "2026-09-16T20:05:10.679247+00:00",
+  "database_url": "sqlite+aiosqlite:///:memory:",
+  "app_version": "0.20.0",
+  "tables": []
+}

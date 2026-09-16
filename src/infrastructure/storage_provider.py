@@ -40,15 +40,19 @@ class LocalStorageProvider(StorageProviderInterface):
         return str(file_path.absolute())
 
     async def read_bytes(self, key: str) -> bytes:
-        safe_key = key.replace("/", "_").replace("\\", "_")
-        file_path = self.base_path / safe_key
+        file_path = Path(key)
+        if not file_path.is_absolute() or not file_path.exists():
+            safe_key = key.replace("/", "_").replace("\\", "_")
+            file_path = self.base_path / safe_key
         if not file_path.exists():
             raise FileNotFoundError(f"Storage key '{key}' not found at {file_path}")
         return file_path.read_bytes()
 
     async def delete_bytes(self, key: str) -> bool:
-        safe_key = key.replace("/", "_").replace("\\", "_")
-        file_path = self.base_path / safe_key
+        file_path = Path(key)
+        if not file_path.is_absolute() or not file_path.exists():
+            safe_key = key.replace("/", "_").replace("\\", "_")
+            file_path = self.base_path / safe_key
         if file_path.exists():
             file_path.unlink()
             return True
