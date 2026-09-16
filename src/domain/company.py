@@ -63,6 +63,20 @@ class ObservationFactType(str, Enum):
     INFERENCE = "INFERENCE"
     PREDICTION = "PREDICTION"
     RECOMMENDATION = "RECOMMENDATION"
+    METRIC_UPDATE = "METRIC_UPDATE"
+    RISK_SIGNAL = "RISK_SIGNAL"
+
+
+@dataclass
+class ObservationFact:
+    fact_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    company_id: str = ""
+    fact_type: ObservationFactType = ObservationFactType.FACT
+    source: str = "system"
+    summary: str = ""
+    data: dict[str, Any] = field(default_factory=dict)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+
 
 
 @dataclass

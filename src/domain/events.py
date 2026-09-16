@@ -947,6 +947,7 @@ class CompanyOperatingCycleStartedEvent(DomainEvent):
     cycle_id: str = ""
     company_id: str = ""
     cycle_number: int = 1
+    initiated_by_id: str = "system"
 
 
 @dataclass(frozen=True)
@@ -961,7 +962,9 @@ class CompanyOperatingCycleStateChangedEvent(DomainEvent):
 class CompanyHealthEvaluatedEvent(DomainEvent):
     snapshot_id: str = ""
     company_id: str = ""
+    health_snapshot_id: str = ""
     overall_status: str = "HEALTHY"
+    explanation: str = ""
 
 
 @dataclass(frozen=True)
@@ -1015,5 +1018,116 @@ class StrategySimulationExecutedEvent(DomainEvent):
     simulation_id: str = ""
     company_id: str = ""
     title: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyObservationCompletedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    fact_count: int = 0
+    health_status: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyRiskIdentifiedEvent(DomainEvent):
+    company_id: str = ""
+    risk_id: str = ""
+    title: str = ""
+    severity: str = ""
+
+
+@dataclass(frozen=True)
+class StrategicAnalysisCompletedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    analysis_id: str = ""
+    confidence: float = 1.0
+    model_used: str = ""
+
+
+@dataclass(frozen=True)
+class StrategyProposalCreatedEvent(DomainEvent):
+    company_id: str = ""
+    proposal_id: str = ""
+    proposal_type: str = ""
+    title: str = ""
+    governance_level: str = ""
+
+
+@dataclass(frozen=True)
+class StrategySimulationCreatedEvent(DomainEvent):
+    company_id: str = ""
+    simulation_id: str = ""
+    title: str = ""
+    is_authoritative: bool = False
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCyclePhaseTransitionedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    from_state: str = ""
+    to_state: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCycleCompletedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    cycle_number: int = 1
+    summary: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCycleFailedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    failure_reason: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCyclePausedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyOperatingCycleResumedEvent(DomainEvent):
+    company_id: str = ""
+    cycle_id: str = ""
+    resumed_state: str = ""
+
+
+@dataclass(frozen=True)
+class ExecutiveReportGeneratedEvent(DomainEvent):
+    company_id: str = ""
+    report_id: str = ""
+    health_status: str = ""
+    open_risks_count: int = 0
+
+
+@dataclass(frozen=True)
+class PortfolioItemUpdatedEvent(DomainEvent):
+    company_id: str = ""
+    portfolio_item_id: str = ""
+    progress_pct: float = 0.0
+    has_bottleneck: bool = False
+
+
+@dataclass(frozen=True)
+class ResourceAllocationPlanApprovedEvent(DomainEvent):
+    company_id: str = ""
+    plan_id: str = ""
+    approved_by_id: str = ""
+
+
+@dataclass(frozen=True)
+class ContinuousImprovementProposalSubmittedEvent(DomainEvent):
+    company_id: str = ""
+    proposal_id: str = ""
+    title: str = ""
+    governance_required: bool = True
+
 
 
