@@ -92,8 +92,13 @@ class OfficeCompanyOverviewSchema(BaseModel):
     blocked_tasks_count: int
     pending_approvals_count: int
     active_projects_count: int
-    failed_verifications_count: int
-    active_recoveries_count: int
+    active_recoveries_count: int = 0
+    candidate_knowledge_count: int = 0
+    validated_knowledge_count: int = 0
+    authoritative_knowledge_count: int = 0
+    contested_knowledge_count: int = 0
+    stale_knowledge_count: int = 0
+    active_experiments_count: int = 0
     attention_items: list[HumanAttentionItemSchema] = Field(default_factory=list)
     recent_activities: list[OfficeActivityItemSchema] = Field(default_factory=list)
     updated_at: str

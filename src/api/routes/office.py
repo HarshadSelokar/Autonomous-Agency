@@ -21,6 +21,8 @@ from src.infrastructure.repositories.employee_repository import SQLAlchemyEmploy
 from src.infrastructure.repositories.governance_repository import GovernanceRepository
 from src.infrastructure.repositories.office_repository import GovernanceOfficeRepository
 
+from src.infrastructure.repositories.knowledge_repository import SQLAlchemyKnowledgeRepository
+
 router = APIRouter(prefix="/office", tags=["Pixel Office"])
 
 global_broadcaster = OfficeRealtimeBroadcaster()
@@ -30,10 +32,12 @@ def get_office_projection_service(session: AsyncSession = Depends(get_db_session
     emp_repo = SQLAlchemyEmployeeRepository(session)
     gov_repo = GovernanceRepository(session)
     off_repo = GovernanceOfficeRepository(session)
+    k_repo = SQLAlchemyKnowledgeRepository(session)
     return OfficeProjectionService(
         employee_repository=emp_repo,
         governance_repository=gov_repo,
         office_repository=off_repo,
+        knowledge_repository=k_repo,
     )
 
 
@@ -53,6 +57,12 @@ async def get_company_overview(
         active_projects_count=overview.active_projects_count,
         failed_verifications_count=overview.failed_verifications_count,
         active_recoveries_count=overview.active_recoveries_count,
+        candidate_knowledge_count=overview.candidate_knowledge_count,
+        validated_knowledge_count=overview.validated_knowledge_count,
+        authoritative_knowledge_count=overview.authoritative_knowledge_count,
+        contested_knowledge_count=overview.contested_knowledge_count,
+        stale_knowledge_count=overview.stale_knowledge_count,
+        active_experiments_count=overview.active_experiments_count,
         attention_items=[
             HumanAttentionItemSchema(
                 item_id=item.item_id,

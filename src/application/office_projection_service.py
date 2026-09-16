@@ -40,6 +40,7 @@ class OfficeProjectionService:
         team_repository: Any = None,
         workforce_repository: Any = None,
         company_repository: Any = None,
+        knowledge_repository: Any = None,
     ) -> None:
         self.employee_repo = employee_repository
         self.department_repo = department_repository
@@ -54,6 +55,7 @@ class OfficeProjectionService:
         self.team_repo = team_repository
         self.workforce_repo = workforce_repository
         self.company_repo = company_repository
+        self.knowledge_repo = knowledge_repository
 
     def derive_employee_visual_state(
         self,
@@ -303,6 +305,38 @@ class OfficeProjectionService:
                 if strat:
                     active_strategy_title = strat.title
 
+        candidate_k_count = 0
+        validated_k_count = 0
+        authoritative_k_count = 0
+        contested_k_count = 0
+        stale_k_count = 0
+        active_exp_count = 0
+
+        if self.knowledge_repo:
+            if hasattr(self.knowledge_repo, "list_knowledge_items"):
+                res = self.knowledge_repo.list_knowledge_items()
+                k_items = await res if isawaitable(res) else res
+                for it in k_items:
+                    st = it.status.value if hasattr(it.status, "value") else str(it.status)
+                    auth = it.authority.value if hasattr(it.authority, "value") else str(it.authority)
+                    if st == "CANDIDATE":
+                        candidate_k_count += 1
+                    elif st == "VALIDATED" or auth == "VALIDATED":
+                        validated_k_count += 1
+                    elif st == "AUTHORITATIVE" or auth == "AUTHORITATIVE":
+                        authoritative_k_count += 1
+                    elif st == "CONTESTED":
+                        contested_k_count += 1
+                    elif st == "STALE":
+                        stale_k_count += 1
+            if hasattr(self.knowledge_repo, "list_experiments"):
+                res = self.knowledge_repo.list_experiments()
+                exps = await res if isawaitable(res) else res
+                for ex in exps:
+                    st = ex.status.value if hasattr(ex.status, "value") else str(ex.status)
+                    if st == "ACTIVE":
+                        active_exp_count += 1
+
         return OfficeCompanyProjection(
             company_name="Autonomous AI Organization",
             is_emergency_stopped=is_gov_paused,
@@ -314,6 +348,12 @@ class OfficeProjectionService:
             active_projects_count=1,
             failed_verifications_count=len([item for item in attention_items if item.attention_type == HumanAttentionType.FAILED_VERIFICATION]),
             active_recoveries_count=recovering_count,
+            candidate_knowledge_count=candidate_k_count,
+            validated_knowledge_count=validated_k_count,
+            authoritative_knowledge_count=authoritative_k_count,
+            contested_knowledge_count=contested_k_count,
+            stale_knowledge_count=stale_k_count,
+            active_experiments_count=active_exp_count,
             company_operating_cycle_state=operating_cycle_state,
             company_health_status=company_health_status,
             active_strategy_title=active_strategy_title,
