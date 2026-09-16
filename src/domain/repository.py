@@ -561,6 +561,139 @@ class GTMRepositoryInterface(ABC):
         pass
 
 
+class MultiCompanyRepositoryInterface(ABC):
+    """Abstract Repository Interface for Multi-Company & Simulation Operations."""
+
+    @abstractmethod
+    async def save_company(self, company: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_company_by_id(self, company_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def get_company_by_slug(self, slug: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_companies(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_company_profile(self, profile: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_company_profile(self, company_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_membership(self, membership: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_memberships_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def list_memberships_for_user(self, user_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_template(self, template: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_template_by_id(self, template_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_templates(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_relationship(self, relationship: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_relationships_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_data_share_request(self, request: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_data_share_request_by_id(self, request_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_data_share_requests_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_resource_quota(self, quota: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_resource_quota_by_company_id(self, company_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_resource_usage(self, usage: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_resource_usage_by_company_id(self, company_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_simulation(self, simulation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_simulation_by_id(self, simulation_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_simulations_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_simulation_snapshot(self, snapshot: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_simulation_snapshot_by_id(self, snapshot_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_simulation_scenario(self, scenario: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_simulation_scenario_by_id(self, scenario_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_simulation_result(self, result: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_simulation_result_by_simulation_id(self, simulation_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_simulation_financial_record(self, record: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_simulation_financial_records(self, simulation_id: str) -> list[Any]:
+        pass
+
+
+
 
 
 

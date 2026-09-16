@@ -817,3 +817,207 @@ class StrategySimulationModel(Base):
             is_authoritative=False,
             created_at=entity.created_at,
         )
+
+
+# --- Phase 25 Multi-Company & Simulation ORM Models ---
+
+class CompanyModel(Base):
+    __tablename__ = "company_tenants"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    legal_name: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    slug: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    company_type: Mapped[str] = mapped_column(String(32), nullable=False, default="AUTONOMOUS")
+    industry: Mapped[str] = mapped_column(String(64), nullable=False, default="TECHNOLOGY")
+    timezone: Mapped[str] = mapped_column(String(64), nullable=False, default="UTC")
+    locale: Mapped[str] = mapped_column(String(32), nullable=False, default="en_US")
+    currency: Mapped[str] = mapped_column(String(8), nullable=False, default="USD")
+    lifecycle: Mapped[str] = mapped_column(String(32), nullable=False, default="PROPOSED")
+    owner_id: Mapped[str] = mapped_column(String(64), nullable=False, default="SYSTEM")
+    metadata_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyProfileModel(Base):
+    __tablename__ = "company_profiles"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    operating_hours: Mapped[str] = mapped_column(String(64), nullable=False, default="24/7")
+    model_routing_policy_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    tool_policy_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    governance_defaults_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    workforce_config_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyMembershipModel(Base):
+    __tablename__ = "company_memberships"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(32), nullable=False, default="VIEWER")
+    assigned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyTemplateModel(Base):
+    __tablename__ = "company_templates"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    industry: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    structure_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    default_departments_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    default_roles_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyRelationshipModel(Base):
+    __tablename__ = "company_relationships"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_a_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    company_b_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    relationship_type: Mapped[str] = mapped_column(String(32), nullable=False, default="PARTNER")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="ACTIVE")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyDataShareRequestModel(Base):
+    __tablename__ = "company_data_share_requests"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    source_company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    target_company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    data_scope: Mapped[str] = mapped_column(String(32), nullable=False, default="READ_ONLY")
+    purpose: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="REQUESTED")
+    governance_approval_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CompanyResourceQuotaModel(Base):
+    __tablename__ = "company_resource_quotas"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    max_concurrent_tasks: Mapped[int] = mapped_column(Integer, nullable=False, default=100)
+    max_concurrent_agents: Mapped[int] = mapped_column(Integer, nullable=False, default=50)
+    max_monthly_model_calls: Mapped[int] = mapped_column(Integer, nullable=False, default=100000)
+    max_storage_mb: Mapped[int] = mapped_column(Integer, nullable=False, default=50000)
+    max_simulations: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanyResourceUsageModel(Base):
+    __tablename__ = "company_resource_usages"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    active_tasks: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    active_agents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    monthly_model_calls: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    storage_mb: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    active_simulations: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class CompanySimulationModel(Base):
+    __tablename__ = "company_simulations"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    scenario_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    snapshot_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    environment: Mapped[str] = mapped_column(String(32), nullable=False, default="SIMULATION")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="DRAFT")
+    owner_id: Mapped[str] = mapped_column(String(64), nullable=False, default="SYSTEM")
+    metadata_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class SimulationSnapshotModel(Base):
+    __tablename__ = "simulation_snapshots"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    snapshot_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    snapshot_data_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class SimulationScenarioModel(Base):
+    __tablename__ = "simulation_scenarios"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    variables_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class SimulationResultModel(Base):
+    __tablename__ = "simulation_results"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    simulation_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    scenario_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    baseline_metrics_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    simulated_metrics_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    variance_analysis_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    confidence_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.90)
+    produced_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
+
+class SimulationFinancialRecordModel(Base):
+    __tablename__ = "simulation_financial_records"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    simulation_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    company_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    record_type: Mapped[str] = mapped_column(String(64), nullable=False, default="SIMULATED_REVENUE")
+    amount_cents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    currency: Mapped[str] = mapped_column(String(8), nullable=False, default="USD")
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
+    )
+
