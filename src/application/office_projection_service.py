@@ -39,6 +39,7 @@ class OfficeProjectionService:
         office_repository: Any = None,
         team_repository: Any = None,
         workforce_repository: Any = None,
+        company_repository: Any = None,
     ) -> None:
         self.employee_repo = employee_repository
         self.department_repo = department_repository
@@ -52,6 +53,7 @@ class OfficeProjectionService:
         self.office_repo = office_repository
         self.team_repo = team_repository
         self.workforce_repo = workforce_repository
+        self.company_repo = company_repository
 
     def derive_employee_visual_state(
         self,
@@ -280,6 +282,27 @@ class OfficeProjectionService:
                 res = self.office_repo.list_recent_activity()
                 activity_feed = await res if isawaitable(res) else res
 
+        operating_cycle_state = "COMPLETED"
+        company_health_status = "HEALTHY"
+        active_strategy_title = "Default Operating Strategy"
+
+        if self.company_repo:
+            if hasattr(self.company_repo, "get_active_cycle_for_company"):
+                res = self.company_repo.get_active_cycle_for_company("default_company")
+                cycle = await res if isawaitable(res) else res
+                if cycle:
+                    operating_cycle_state = cycle.state.value if hasattr(cycle.state, "value") else str(cycle.state)
+            if hasattr(self.company_repo, "get_latest_health_for_company"):
+                res = self.company_repo.get_latest_health_for_company("default_company")
+                health = await res if isawaitable(res) else res
+                if health:
+                    company_health_status = health.overall_status.value if hasattr(health.overall_status, "value") else str(health.overall_status)
+            if hasattr(self.company_repo, "get_active_strategy_for_company"):
+                res = self.company_repo.get_active_strategy_for_company("default_company")
+                strat = await res if isawaitable(res) else res
+                if strat:
+                    active_strategy_title = strat.title
+
         return OfficeCompanyProjection(
             company_name="Autonomous AI Organization",
             is_emergency_stopped=is_gov_paused,
@@ -291,6 +314,9 @@ class OfficeProjectionService:
             active_projects_count=1,
             failed_verifications_count=len([item for item in attention_items if item.attention_type == HumanAttentionType.FAILED_VERIFICATION]),
             active_recoveries_count=recovering_count,
+            company_operating_cycle_state=operating_cycle_state,
+            company_health_status=company_health_status,
+            active_strategy_title=active_strategy_title,
             attention_items=attention_items,
             recent_activities=activity_feed,
             departments=departments,

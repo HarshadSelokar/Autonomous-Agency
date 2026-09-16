@@ -4,11 +4,10 @@ Pure read/projection models representing real Company OS backend state visually.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
-import uuid
 
 
 class EmployeeVisualState(str, Enum):
@@ -56,21 +55,21 @@ class EmployeeWorkstationProjection:
     employee_name: str
     employee_title: str
     role: str
-    department_id: Optional[str]
-    manager_id: Optional[str]
+    department_id: str | None
+    manager_id: str | None
     desk_id: str
     area_type: OfficeAreaType
     visual_state: EmployeeVisualState
-    current_task_id: Optional[str] = None
-    current_task_title: Optional[str] = None
-    current_project_id: Optional[str] = None
-    current_project_name: Optional[str] = None
+    current_task_id: str | None = None
+    current_task_title: str | None = None
+    current_project_id: str | None = None
+    current_project_name: str | None = None
     current_activity_summary: str = "Idle"
-    active_agent_id: Optional[str] = None
-    active_tool_name: Optional[str] = None
-    active_model_id: Optional[str] = None
+    active_agent_id: str | None = None
+    active_tool_name: str | None = None
+    active_model_id: str | None = None
     is_manager: bool = False
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -79,10 +78,10 @@ class DepartmentLayoutProjection:
     department_id: str
     name: str
     area_type: OfficeAreaType
-    head_employee_id: Optional[str] = None
+    head_employee_id: str | None = None
     total_desks: int = 10
     occupied_desks: int = 0
-    active_employee_ids: List[str] = field(default_factory=list)
+    active_employee_ids: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -95,9 +94,9 @@ class OfficeMeetingRoomProjection:
     status: str
     purpose: str
     organizer_employee_id: str
-    participant_employee_ids: List[str] = field(default_factory=list)
+    participant_employee_ids: list[str] = field(default_factory=list)
     active_decision_count: int = 0
-    started_at: Optional[datetime] = None
+    started_at: datetime | None = None
 
 
 @dataclass
@@ -111,8 +110,8 @@ class OfficeProjectAreaProjection:
     completed_tasks: int = 0
     active_tasks: int = 0
     blocked_tasks: int = 0
-    assigned_employee_ids: List[str] = field(default_factory=list)
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    assigned_employee_ids: list[str] = field(default_factory=list)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -125,8 +124,8 @@ class HumanAttentionItem:
     entity_id: str                          # e.g., approval_id, task_id, violation_id
     entity_type: str                        # "APPROVAL", "TASK", "VIOLATION", "EMERGENCY_STOP"
     severity: str = "HIGH"
-    action_url: Optional[str] = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    action_url: str | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -138,7 +137,7 @@ class OfficeActivityItem:
     category: str                           # "TASK", "GOVERNANCE", "VERIFICATION", "RECOVERY", "MEETING", "TOOL"
     actor_id: str
     entity_id: str
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -153,8 +152,11 @@ class OfficeCompanyProjection:
     pending_approvals_count: int
     active_projects_count: int
     failed_verifications_count: int
-    active_recoveries_count: int
-    attention_items: List[HumanAttentionItem] = field(default_factory=list)
-    recent_activities: List[OfficeActivityItem] = field(default_factory=list)
-    departments: List[DepartmentLayoutProjection] = field(default_factory=list)
-    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    active_recoveries_count: int = 0
+    company_operating_cycle_state: str = "COMPLETED"
+    company_health_status: str = "HEALTHY"
+    active_strategy_title: str = "Default Operating Strategy"
+    attention_items: list[HumanAttentionItem] = field(default_factory=list)
+    recent_activities: list[OfficeActivityItem] = field(default_factory=list)
+    departments: list[DepartmentLayoutProjection] = field(default_factory=list)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
