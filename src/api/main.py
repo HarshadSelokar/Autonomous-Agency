@@ -33,6 +33,7 @@ from src.api.routes.objectives import router as objectives_router
 from src.api.routes.office import router as office_router
 from src.api.routes.research import router as research_router
 from src.api.routes.runs import router as runs_router
+from src.api.routes.simulation import router as simulation_router
 from src.api.routes.software_projects import router as software_projects_router
 from src.api.routes.swarms import router as swarms_router
 from src.api.routes.tasks import router as tasks_router
@@ -117,5 +118,6 @@ app.include_router(innovation_router, prefix="/api/v1")
 app.include_router(swarms_router)
 app.include_router(business_router)
 app.include_router(gtm_router)
+app.include_router(simulation_router)
 
 
