@@ -88,6 +88,24 @@ from src.infrastructure.models.team_model import (
 from src.infrastructure.models.work_item_model import WorkItemModel
 from src.infrastructure.models.workspace_model import WorkspaceModel
 
+from src.infrastructure.models.company_model import (
+    AutonomousCompanyModel,
+    CompanyHealthSnapshotModel,
+    CompanyMetricSnapshotModel,
+    CompanyOperatingCycleModel,
+    CompanyOpportunityModel,
+    CompanyRiskModel,
+    CompanyStrategyModel,
+    ContinuousImprovementProposalModel,
+    PortfolioItemModel,
+    ResourceAllocationPlanModel,
+    StrategicAnalysisModel,
+    StrategicInitiativeModel,
+    StrategicObjectiveModel,
+    StrategyProposalModel,
+    StrategySimulationModel,
+)
+
 __all__ = [
     "AgentModel",
     "ArtifactModel",
@@ -153,6 +171,22 @@ __all__ = [
     "WorkforcePlanModel",
     "TeamModel",
     "TeamMemberModel",
+    "AutonomousCompanyModel",
+    "CompanyOperatingCycleModel",
+    "CompanyStrategyModel",
+    "StrategicObjectiveModel",
+    "StrategicInitiativeModel",
+    "CompanyMetricSnapshotModel",
+    "CompanyHealthSnapshotModel",
+    "CompanyRiskModel",
+    "CompanyOpportunityModel",
+    "StrategicAnalysisModel",
+    "StrategyProposalModel",
+    "PortfolioItemModel",
+    "ResourceAllocationPlanModel",
+    "ContinuousImprovementProposalModel",
+    "StrategySimulationModel",
 ]
+
 
 
