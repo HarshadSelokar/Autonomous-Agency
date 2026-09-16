@@ -4,6 +4,8 @@ Follows the repository pattern to keep domain decoupled from persistence details
 """
 
 from abc import ABC, abstractmethod
+from typing import Any
+
 
 from src.domain.agent import Agent
 from src.domain.assignment import Assignment
@@ -293,5 +295,30 @@ class MemoryRepositoryInterface(ABC):
     async def list_all(self) -> "list[MemoryEntry]":
         """List all memories."""
         pass
+
+
+class SwarmRepositoryInterface(ABC):
+    """Abstract interface for Swarm persistence operations (Phase 22)."""
+
+    @abstractmethod
+    async def save(self, swarm: Any) -> Any:
+        """Save or update a Swarm aggregate root."""
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, swarm_id: str) -> Any | None:
+        """Find a Swarm by ID."""
+        pass
+
+    @abstractmethod
+    async def list_all(self) -> list[Any]:
+        """List all Swarms."""
+        pass
+
+    @abstractmethod
+    async def list_by_parent_task(self, parent_task_id: str) -> list[Any]:
+        """List Swarms for a specific parent task."""
+        pass
+
 
 
