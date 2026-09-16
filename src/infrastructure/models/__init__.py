@@ -208,6 +208,39 @@ from src.infrastructure.models.knowledge_model import (
     KnowledgeValidationModel,
     OrganizationalExperimentModel,
 )
+from src.infrastructure.models.research_model import (
+    InnovationProposalModel,
+    ResearchBenchmarkModel,
+    ResearchDiscoveryModel,
+    ResearchEvidenceModel,
+    ResearchFindingModel,
+    ResearchHypothesisModel,
+    ResearchOpportunityModel,
+    ResearchPlanModel,
+    ResearchProgramModel,
+    ResearchQuestionModel,
+    ResearchRequestModel,
+    ResearchSourceModel,
+    TechnologyEvaluationModel,
+)
+
+__all__.extend(
+    [
+        "ResearchProgramModel",
+        "ResearchRequestModel",
+        "ResearchQuestionModel",
+        "ResearchPlanModel",
+        "ResearchSourceModel",
+        "ResearchEvidenceModel",
+        "ResearchFindingModel",
+        "ResearchHypothesisModel",
+        "ResearchBenchmarkModel",
+        "TechnologyEvaluationModel",
+        "ResearchDiscoveryModel",
+        "ResearchOpportunityModel",
+        "InnovationProposalModel",
+    ]
+)
 
 
 
