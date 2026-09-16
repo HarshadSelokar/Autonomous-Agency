@@ -22,6 +22,7 @@ from src.api.routes.departments import router as departments_router
 from src.api.routes.employees import router as employees_router
 from src.api.routes.experiments import router as experiments_router
 from src.api.routes.governance import router as governance_router
+from src.api.routes.gtm import router as gtm_router
 from src.api.routes.health import router as health_router
 from src.api.routes.innovation import router as innovation_router
 from src.api.routes.knowledge import router as knowledge_router
@@ -115,5 +116,6 @@ app.include_router(research_router, prefix="/api/v1")
 app.include_router(innovation_router, prefix="/api/v1")
 app.include_router(swarms_router)
 app.include_router(business_router)
+app.include_router(gtm_router)
 
 
