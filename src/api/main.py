@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from src.api.routes.agents import router as agents_router
 from src.api.routes.artifacts import router as artifacts_router
 from src.api.routes.communication import router as communication_router
+from src.api.routes.company import router as company_router
 from src.api.routes.decisions import router as decisions_router
 from src.api.routes.department_requests import router as department_requests_router
 from src.api.routes.departments import router as departments_router
@@ -47,10 +48,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments & Dynamic Workforce "
-        "(Phase 1 - Phase 15)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce & Autonomous Company OS "
+        "(Phase 1 - Phase 16)"
     ),
-    version="0.15.0",
+    version="0.16.0",
     lifespan=lifespan,
 )
 
@@ -76,9 +77,7 @@ app.include_router(model_routing_router)
 app.include_router(office_router)
 app.include_router(workforce_router)
 app.include_router(teams_router)
-
-
-
+app.include_router(company_router)
 
 
 @app.get("/health", tags=["System"])
