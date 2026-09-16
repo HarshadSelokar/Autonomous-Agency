@@ -122,6 +122,28 @@ from src.infrastructure.models.business_model import (
     BusinessMetricModel,
     BusinessProcessModel,
 )
+from src.infrastructure.models.gtm_model import (
+    ProductModel,
+    ProductVersionModel,
+    ProductRoadmapModel,
+    ProductRequirementModel,
+    ProductFeedbackModel,
+    CustomerModel,
+    CustomerContactModel,
+    CustomerInteractionModel,
+    CustomerHealthSnapshotModel,
+    CustomerOutcomeModel,
+    LeadModel,
+    OpportunityModel,
+    SalesActivityModel,
+    ProposalModel,
+    CustomerOnboardingPlanModel,
+    SupportCaseModel,
+    MarketingCampaignModel,
+    MarketingAssetModel,
+    CommunicationPreferenceModel,
+    GTMMetricModel,
+)
 from src.infrastructure.models.company_model import (
     ResourceAllocationPlanModel,
     StrategicAnalysisModel,

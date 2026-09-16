@@ -449,5 +449,118 @@ class BusinessRepositoryInterface(ABC):
         pass
 
 
+class GTMRepositoryInterface(ABC):
+    """Abstract interface for Product, Customer & GTM persistence operations (Phase 24)."""
+
+    @abstractmethod
+    async def save_product(self, product: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_product_by_id(self, product_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_products(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_product_requirement(self, requirement: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_product_requirements(self, product_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_product_feedback(self, feedback: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_product_feedback(self, product_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_customer(self, customer: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_customer_by_id(self, customer_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_customers(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_customer_interaction(self, interaction: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_customer_interactions(self, customer_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_lead(self, lead: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_lead_by_id(self, lead_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_leads(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_opportunity(self, opportunity: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_opportunity_by_id(self, opportunity_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_opportunities(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_proposal(self, proposal: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_proposal_by_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_proposals(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_support_case(self, support_case: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_support_case_by_id(self, case_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_support_cases(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_marketing_campaign(self, campaign: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_marketing_campaign_by_id(self, campaign_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_marketing_campaigns(self) -> list[Any]:
+        pass
+
+
+
 
 
