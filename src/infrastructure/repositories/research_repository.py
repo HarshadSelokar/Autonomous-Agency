@@ -217,6 +217,43 @@ class SQLAlchemyResearchRepository:
             created_at=m.created_at,
         )
 
+    # --- Plans ---
+    async def save_plan(self, plan: ResearchPlan) -> ResearchPlan:
+        model = ResearchPlanModel(
+            id=plan.id,
+            question_id=plan.question_id,
+            title=plan.title,
+            objective=plan.objective,
+            task_ids={"items": plan.task_ids},
+            assigned_employee_ids={"items": plan.assigned_employee_ids},
+            assigned_team_id=plan.assigned_team_id,
+            tool_requirements={"items": plan.tool_requirements},
+            status=plan.status.value if hasattr(plan.status, "value") else str(plan.status),
+            created_at=plan.created_at,
+        )
+        await self.session.merge(model)
+        await self.session.flush()
+        return plan
+
+    async def get_plan_by_id(self, plan_id: str) -> ResearchPlan | None:
+        stmt = select(ResearchPlanModel).where(ResearchPlanModel.id == plan_id)
+        res = await self.session.execute(stmt)
+        m = res.scalar_one_or_none()
+        if not m:
+            return None
+        return ResearchPlan(
+            id=m.id,
+            question_id=m.question_id,
+            title=m.title,
+            objective=m.objective,
+            task_ids=m.task_ids.get("items", []) if m.task_ids else [],
+            assigned_employee_ids=m.assigned_employee_ids.get("items", []) if m.assigned_employee_ids else [],
+            assigned_team_id=m.assigned_team_id,
+            tool_requirements=m.tool_requirements.get("items", []) if m.tool_requirements else [],
+            status=ResearchStatus(m.status),
+            created_at=m.created_at,
+        )
+
     # --- Sources & Evidence ---
     async def save_source(self, src: ResearchSource) -> ResearchSource:
         model = ResearchSourceModel(
@@ -271,6 +308,23 @@ class SQLAlchemyResearchRepository:
 
     async def get_evidence_by_id(self, evidence_id: str) -> ResearchEvidence | None:
         stmt = select(ResearchEvidenceModel).where(ResearchEvidenceModel.id == evidence_id)
+        res = await self.session.execute(stmt)
+        m = res.scalar_one_or_none()
+        if not m:
+            return None
+        return ResearchEvidence(
+            id=m.id,
+            source_id=m.source_id,
+            content_snippet=m.content_snippet,
+            data_points=m.data_points or {},
+            integrity_hash=m.integrity_hash,
+            is_independent=m.is_independent,
+            corroboration_count=m.corroboration_count,
+            created_at=m.created_at,
+        )
+
+    async def get_evidence_by_hash(self, integrity_hash: str) -> ResearchEvidence | None:
+        stmt = select(ResearchEvidenceModel).where(ResearchEvidenceModel.integrity_hash == integrity_hash)
         res = await self.session.execute(stmt)
         m = res.scalar_one_or_none()
         if not m:
