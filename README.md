@@ -1,14 +1,14 @@
-# Autonomous AI Organization Platform — Phase 1 to Phase 20
+# Autonomous AI Organization Platform — Phase 1 to Phase 23
 
-This repository implements **Phases 1–20** of the Autonomous AI Organization Platform, culminating in Phase 20 Production Deployment & Infrastructure with PostgreSQL/Redis connection pooling, S3 Object Storage with SHA-256 checksum integrity, background worker lifecycle management, transactional outbox processing, OpenTelemetry/Prometheus observability, Nginx TLS reverse proxying, automated database backup/restore, and containerization above the unified Company Operating System.
+This repository implements **Phases 1–23** of the Autonomous AI Organization Platform, culminating in Phase 23 Autonomous Business Operations & Financial Operations with fixed-precision money representation, revenue and expense tracking, customer invoices, governed procurement workflows with Separation of Duties, deterministic financial reconciliation, risk-based governance, and real-time Pixel Office control center integration.
 
-## Core Architectural Principle
+## Core Architectural Invariants
 
-$$\text{Company} \rightarrow \text{Infrastructure} \rightarrow \text{Strategy} \rightarrow \text{Discovery} \rightarrow \text{Research} \rightarrow \text{Evidence} \rightarrow \text{Hypothesis} \rightarrow \text{Knowledge} \rightarrow \text{Innovation}$$
+$$\text{CLAIM} \neq \text{TRANSACTION} \neq \text{VERIFIED TRANSACTION} \neq \text{AUTHORIZED PAYMENT}$$
 
-$$\text{RAW INFORMATION} \rightarrow \text{SOURCE} \rightarrow \text{EVIDENCE} \rightarrow \text{FINDING} \rightarrow \text{HYPOTHESIS} \rightarrow \text{BENCHMARK} \rightarrow \text{KNOWLEDGE} \rightarrow \text{OPPORTUNITY} \rightarrow \text{PROPOSAL} \rightarrow \text{INITIATIVE}$$
+$$\text{RECOMMENDATION} \neq \text{DECISION} \neq \text{EXECUTION} \neq \text{SETTLEMENT} \neq \text{RECONCILIATION}$$
 
-$$\text{RESEARCH} \neq \text{KNOWLEDGE} \neq \text{HYPOTHESIS} \neq \text{DECISION} \neq \text{INITIATIVE}$$
+$$\text{ACTUAL} \neq \text{EXPECTED} \neq \text{FORECAST} \neq \text{CASH}$$
 
 - **Memory**: Transient episodic/semantic records of past interactions.
 - **Knowledge**: Verified factual claims backed by independent deterministic evidence (`UNVERIFIED` → `OBSERVED` → `EVIDENCE_BACKED` → `VALIDATED` → `CONFIRMED` → `AUTHORITATIVE`).
