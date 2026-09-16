@@ -203,3 +203,40 @@ export interface OfficeWebSocketEvent {
   timestamp: string;
   payload: Record<string, any>;
 }
+
+export interface SwarmMemberInfo {
+  id: string;
+  employee_id: string;
+  agent_id: string;
+  role: string;
+  capability: string;
+  status: string;
+  assigned_task_id?: string;
+}
+
+export interface SwarmBudgetInfo {
+  max_execution_time_seconds: number;
+  current_execution_time_seconds: number;
+  max_model_cost: number;
+  current_model_cost: number;
+  max_tool_calls: number;
+  current_tool_calls: number;
+}
+
+export interface SwarmInfo {
+  id: string;
+  name: string;
+  code: string;
+  parent_task_id: string;
+  purpose: string;
+  manager_id: string;
+  status: string;
+  coordination_mode: string;
+  depth: number;
+  concurrency_limit: number;
+  max_agents: number;
+  members: SwarmMemberInfo[];
+  budget?: SwarmBudgetInfo;
+  created_at: string;
+}
+

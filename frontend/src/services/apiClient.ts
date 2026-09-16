@@ -154,6 +154,34 @@ export class OfficeApiClient {
       };
     }
   }
+
+  async fetchSwarmDetails(swarmId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/swarms/${swarmId}`);
+    if (!res.ok) throw new Error(`Failed to fetch swarm: ${res.statusText}`);
+    return res.json();
+  }
+
+  async pauseSwarm(swarmId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/swarms/${swarmId}/pause`, { method: 'POST' });
+    if (!res.ok) throw new Error(`Failed to pause swarm: ${res.statusText}`);
+    return res.json();
+  }
+
+  async resumeSwarm(swarmId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/swarms/${swarmId}/resume`, { method: 'POST' });
+    if (!res.ok) throw new Error(`Failed to resume swarm: ${res.statusText}`);
+    return res.json();
+  }
+
+  async cancelSwarm(swarmId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/swarms/${swarmId}/cancel`, { method: 'POST' });
+    if (!res.ok) throw new Error(`Failed to cancel swarm: ${res.statusText}`);
+    return res.json();
+  }
 }
 
 export const apiClient = new OfficeApiClient();
+export const fetchSwarmDetails = (id: string) => apiClient.fetchSwarmDetails(id);
+export const pauseSwarm = (id: string) => apiClient.pauseSwarm(id);
+export const resumeSwarm = (id: string) => apiClient.resumeSwarm(id);
+export const cancelSwarm = (id: string) => apiClient.cancelSwarm(id);
