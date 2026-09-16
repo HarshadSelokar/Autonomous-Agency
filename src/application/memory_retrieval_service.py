@@ -30,9 +30,43 @@ class MemoryRetrievalService:
         self,
         memory_repo: MemoryRepositoryInterface,
         embedding_provider: EmbeddingProviderInterface | None = None,
+        knowledge_repo: Any | None = None,
     ) -> None:
         self.memory_repo = memory_repo
         self.embedding_provider = embedding_provider
+        self.knowledge_repo = knowledge_repo
+
+    async def retrieve_institutional_knowledge(
+        self,
+        query: str | None = None,
+        scope: str | None = None,
+        min_authority: str | None = None,
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Retrieve Phase 18 institutional knowledge items matching query and authority constraints."""
+        if not self.knowledge_repo:
+            return []
+
+        if query and hasattr(self.knowledge_repo, "search_knowledge_items"):
+            res = await self.knowledge_repo.search_knowledge_items(query)
+        elif hasattr(self.knowledge_repo, "list_knowledge_items"):
+            res = await self.knowledge_repo.list_knowledge_items(scope=scope, authority=min_authority)
+        else:
+            return []
+
+        items = list(res)[:limit]
+        return [
+            {
+                "id": k.id,
+                "statement": k.statement,
+                "type": k.knowledge_type.value if hasattr(k.knowledge_type, "value") else str(k.knowledge_type),
+                "authority": k.authority.value if hasattr(k.authority, "value") else str(k.authority),
+                "status": k.status.value if hasattr(k.status, "value") else str(k.status),
+                "confidence": k.confidence,
+                "scope": k.scope.value if hasattr(k.scope, "value") else str(k.scope),
+            }
+            for k in items
+        ]
 
     async def retrieve_memories(
         self,
