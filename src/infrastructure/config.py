@@ -1,8 +1,9 @@
-"""
-Application Configuration Module.
-Environment-based settings with default fallbacks.
+"""Application Configuration Module.
+
+Environment-based settings with default fallbacks and production validation.
 """
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,7 +16,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Autonomous AI Company - Agent Runtime"
-    APP_ENV: str = "development"
+    APP_ENV: str = Field(default="development", description="development, test, staging, production")
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
 
@@ -27,9 +28,41 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/agent_runtime"
     DATABASE_ECHO: bool = False
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_MAX_OVERFLOW: int = 10
+    DATABASE_POOL_TIMEOUT: int = 30
+    DATABASE_POOL_RECYCLE: int = 1800
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_MAX_CONNECTIONS: int = 50
+    REDIS_SOCKET_TIMEOUT: float = 5.0
+    REDIS_RETRY_ON_TIMEOUT: bool = True
+
+    # Storage Provider Configuration
+    STORAGE_TYPE: str = Field(default="local", description="local or s3")
+    S3_ENDPOINT_URL: str | None = None
+    S3_BUCKET_NAME: str = "autonomous-artifacts"
+    S3_ACCESS_KEY_ID: str | None = None
+    S3_SECRET_ACCESS_KEY: str | None = None
+    S3_REGION: str = "us-east-1"
+    LOCAL_STORAGE_DIR: str = "scratch/artifact_storage"
+
+    # Background Worker Configuration
+    WORKER_CONCURRENCY: int = 10
+    WORKER_DRAIN_TIMEOUT: int = 30
+    WORKER_POLL_INTERVAL_SECONDS: float = 1.0
+
+    # API & Security
+    CORS_ALLOWED_ORIGINS: list[str] = Field(default_factory=lambda: ["*"])
+    RATE_LIMIT_PER_MINUTE: int = 120
+    MAX_CONTENT_LENGTH_BYTES: int = 10485760  # 10 MB limit
+    TRUSTED_PROXIES: list[str] = Field(default_factory=lambda: ["127.0.0.1"])
+
+    # Observability & Telemetry
+    OTEL_SERVICE_NAME: str = "autonomous-agency-platform"
+    OTEL_EXPORTER_OTLP_ENDPOINT: str | None = None
+    PROMETHEUS_METRICS_ENABLED: bool = True
 
     # Execution Engine Defaults
     MAX_RETRIES: int = 3
