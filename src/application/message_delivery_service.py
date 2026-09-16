@@ -3,9 +3,9 @@ Message Delivery Service handling reliable transactional outbox delivery,
 delivery state transitions (DELIVERED, READ, ACKNOWLEDGED, FAILED), and bounded retry policy.
 """
 
-from datetime import datetime, timezone
 import inspect
 import json
+from datetime import UTC, datetime
 from typing import Any
 
 from src.application.event_dispatcher import EventDispatcher
@@ -15,7 +15,7 @@ from src.domain.events import (
     MessageDeliveredEvent,
     MessageDeliveryFailedEvent,
 )
-from src.domain.message import DeliveryState, Message
+from src.domain.message import Message
 from src.infrastructure.repositories.message_repository import (
     SQLAlchemyMessageRepository,
 )
@@ -111,7 +111,7 @@ class MessageDeliveryService:
                     MessageAcknowledgedEvent(
                         message_id=saved_msg.id,
                         acknowledged_by_employee_id=participant_id,
-                        timestamp=datetime.now(timezone.utc).isoformat(),
+                        timestamp=datetime.now(UTC).isoformat(),
                     )
                 )
             )

@@ -1,13 +1,14 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+import src.infrastructure.models  # noqa: F401
 from src.domain.task import Task, TaskStatus
 from src.domain.task_dependency import TaskDependency
 from src.infrastructure.database import Base
-import src.infrastructure.models  # noqa: F401
 from src.infrastructure.models.objective_model import ObjectiveModel
 from src.infrastructure.models.plan_model import PlanModel
 from src.infrastructure.repositories.task_dependency_repository import (

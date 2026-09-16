@@ -5,7 +5,7 @@ and self-approval governance boundaries.
 """
 
 from src.application.event_dispatcher import EventDispatcher
-from src.domain.events import SoftwareDeliveryApprovedEvent, SoftwareDeliveredEvent
+from src.domain.events import SoftwareDeliveredEvent, SoftwareDeliveryApprovedEvent
 from src.domain.exceptions import UnauthorizedApprovalError
 from src.domain.software_company import (
     CodeChangeStatus,

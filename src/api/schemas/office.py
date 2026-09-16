@@ -1,6 +1,5 @@
 """Pydantic Schemas for Phase 13 Pixel Office API."""
 
-from typing import List, Optional, Any, Dict
 from pydantic import BaseModel, Field
 
 
@@ -9,19 +8,19 @@ class WorkstationProjectionSchema(BaseModel):
     employee_name: str
     employee_title: str
     role: str
-    department_id: Optional[str] = None
-    manager_id: Optional[str] = None
+    department_id: str | None = None
+    manager_id: str | None = None
     desk_id: str
     area_type: str
     visual_state: str
-    current_task_id: Optional[str] = None
-    current_task_title: Optional[str] = None
-    current_project_id: Optional[str] = None
-    current_project_name: Optional[str] = None
+    current_task_id: str | None = None
+    current_task_title: str | None = None
+    current_project_id: str | None = None
+    current_project_name: str | None = None
     current_activity_summary: str = "Idle"
-    active_agent_id: Optional[str] = None
-    active_tool_name: Optional[str] = None
-    active_model_id: Optional[str] = None
+    active_agent_id: str | None = None
+    active_tool_name: str | None = None
+    active_model_id: str | None = None
     is_manager: bool = False
     updated_at: str
 
@@ -30,10 +29,10 @@ class DepartmentLayoutProjectionSchema(BaseModel):
     department_id: str
     name: str
     area_type: str
-    head_employee_id: Optional[str] = None
+    head_employee_id: str | None = None
     total_desks: int = 10
     occupied_desks: int = 0
-    active_employee_ids: List[str] = Field(default_factory=list)
+    active_employee_ids: list[str] = Field(default_factory=list)
 
 
 class OfficeMeetingRoomProjectionSchema(BaseModel):
@@ -44,9 +43,9 @@ class OfficeMeetingRoomProjectionSchema(BaseModel):
     status: str
     purpose: str
     organizer_employee_id: str
-    participant_employee_ids: List[str] = Field(default_factory=list)
+    participant_employee_ids: list[str] = Field(default_factory=list)
     active_decision_count: int = 0
-    started_at: Optional[str] = None
+    started_at: str | None = None
 
 
 class OfficeProjectAreaProjectionSchema(BaseModel):
@@ -58,7 +57,7 @@ class OfficeProjectAreaProjectionSchema(BaseModel):
     completed_tasks: int = 0
     active_tasks: int = 0
     blocked_tasks: int = 0
-    assigned_employee_ids: List[str] = Field(default_factory=list)
+    assigned_employee_ids: list[str] = Field(default_factory=list)
     updated_at: str
 
 
@@ -70,7 +69,7 @@ class HumanAttentionItemSchema(BaseModel):
     entity_id: str
     entity_type: str
     severity: str = "HIGH"
-    action_url: Optional[str] = None
+    action_url: str | None = None
     created_at: str
 
 
@@ -95,6 +94,6 @@ class OfficeCompanyOverviewSchema(BaseModel):
     active_projects_count: int
     failed_verifications_count: int
     active_recoveries_count: int
-    attention_items: List[HumanAttentionItemSchema] = Field(default_factory=list)
-    recent_activities: List[OfficeActivityItemSchema] = Field(default_factory=list)
+    attention_items: list[HumanAttentionItemSchema] = Field(default_factory=list)
+    recent_activities: list[OfficeActivityItemSchema] = Field(default_factory=list)
     updated_at: str

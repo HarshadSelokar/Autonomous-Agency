@@ -4,7 +4,7 @@ Demonstrates Memory, Workspace, Artifacts, Authority Escalation, and Security Fr
 """
 
 import asyncio
-from datetime import UTC, datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -13,7 +13,10 @@ from src.application.embedding_provider import FakeEmbeddingProvider
 from src.application.memory_context_builder import MemoryContextBuilder
 from src.application.memory_retrieval_service import MemoryRetrievalService
 from src.application.memory_service import MemoryService
-from src.application.workspace_authorization_service import WorkspaceAuthorizationService, WorkspaceAccessDeniedError
+from src.application.workspace_authorization_service import (
+    WorkspaceAccessDeniedError,
+    WorkspaceAuthorizationService,
+)
 from src.domain.artifact import Artifact, compute_sha256
 from src.domain.decision import Decision, DecisionStatus, DecisionType
 from src.domain.employee import Employee, EmployeeStatus

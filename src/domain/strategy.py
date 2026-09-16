@@ -6,11 +6,11 @@ Strategic Objectives, Strategic Initiatives, Strategic Analysis, Strategy Propos
 and isolated What-If Strategy Simulations.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 
 class StrategyStatus(str, Enum):

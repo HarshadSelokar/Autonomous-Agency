@@ -10,9 +10,9 @@ failure recovery, and autonomous replanning loops.
 
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime
 from typing import Any
-import uuid
 
 from src.application.company_observation_service import CompanyObservationService
 from src.application.strategic_intelligence_service import StrategicIntelligenceService

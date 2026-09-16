@@ -2,7 +2,8 @@
 Integration tests for Phase 9 SQLAlchemy Software Company Repositories.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -10,14 +11,10 @@ from sqlalchemy.orm import sessionmaker
 
 from src.domain.software_company import (
     CodeChange,
-    CodeChangeStatus,
-    CodeReview,
-    CodeReviewStatus,
     DefectSeverity,
     DefectStatus,
     DeliveryStatus,
     RequirementPriority,
-    RequirementStatus,
     SoftwareDefect,
     SoftwareDelivery,
     SoftwareProject,
@@ -29,7 +26,6 @@ from src.domain.software_company import (
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemyCodeChangeRepository,
-    SQLAlchemyCodeReviewRepository,
     SQLAlchemySoftwareDefectRepository,
     SQLAlchemySoftwareDeliveryRepository,
     SQLAlchemySoftwareProjectRepository,

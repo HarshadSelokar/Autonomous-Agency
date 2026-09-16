@@ -3,11 +3,10 @@ Unit tests for AgentMeetingAssistant and Decision proposals.
 Verifies that Agent proposals remain PROPOSED and cannot bypass approval authority.
 """
 
-from typing import Any
 import pytest
 
 from src.application.agent_meeting_assistant import AgentMeetingAssistant
-from src.domain.decision import Decision, DecisionProvenance, DecisionStatus
+from src.domain.decision import DecisionProvenance, DecisionStatus
 from src.domain.meeting import Meeting, MeetingPurpose, ParticipantRole
 from tests.unit.test_decision_integration import MemoryDecisionRepository
 from tests.unit.test_meeting_scheduling import MemoryMeetingRepository

@@ -2,7 +2,8 @@
 Integration tests for Conversation, Message, and Outbox SQLAlchemy Repositories.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -16,7 +17,6 @@ from src.infrastructure.repositories.conversation_repository import (
     SQLAlchemyConversationRepository,
 )
 from src.infrastructure.repositories.message_repository import (
-    MessageNotFoundError,
     SQLAlchemyMessageRepository,
 )
 from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository

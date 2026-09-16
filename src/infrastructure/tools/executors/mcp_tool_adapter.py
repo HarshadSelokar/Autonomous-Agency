@@ -4,11 +4,9 @@ Treats MCP strictly as an external integration mechanism while preserving the co
 """
 
 import time
-from typing import Any
 
 from src.application.secrets_broker import SecretsBroker
 from src.domain.tool import (
-    ToolCapability,
     ToolDefinition,
     ToolExecutionStatus,
     ToolRequest,

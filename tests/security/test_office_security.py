@@ -4,16 +4,15 @@ Verifies workspace/department isolation, data privacy (no key/secret/prompt leak
 and authorized governance control execution.
 """
 
-import pytest
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-from src.domain.events import OfficeStateUpdatedEvent
+from src.application.office_projection_service import OfficeProjectionService
 from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
 )
-from src.application.office_projection_service import OfficeProjectionService
+from src.domain.events import OfficeStateUpdatedEvent
 
 
 def test_office_event_filtering_department_isolation():

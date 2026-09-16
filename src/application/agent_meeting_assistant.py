@@ -7,9 +7,9 @@ Agent proposal ≠ Authoritative decision. LLM/Agents CANNOT approve decisions.
 
 from typing import Any
 
-from src.domain.decision import Decision, DecisionProvenance, DecisionStatus, DecisionType
+from src.domain.decision import Decision, DecisionProvenance, DecisionStatus
 from src.domain.exceptions import ObjectiveValidationError
-from src.domain.meeting import AgendaItem, Meeting
+from src.domain.meeting import AgendaItem
 from src.domain.repository import DecisionRepositoryInterface, MeetingRepositoryInterface
 
 

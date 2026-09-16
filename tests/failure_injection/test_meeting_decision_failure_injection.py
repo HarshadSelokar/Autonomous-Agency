@@ -3,6 +3,7 @@ Phase 6 Failure-Injection Test Suite covering 20 failure modes across Meetings a
 """
 
 from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from src.application.agent_meeting_assistant import AgentMeetingAssistant
@@ -19,7 +20,6 @@ from src.domain.decision import (
     DecisionProvenance,
     DecisionStateError,
     DecisionStatus,
-    DecisionType,
     DecisionValidationError,
 )
 from src.domain.employee import Employee, EmployeeStatus

@@ -6,16 +6,16 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from src.application.verification_engine import VerificationEngine
 from src.domain.verification import (
     EvidenceTrustLevel,
     RuleSeverity,
+    VerificationRule,
     VerificationStatus,
     VerificationType,
-    VerificationRule,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.verification_repository import VerificationRepository
-from src.application.verification_engine import VerificationEngine
 
 
 @pytest.fixture

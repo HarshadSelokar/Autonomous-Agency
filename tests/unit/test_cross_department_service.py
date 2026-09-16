@@ -1,10 +1,12 @@
 """Unit tests for CrossDepartmentService."""
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
-from src.domain.department import Department
-from src.domain.cross_department import DepartmentPriority, DepartmentRequestStatus, HandoffStatus
+
 from src.application.cross_department_service import CrossDepartmentService
+from src.domain.cross_department import DepartmentPriority, DepartmentRequestStatus, HandoffStatus
+from src.domain.department import Department
 
 
 @pytest.mark.asyncio

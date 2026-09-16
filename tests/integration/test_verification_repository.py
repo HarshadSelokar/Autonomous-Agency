@@ -2,30 +2,28 @@
 Integration tests for VerificationRepository (Phase 10).
 """
 
+
 import pytest
-import uuid
-from datetime import datetime, timezone
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.infrastructure.database import Base
-from src.infrastructure.repositories.verification_repository import VerificationRepository
-from src.domain.verification import (
-    ExpectedOutcome,
-    EvidenceTrustLevel,
-    RuleSeverity,
-    VerificationEvidence,
-    VerificationResult,
-    VerificationRule,
-    VerificationStatus,
-    VerificationType,
-)
 from src.domain.recovery import (
     FailureCategory,
     FailureRecord,
     RecoveryAction,
     RecoveryStrategy,
 )
+from src.domain.verification import (
+    EvidenceTrustLevel,
+    ExpectedOutcome,
+    VerificationEvidence,
+    VerificationResult,
+    VerificationRule,
+    VerificationStatus,
+    VerificationType,
+)
+from src.infrastructure.database import Base
+from src.infrastructure.repositories.verification_repository import VerificationRepository
 
 
 @pytest.fixture

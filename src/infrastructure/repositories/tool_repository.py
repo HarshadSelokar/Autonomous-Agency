@@ -10,13 +10,11 @@ from src.domain.tool import (
     ToolApproval,
     ToolCapability,
     ToolDefinition,
-    ToolEvidence,
     ToolExecution,
     ToolExecutionStatus,
 )
 from src.infrastructure.models.tool_model import (
     ToolApprovalModel,
-    ToolEvidenceModel,
     ToolExecutionModel,
     ToolModel,
     tool_domain_to_model,

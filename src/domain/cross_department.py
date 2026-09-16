@@ -3,7 +3,6 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import List, Optional
 
 from src.domain.department import DepartmentHealth, DepartmentPriority
 
@@ -37,14 +36,14 @@ class DepartmentRequest:
     receiving_manager_id: str                          # Accountable Manager
     purpose: str
     requested_outcome: str
-    delivery_owner_employee_id: Optional[str] = None   # Delivery Owner assigned by manager
+    delivery_owner_employee_id: str | None = None   # Delivery Owner assigned by manager
     priority: DepartmentPriority = DepartmentPriority.MEDIUM
-    sla_deadline: Optional[datetime] = None
-    required_capabilities: List[str] = field(default_factory=list)
+    sla_deadline: datetime | None = None
+    required_capabilities: list[str] = field(default_factory=list)
     status: DepartmentRequestStatus = DepartmentRequestStatus.REQUESTED
-    rejection_reason: Optional[str] = None
-    related_objective_id: Optional[str] = None
-    related_project_id: Optional[str] = None
+    rejection_reason: str | None = None
+    related_objective_id: str | None = None
+    related_project_id: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -58,13 +57,13 @@ class DepartmentHandoff:
     receiver_department_id: str
     sender_employee_id: str
     expected_outcome: str
-    artifact_ids: List[str] = field(default_factory=list)
-    evidence_ids: List[str] = field(default_factory=list)
+    artifact_ids: list[str] = field(default_factory=list)
+    evidence_ids: list[str] = field(default_factory=list)
     status: HandoffStatus = HandoffStatus.PROPOSED
-    acceptance_criteria: List[str] = field(default_factory=list)
-    verification_id: Optional[str] = None
+    acceptance_criteria: list[str] = field(default_factory=list)
+    verification_id: str | None = None
     is_verified: bool = False
-    rejection_reason: Optional[str] = None
+    rejection_reason: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
@@ -77,9 +76,9 @@ class DepartmentServiceContract:
     service_name: str
     input_schema_description: str
     expected_output_description: str
-    acceptance_criteria: List[str] = field(default_factory=list)
+    acceptance_criteria: list[str] = field(default_factory=list)
     target_sla_seconds: int = 86400
-    required_approvals: List[str] = field(default_factory=list)
+    required_approvals: list[str] = field(default_factory=list)
 
 
 @dataclass

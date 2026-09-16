@@ -3,6 +3,7 @@ Unit tests for Artifact domain entity, versioning, SHA-256 checksums, and LocalS
 """
 
 from typing import Any
+
 import pytest
 
 from src.domain.artifact import Artifact, ArtifactStatus, compute_sha256

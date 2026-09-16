@@ -2,10 +2,10 @@
 Message domain entity, MessageType enum, MessageReference, and DeliveryState enum.
 """
 
-from datetime import datetime, timezone
+import uuid
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 from src.domain.exceptions import DomainError
 
@@ -126,8 +126,8 @@ class Message:
         )
         self.acknowledgements = acknowledgements or {}
         self.metadata = metadata or {}
-        self.created_at = created_at or datetime.now(timezone.utc)
-        self.updated_at = updated_at or datetime.now(timezone.utc)
+        self.created_at = created_at or datetime.now(UTC)
+        self.updated_at = updated_at or datetime.now(UTC)
 
     def add_reference(self, reference: MessageReference) -> None:
         if not any(
@@ -136,24 +136,24 @@ class Message:
             for r in self.references
         ):
             self.references.append(reference)
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
 
     def mark_delivered(self) -> None:
         if self.delivery_state == DeliveryState.CREATED:
             self.delivery_state = DeliveryState.DELIVERED
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
 
     def mark_read(self) -> None:
         if self.delivery_state in {DeliveryState.CREATED, DeliveryState.DELIVERED}:
             self.delivery_state = DeliveryState.READ
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
 
     def acknowledge(self, participant_id: str) -> None:
         if not participant_id or not participant_id.strip():
             raise MessageError("Participant ID for acknowledgement cannot be empty.")
-        self.acknowledgements[participant_id.strip()] = datetime.now(timezone.utc).isoformat()
+        self.acknowledgements[participant_id.strip()] = datetime.now(UTC).isoformat()
         self.delivery_state = DeliveryState.ACKNOWLEDGED
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         return {

@@ -29,7 +29,6 @@ from src.domain.meeting import (
     AttendanceStatus,
     MeetingPurpose,
     MeetingStatus,
-    ParticipantRole,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.models.employee_model import employee_domain_to_model

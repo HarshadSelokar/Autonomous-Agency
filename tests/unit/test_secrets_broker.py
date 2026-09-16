@@ -2,7 +2,6 @@
 Unit tests for SecretsBroker credential isolation and redaction.
 """
 
-import pytest
 
 from src.application.secrets_broker import SecretsBroker
 

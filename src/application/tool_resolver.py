@@ -10,11 +10,8 @@ from typing import Any
 from src.application.tool_registry import ToolRegistry
 from src.domain.tool import (
     PermissionMode,
-    ToolCapability,
     ToolDefinition,
     ToolRequest,
-    ToolStatus,
-    ToolValidationError,
 )
 
 

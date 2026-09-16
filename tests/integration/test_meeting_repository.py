@@ -2,8 +2,9 @@
 Integration tests for SQLAlchemyMeetingRepository and meeting ORM mappings.
 """
 
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta
-from typing import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -14,7 +15,6 @@ from src.domain.meeting import (
     AttendanceStatus,
     Meeting,
     MeetingPurpose,
-    MeetingStatus,
     ParticipantRole,
 )
 from src.infrastructure.database import Base

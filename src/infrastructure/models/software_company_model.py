@@ -4,27 +4,13 @@ SQLAlchemy ORM Models for Phase 9 AI Software Company entities.
 
 from datetime import UTC, datetime
 from typing import Any
-from sqlalchemy import JSON, Integer, String, Text, DateTime
+
+from sqlalchemy import JSON, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.domain.software_company import (
-    CodeChange,
-    CodeChangeStatus,
-    CodeReview,
-    CodeReviewStatus,
-    DefectSeverity,
-    DefectStatus,
-    DeliveryStatus,
-    EngineeringPlan,
-    RequirementPriority,
-    RequirementStatus,
-    SoftwareDefect,
-    SoftwareDelivery,
     SoftwareProject,
     SoftwareProjectStatus,
-    SoftwareRequirement,
-    TestRun,
-    TestRunStatus,
 )
 from src.infrastructure.database import Base
 

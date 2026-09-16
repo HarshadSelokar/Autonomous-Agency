@@ -4,14 +4,11 @@ Provider-neutral browser automation primitives (BrowserSession, BrowserAction, B
 supporting domain navigation boundaries, action limits, and Playwright integration readiness.
 """
 
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
 import time
-from typing import Any
+from dataclasses import dataclass, field
 
 from src.application.secrets_broker import SecretsBroker
 from src.domain.tool import (
-    ToolCapability,
     ToolDefinition,
     ToolExecutionStatus,
     ToolRequest,

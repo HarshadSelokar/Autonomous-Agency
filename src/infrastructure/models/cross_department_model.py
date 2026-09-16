@@ -11,7 +11,6 @@ from src.domain.cross_department import (
     DepartmentPriority,
     DepartmentRequest,
     DepartmentRequestStatus,
-    DepartmentServiceContract,
     HandoffStatus,
 )
 from src.infrastructure.database import Base

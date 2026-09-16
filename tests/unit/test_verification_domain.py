@@ -2,13 +2,9 @@
 Unit tests for Verification Domain Model (Phase 10).
 """
 
-import pytest
-from datetime import datetime, timezone
 from src.domain.verification import (
-    ExpectedOutcome,
     EvidenceTrustLevel,
     RuleSeverity,
-    VerificationCheckResult,
     VerificationEvidence,
     VerificationResult,
     VerificationRule,

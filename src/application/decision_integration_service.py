@@ -6,7 +6,7 @@ and Authoritative Memory derivation from approved Decisions.
 
 from typing import Any
 
-from src.domain.decision import Decision, DecisionStatus, DecisionValidationError
+from src.domain.decision import DecisionStatus, DecisionValidationError
 from src.domain.events import DecisionApprovedEvent
 from src.domain.memory import MemoryAuthority, MemoryProvenance, MemoryScope, MemoryType
 from src.domain.repository import DecisionRepositoryInterface

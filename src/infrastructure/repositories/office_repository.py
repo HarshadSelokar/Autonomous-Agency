@@ -1,8 +1,8 @@
 """Repository implementation for Phase 13 Pixel Office projections and activity feed."""
 
-from typing import List, Optional, Any
+from typing import Any
+
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.office import (
@@ -54,7 +54,7 @@ class GovernanceOfficeRepository:
             self._session.commit()
         return ws
 
-    def get_workstation(self, employee_id: str) -> Optional[EmployeeWorkstationProjection]:
+    def get_workstation(self, employee_id: str) -> EmployeeWorkstationProjection | None:
         if isinstance(self._session, AsyncSession):
             return None
         model = self._session.get(OfficeWorkstationModel, employee_id)
@@ -62,7 +62,7 @@ class GovernanceOfficeRepository:
             return None
         return self._model_to_workstation(model)
 
-    def list_workstations(self, department_id: Optional[str] = None) -> List[EmployeeWorkstationProjection]:
+    def list_workstations(self, department_id: str | None = None) -> list[EmployeeWorkstationProjection]:
         if isinstance(self._session, AsyncSession):
             return []
         stmt = select(OfficeWorkstationModel)
@@ -86,7 +86,7 @@ class GovernanceOfficeRepository:
             self._session.commit()
         return item
 
-    def get_recent_activities(self, limit: int = 20) -> List[OfficeActivityItem]:
+    def get_recent_activities(self, limit: int = 20) -> list[OfficeActivityItem]:
         if isinstance(self._session, AsyncSession):
             return []
         stmt = select(OfficeActivityModel).order_by(desc(OfficeActivityModel.created_at)).limit(limit)
@@ -104,7 +104,7 @@ class GovernanceOfficeRepository:
             for m in models
         ]
 
-    def list_recent_activity(self, limit: int = 20) -> List[OfficeActivityItem]:
+    def list_recent_activity(self, limit: int = 20) -> list[OfficeActivityItem]:
         return self.get_recent_activities(limit)
 
     def save_attention_item(self, item: HumanAttentionItem) -> HumanAttentionItem:
@@ -124,7 +124,7 @@ class GovernanceOfficeRepository:
             self._session.commit()
         return item
 
-    def get_attention_queue(self) -> List[HumanAttentionItem]:
+    def get_attention_queue(self) -> list[HumanAttentionItem]:
         if isinstance(self._session, AsyncSession):
             return []
         stmt = select(HumanAttentionModel).order_by(desc(HumanAttentionModel.created_at))
@@ -144,7 +144,7 @@ class GovernanceOfficeRepository:
             for m in models
         ]
 
-    def list_human_attention_items(self) -> List[HumanAttentionItem]:
+    def list_human_attention_items(self) -> list[HumanAttentionItem]:
         return self.get_attention_queue()
 
     def delete_attention_item(self, item_id: str) -> None:

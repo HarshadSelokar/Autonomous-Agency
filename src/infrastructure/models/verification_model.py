@@ -3,7 +3,8 @@ SQLAlchemy ORM Models for Phase 10 Verification & Recovery entities.
 """
 
 from datetime import UTC, datetime
-from typing import Any, Optional
+from typing import Any
+
 from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,10 +19,10 @@ class VerificationModel(Base):
     outcome_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="PENDING", index=True)
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    recommended_recovery: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    recommended_recovery: Mapped[str | None] = mapped_column(String(64), nullable=True)
     is_human_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    verified_by_actor_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    override_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verified_by_actor_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    override_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     evidence_ids: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
@@ -48,16 +49,16 @@ class VerificationEvidenceModel(Base):
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     source_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     source_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    task_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
-    workspace_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
-    agent_run_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    employee_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    tool_execution_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    artifact_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    task_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    workspace_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    agent_run_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    employee_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    tool_execution_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    artifact_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     trust_level: Mapped[str] = mapped_column(String(32), nullable=False, default="UNTRUSTED")
-    checksum: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
-    commit_sha: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    artifact_version: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    checksum: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    artifact_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 
@@ -67,17 +68,17 @@ class FailureRecordModel(Base):
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     task_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    verification_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    verification_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     category: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     severity: Mapped[str] = mapped_column(String(32), nullable=False, default="HIGH")
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     details: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
     retryable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     recoverable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    recommended_strategy: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    agent_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    employee_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    execution_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    recommended_strategy: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    agent_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    employee_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    execution_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     evidence_ids: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 

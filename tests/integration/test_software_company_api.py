@@ -2,7 +2,8 @@
 Integration tests for Phase 9 AI Software Company REST API endpoints.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient

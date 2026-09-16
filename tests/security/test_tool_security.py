@@ -4,7 +4,8 @@ Verifies unauthorized approval rejection, secret redaction, SSRF prevention,
 workspace isolation boundaries, and prompt injection defense.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -14,12 +15,11 @@ from src.application.secrets_broker import SecretsBroker
 from src.application.tool_approval_service import ToolApprovalService, UnauthorizedApprovalError
 from src.application.tool_execution_pipeline import ToolExecutionPipeline
 from src.application.tool_registry import ToolRegistry
-from src.application.workspace_authorization_service import WorkspaceAuthorizationService, WorkspaceAccessDeniedError
+from src.application.workspace_authorization_service import WorkspaceAuthorizationService
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.tool import (
     PermissionMode,
     ToolCapability,
-    ToolCategory,
     ToolDefinition,
     ToolExecutionStatus,
     ToolRequest,
@@ -28,7 +28,6 @@ from src.domain.workspace import Workspace, WorkspaceStatus, WorkspaceType
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.workspace_repository import SQLAlchemyWorkspaceRepository
-from src.infrastructure.tools.sandboxing import SSRFViolationError, SandboxExecutionBoundary
 
 
 @pytest_asyncio.fixture

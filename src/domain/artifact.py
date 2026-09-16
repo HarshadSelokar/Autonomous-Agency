@@ -2,11 +2,11 @@
 Artifact Domain Entity, Versioning, and Lifecycle State Machine for Phase 7.
 """
 
+import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import hashlib
 
 from src.domain.exceptions import ObjectiveValidationError
 

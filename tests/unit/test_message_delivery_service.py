@@ -3,6 +3,7 @@ Unit tests for MessageDeliveryService outbox delivery, status transitions, and r
 """
 
 from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from src.application.message_delivery_service import MessageDeliveryService

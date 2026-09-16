@@ -3,8 +3,8 @@ EmbeddingProvider Interface and Deterministic FakeEmbeddingProvider for Phase 7.
 Decouples domain memory operations from specific vector embedding services.
 """
 
-from abc import ABC, abstractmethod
 import math
+from abc import ABC, abstractmethod
 
 
 class EmbeddingProviderInterface(ABC):
@@ -52,7 +52,7 @@ def cosine_similarity(v1: list[float], v2: list[float]) -> float:
     """Calculate cosine similarity between two float vectors."""
     if not v1 or not v2 or len(v1) != len(v2):
         return 0.0
-    dot = sum(a * b for a, b in zip(v1, v2))
+    dot = sum(a * b for a, b in zip(v1, v2, strict=False))
     norm1 = math.sqrt(sum(a * a for a in v1))
     norm2 = math.sqrt(sum(b * b for b in v2))
     if norm1 == 0.0 or norm2 == 0.0:

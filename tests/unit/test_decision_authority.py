@@ -2,14 +2,13 @@
 Unit tests for DecisionAuthorityService and approval authority validation.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.application.decision_authority_service import (
     DecisionAuthorityService,
     UnauthorizedDecisionApprovalError,
 )
-from src.domain.decision import Decision, DecisionProvenance, DecisionStatus, DecisionType
+from src.domain.decision import Decision, DecisionStatus
 from src.domain.employee import Employee, EmployeeStatus
 from tests.unit.test_meeting_scheduling import MemoryEmployeeRepository
 

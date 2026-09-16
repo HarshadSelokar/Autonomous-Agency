@@ -2,11 +2,10 @@
 Unit tests for MeetingContextBuilder and MeetingTranscript.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.application.meeting_context_builder import MeetingAccessDeniedError, MeetingContextBuilder
-from src.domain.conversation import Conversation, ConversationType
+from src.domain.conversation import Conversation
 from src.domain.meeting import Meeting, MeetingPurpose, ParticipantRole
 from src.domain.message import Message, MessageType
 from src.domain.transcript import MeetingTranscript

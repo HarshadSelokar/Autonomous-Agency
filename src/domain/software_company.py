@@ -5,10 +5,10 @@ Enforces provider-neutral domain abstractions for software engineering project l
 requirements, code changes, code reviews, test runs, defects, and deliveries.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-import uuid
 
 
 class SoftwareProjectStatus(str, Enum):

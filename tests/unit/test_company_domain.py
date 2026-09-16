@@ -3,10 +3,9 @@ Unit tests for Autonomous Company domain entities.
 """
 
 import pytest
+
 from src.domain.company import (
     AutonomousCompany,
-    CompanyHealthSnapshot,
-    CompanyHealthStatus,
     CompanyKPISnapshot,
     CompanyOperatingCycle,
     CompanyOpportunity,
@@ -14,7 +13,6 @@ from src.domain.company import (
     CompanyStatus,
     MetricTrend,
     OperatingCycleState,
-    PortfolioItem,
     RiskSeverity,
 )
 

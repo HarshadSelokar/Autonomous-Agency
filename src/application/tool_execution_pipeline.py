@@ -4,30 +4,25 @@ Orchestrates the complete 12-stage tool execution pipeline:
 REQUEST -> RESOLVE -> VALIDATE -> AUTHORIZE -> POLICY -> APPROVAL -> PROVIDER -> SANDBOX -> ADAPTER -> RESULT -> EVIDENCE -> AUDIT.
 """
 
-import time
 import uuid
 from typing import Any
 
+from src.application.event_dispatcher import EventDispatcher
 from src.application.secrets_broker import SecretsBroker
 from src.application.tool_approval_service import ToolApprovalService
 from src.application.tool_policy_engine import PolicyDecision, ToolPolicyEngine
 from src.application.tool_registry import ToolRegistry
 from src.application.tool_resolver import ToolResolver
 from src.application.workspace_authorization_service import WorkspaceAuthorizationService
-from src.application.event_dispatcher import EventDispatcher
 from src.domain.repository import EmployeeRepositoryInterface
 from src.domain.tool import (
     ApprovalStatus,
-    PermissionMode,
-    ToolCapability,
     ToolCategory,
-    ToolDefinition,
     ToolEvidence,
     ToolExecution,
     ToolExecutionStatus,
     ToolRequest,
     ToolResult,
-    ToolValidationError,
 )
 from src.infrastructure.tools.executors.artifact_tool_executor import ArtifactToolExecutor
 from src.infrastructure.tools.executors.base import ToolExecutorInterface

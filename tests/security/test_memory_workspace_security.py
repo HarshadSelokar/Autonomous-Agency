@@ -2,7 +2,8 @@
 Security tests for Phase 7 Memory & Workspace isolation and authorization controls.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -11,7 +12,10 @@ from sqlalchemy.orm import sessionmaker
 from src.application.memory_context_builder import MemoryContextBuilder
 from src.application.memory_retrieval_service import MemoryRetrievalService
 from src.application.memory_service import MemoryService, UnauthorizedMemoryPromotionError
-from src.application.workspace_authorization_service import WorkspaceAuthorizationService, WorkspaceAccessDeniedError
+from src.application.workspace_authorization_service import (
+    WorkspaceAccessDeniedError,
+    WorkspaceAuthorizationService,
+)
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.memory import (
     MemoryAuthority,

@@ -3,7 +3,7 @@ Pydantic API Schemas for Phase 7 Artifact Management.
 """
 
 from datetime import datetime
-from typing import Any
+
 from pydantic import BaseModel, Field
 
 

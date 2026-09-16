@@ -7,16 +7,11 @@ from src.domain.team import Team, TeamStatus, TeamType
 from src.domain.workforce import (
     CapabilityGap,
     CapacitySnapshot,
-    EmployeeTemplate,
     GapSeverity,
-    StaffingPlanStatus,
     StaffingRecommendation,
-    WorkforceAllocation,
     WorkforceChangeRequest,
     WorkforceChangeRequestType,
-    WorkforceDecision,
     WorkforceDemand,
-    WorkforcePlan,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.team_repository import SQLAlchemyTeamRepository

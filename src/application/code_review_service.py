@@ -18,13 +18,12 @@ from src.domain.software_company import (
     CodeReview,
     CodeReviewStatus,
 )
+from src.domain.task import TaskStatus
 from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemyCodeChangeRepository,
     SQLAlchemyCodeReviewRepository,
 )
-from src.domain.task import TaskStatus
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
-
 
 
 class CodeReviewService:

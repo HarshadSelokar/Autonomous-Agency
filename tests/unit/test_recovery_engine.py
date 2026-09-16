@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from src.application.recovery_engine import RecoveryEngine
 from src.domain.recovery import (
     FailureBudget,
     FailureCategory,
@@ -13,7 +14,6 @@ from src.domain.recovery import (
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.verification_repository import VerificationRepository
-from src.application.recovery_engine import RecoveryEngine
 
 
 @pytest.fixture

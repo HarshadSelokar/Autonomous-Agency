@@ -3,9 +3,7 @@ File Tool Executor Adapter for Phase 8 Workspace File Operations.
 Handles READ_FILE, WRITE_FILE, DELETE_FILE, and list_files within sandboxed workspace boundaries.
 """
 
-import os
 import time
-from typing import Any
 
 from src.application.secrets_broker import SecretsBroker
 from src.domain.tool import (

@@ -5,11 +5,11 @@ delivery state acknowledgements, and prompt security context building.
 """
 
 import asyncio
-from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+import src.infrastructure.models  # noqa: F401
 from src.application.communication_service import CommunicationService
 from src.application.message_context_builder import MessageContextBuilder
 from src.application.message_delivery_service import MessageDeliveryService
@@ -17,7 +17,6 @@ from src.application.message_router import MessageRouter
 from src.domain.conversation import ConversationType
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.message import MessageType
-import src.infrastructure.models  # noqa: F401
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.agent_repository import SQLAlchemyAgentRepository
 from src.infrastructure.repositories.conversation_repository import (

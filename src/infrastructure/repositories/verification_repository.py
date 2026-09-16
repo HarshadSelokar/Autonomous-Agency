@@ -2,22 +2,18 @@
 Repository implementation for Phase 10 Verification and Recovery entities.
 """
 
-from typing import List, Optional
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.domain.verification import (
-    ExpectedOutcome,
-    EvidenceTrustLevel,
-    VerificationEvidence,
-    VerificationResult,
-    VerificationStatus,
-)
 from src.domain.recovery import (
-    FailureCategory,
     FailureRecord,
     RecoveryAction,
-    RecoveryStrategy,
+)
+from src.domain.verification import (
+    ExpectedOutcome,
+    VerificationEvidence,
+    VerificationResult,
 )
 from src.infrastructure.models.verification_model import (
     ExpectedOutcomeModel,
@@ -65,11 +61,11 @@ class VerificationRepository:
         self._session.commit()
         return outcome
 
-    def get_outcome(self, outcome_id: str) -> Optional[ExpectedOutcomeModel]:
+    def get_outcome(self, outcome_id: str) -> ExpectedOutcomeModel | None:
         stmt = select(ExpectedOutcomeModel).where(ExpectedOutcomeModel.id == outcome_id)
         return self._session.scalars(stmt).first()
 
-    def get_outcome_by_task(self, task_id: str) -> Optional[ExpectedOutcomeModel]:
+    def get_outcome_by_task(self, task_id: str) -> ExpectedOutcomeModel | None:
         stmt = select(ExpectedOutcomeModel).where(ExpectedOutcomeModel.task_id == task_id)
         return self._session.scalars(stmt).first()
 
@@ -92,11 +88,11 @@ class VerificationRepository:
         self._session.commit()
         return result
 
-    def get_verification(self, verification_id: str) -> Optional[VerificationModel]:
+    def get_verification(self, verification_id: str) -> VerificationModel | None:
         stmt = select(VerificationModel).where(VerificationModel.id == verification_id)
         return self._session.scalars(stmt).first()
 
-    def get_verifications_by_task(self, task_id: str) -> List[VerificationModel]:
+    def get_verifications_by_task(self, task_id: str) -> list[VerificationModel]:
         stmt = select(VerificationModel).where(VerificationModel.task_id == task_id).order_by(VerificationModel.created_at.desc())
         return list(self._session.scalars(stmt).all())
 
@@ -122,11 +118,11 @@ class VerificationRepository:
         self._session.commit()
         return evidence
 
-    def get_evidence(self, evidence_id: str) -> Optional[VerificationEvidenceModel]:
+    def get_evidence(self, evidence_id: str) -> VerificationEvidenceModel | None:
         stmt = select(VerificationEvidenceModel).where(VerificationEvidenceModel.id == evidence_id)
         return self._session.scalars(stmt).first()
 
-    def get_evidence_by_task(self, task_id: str) -> List[VerificationEvidenceModel]:
+    def get_evidence_by_task(self, task_id: str) -> list[VerificationEvidenceModel]:
         stmt = select(VerificationEvidenceModel).where(VerificationEvidenceModel.task_id == task_id)
         return list(self._session.scalars(stmt).all())
 
@@ -152,7 +148,7 @@ class VerificationRepository:
         self._session.commit()
         return failure
 
-    def get_failures_by_task(self, task_id: str) -> List[FailureRecordModel]:
+    def get_failures_by_task(self, task_id: str) -> list[FailureRecordModel]:
         stmt = select(FailureRecordModel).where(FailureRecordModel.task_id == task_id).order_by(FailureRecordModel.created_at.desc())
         return list(self._session.scalars(stmt).all())
 
@@ -172,6 +168,6 @@ class VerificationRepository:
         self._session.commit()
         return action
 
-    def get_recovery_actions_by_task(self, task_id: str) -> List[RecoveryActionModel]:
+    def get_recovery_actions_by_task(self, task_id: str) -> list[RecoveryActionModel]:
         stmt = select(RecoveryActionModel).where(RecoveryActionModel.task_id == task_id).order_by(RecoveryActionModel.created_at.asc())
         return list(self._session.scalars(stmt).all())

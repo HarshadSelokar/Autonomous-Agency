@@ -3,10 +3,11 @@ Recovery Domain Entities and Value Objects for Phase 10.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class FailureCategory(str, Enum):
@@ -46,19 +47,19 @@ class FailureRecord:
     """Represents a recorded execution or verification failure."""
     failure_id: str
     task_id: str
-    verification_id: Optional[str]
+    verification_id: str | None
     category: FailureCategory
     severity: str                         # e.g., "HIGH", "MEDIUM", "CRITICAL"
     summary: str
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     retryable: bool = True
     recoverable: bool = True
-    recommended_strategy: Optional[RecoveryStrategy] = None
-    agent_id: Optional[str] = None
-    employee_id: Optional[str] = None
-    execution_id: Optional[str] = None
-    evidence_ids: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    recommended_strategy: RecoveryStrategy | None = None
+    agent_id: str | None = None
+    employee_id: str | None = None
+    execution_id: str | None = None
+    evidence_ids: list[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -89,6 +90,6 @@ class RecoveryAction:
     strategy: RecoveryStrategy
     attempt_number: int
     success: bool
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     executed_by: str = "SYSTEM"           # "SYSTEM" or "MANAGER" or "HUMAN"
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

@@ -11,7 +11,6 @@ from src.domain.tool import (
     ToolCategory,
     ToolDefinition,
     ToolStatus,
-    ToolValidationError,
 )
 
 

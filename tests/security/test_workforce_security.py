@@ -1,7 +1,8 @@
 """Security test suite for Phase 15 Dynamic Workforce Engine."""
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from src.application.team_formation_service import TeamFormationService
 from src.domain.workforce import (

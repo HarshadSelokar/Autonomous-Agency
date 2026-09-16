@@ -3,7 +3,8 @@ SQLAlchemy Repository implementation for Conversation domain entity.
 """
 
 import inspect
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy import select
 

@@ -3,19 +3,18 @@ Unit tests for Workforce domain entities.
 """
 
 import pytest
+
 from src.domain.workforce import (
-    WorkforceDemand,
-    CapacitySnapshot,
     CapabilityGap,
-    GapSeverity,
-    StaffingRecommendation,
-    WorkforceAllocation,
-    WorkforceChangeRequest,
-    WorkforceChangeRequestType,
-    WorkforceChangeRequestStatus,
-    WorkforcePlan,
-    StaffingPlanStatus,
+    CapacitySnapshot,
     EmployeeTemplate,
+    GapSeverity,
+    StaffingPlanStatus,
+    WorkforceChangeRequest,
+    WorkforceChangeRequestStatus,
+    WorkforceChangeRequestType,
+    WorkforceDemand,
+    WorkforcePlan,
 )
 
 

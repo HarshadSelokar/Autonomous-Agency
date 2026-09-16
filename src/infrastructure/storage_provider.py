@@ -4,10 +4,7 @@ Decouples binary payload storage from PostgreSQL metadata persistence.
 """
 
 from abc import ABC, abstractmethod
-import os
 from pathlib import Path
-
-from src.domain.artifact import compute_sha256
 
 
 class StorageProviderInterface(ABC):

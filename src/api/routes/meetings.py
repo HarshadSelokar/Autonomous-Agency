@@ -4,6 +4,7 @@ FastAPI Routes for Phase 6 Meeting Management.
 
 import uuid
 from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,14 +13,12 @@ from src.api.schemas.meeting_schemas import (
     AddParticipantRequest,
     CreateMeetingRequest,
     MeetingResponse,
-    RecordAttendanceRequest,
     ScheduleMeetingRequest,
 )
 from src.application.meeting_context_builder import MeetingAccessDeniedError, MeetingContextBuilder
 from src.application.meeting_scheduling_service import MeetingSchedulingService
 from src.domain.exceptions import EmployeeNotFoundError, ObjectiveValidationError
 from src.domain.meeting import (
-    AttendanceStatus,
     MeetingPurpose,
     MeetingStatus,
     ParticipantRole,

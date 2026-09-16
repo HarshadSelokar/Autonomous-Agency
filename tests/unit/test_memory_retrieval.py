@@ -2,7 +2,6 @@
 Unit tests for EmbeddingProvider and MemoryRetrievalService hybrid retrieval.
 """
 
-from typing import Any
 import pytest
 
 from src.application.embedding_provider import FakeEmbeddingProvider, cosine_similarity
@@ -11,7 +10,6 @@ from src.domain.memory import (
     MemoryAuthority,
     MemoryEntry,
     MemoryScope,
-    MemoryStatus,
     MemoryType,
 )
 from tests.unit.test_memory_service import MemoryMemoryRepository

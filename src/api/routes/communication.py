@@ -3,7 +3,8 @@ FastAPI Router for Phase 5 Communication & Collaboration REST API endpoints.
 """
 
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.communication_schemas import (

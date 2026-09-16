@@ -5,7 +5,6 @@ Deterministic decision outputs: ALLOW, REQUIRE_APPROVAL, DENY.
 """
 
 from enum import Enum
-from typing import Any
 
 from src.domain.employee import Employee
 from src.domain.tool import (

@@ -3,7 +3,6 @@ Integration tests for Verification & Recovery REST APIs (Phase 10).
 """
 
 import pytest
-import src.infrastructure.models  # Register all ORM models
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

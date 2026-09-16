@@ -1,6 +1,7 @@
 """FastAPI Router for Phase 16 Autonomous Company Operations."""
 
 from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 

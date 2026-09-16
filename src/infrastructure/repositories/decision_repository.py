@@ -2,8 +2,8 @@
 SQLAlchemy Repository implementation for Decision and ManagerDecision domain persistence.
 """
 
-from typing import Any
 import uuid
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +13,6 @@ from src.domain.repository import DecisionRepositoryInterface
 from src.infrastructure.models.decision_model import (
     DecisionAuditModel,
     DecisionModel,
-    ManagerDecisionModel,
     decision_domain_to_model,
     decision_model_to_domain,
 )

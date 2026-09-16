@@ -50,7 +50,7 @@ class SQLAlchemyOutboxRepository:
         import dataclasses
         import json
         event_type = type(event).__name__
-        payload = dataclasses.asdict(event) if dataclasses.is_dataclass(event) else str(event)
+        payload = dataclasses.asdict(event) if dataclasses.is_dataclass(event) and not isinstance(event, type) else str(event)  # type: ignore[arg-type]
         payload_json = json.dumps(payload, default=str)
         return await self.create_outbox_message(event_type=event_type, payload_json=payload_json)
 

@@ -6,10 +6,13 @@ capacity tracking, capability gap analysis, staffing recommendations, workforce 
 workforce change requests, workforce decisions, and employee templates.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-import uuid
+
+
+from typing import Any
 
 
 class CapabilityType(str, Enum):
@@ -198,7 +201,7 @@ class EmployeeTemplate:
     default_permissions: list[str] = field(default_factory=list)
     department_compatibility: list[str] = field(default_factory=list)
     governance_requirements: list[str] = field(default_factory=list)
-    default_agent_config: dict = field(default_factory=dict)
+    default_agent_config: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

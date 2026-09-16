@@ -4,6 +4,7 @@ Tests single active cycle enforcement and concurrent proposal creation across is
 """
 
 import asyncio
+
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 

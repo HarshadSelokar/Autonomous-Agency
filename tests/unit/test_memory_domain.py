@@ -2,7 +2,6 @@
 Unit tests for MemoryEntry domain entity, types, scopes, authority levels, and state machine.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.domain.memory import (

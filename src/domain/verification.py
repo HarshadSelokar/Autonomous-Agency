@@ -3,10 +3,11 @@ Verification Domain Entities and Value Objects for Phase 10.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class VerificationStatus(str, Enum):
@@ -55,18 +56,18 @@ class VerificationEvidence:
     evidence_id: str
     source_type: str        # e.g., "AgentRun", "ToolExecution", "TestRun", "CodeReview", "Artifact", "GitCommit"
     source_id: str
-    task_id: Optional[str] = None
-    workspace_id: Optional[str] = None
-    agent_run_id: Optional[str] = None
-    employee_id: Optional[str] = None
-    tool_execution_id: Optional[str] = None
-    artifact_id: Optional[str] = None
+    task_id: str | None = None
+    workspace_id: str | None = None
+    agent_run_id: str | None = None
+    employee_id: str | None = None
+    tool_execution_id: str | None = None
+    artifact_id: str | None = None
     trust_level: EvidenceTrustLevel = EvidenceTrustLevel.UNTRUSTED
-    checksum: Optional[str] = None
-    commit_sha: Optional[str] = None
-    artifact_version: Optional[str] = None
-    payload: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    checksum: str | None = None
+    commit_sha: str | None = None
+    artifact_version: str | None = None
+    payload: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def is_trusted_at_least(self, min_level: EvidenceTrustLevel) -> bool:
         hierarchy = [
@@ -88,13 +89,13 @@ class VerificationRule:
     name: str
     description: str
     target: str                           # e.g. file path, artifact name, test command, endpoint URL
-    expected_condition: Dict[str, Any]    # e.g. {"exists": True, "exit_code": 0, "status": "APPROVED"}
+    expected_condition: dict[str, Any]    # e.g. {"exists": True, "exit_code": 0, "status": "APPROVED"}
     severity: RuleSeverity = RuleSeverity.CRITICAL
     retryable: bool = True
     requires_human: bool = False
     min_trust_level: EvidenceTrustLevel = EvidenceTrustLevel.EXECUTED
     operator: str = "AND"                 # For composite rules: "AND", "OR", "NOT"
-    sub_rules: List[VerificationRule] = field(default_factory=list)
+    sub_rules: list[VerificationRule] = field(default_factory=list)
 
 
 @dataclass
@@ -103,13 +104,13 @@ class ExpectedOutcome:
     outcome_id: str
     task_id: str
     description: str
-    criteria: List[str]
-    rules: List[VerificationRule]
-    required_evidence_types: List[str] = field(default_factory=list)
-    completion_conditions: Dict[str, Any] = field(default_factory=dict)
-    failure_conditions: Dict[str, Any] = field(default_factory=dict)
-    policy: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    criteria: list[str]
+    rules: list[VerificationRule]
+    required_evidence_types: list[str] = field(default_factory=list)
+    completion_conditions: dict[str, Any] = field(default_factory=dict)
+    failure_conditions: dict[str, Any] = field(default_factory=dict)
+    policy: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -121,9 +122,9 @@ class VerificationCheckResult:
     rule_type: VerificationType
     severity: RuleSeverity
     passed: bool
-    evidence_ids: List[str] = field(default_factory=list)
+    evidence_ids: list[str] = field(default_factory=list)
     reason: str = ""
-    evaluated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    evaluated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -133,15 +134,15 @@ class VerificationResult:
     task_id: str
     outcome_id: str
     status: VerificationStatus
-    passed_checks: List[VerificationCheckResult] = field(default_factory=list)
-    failed_checks: List[VerificationCheckResult] = field(default_factory=list)
-    evidence_ids: List[str] = field(default_factory=list)
+    passed_checks: list[VerificationCheckResult] = field(default_factory=list)
+    failed_checks: list[VerificationCheckResult] = field(default_factory=list)
+    evidence_ids: list[str] = field(default_factory=list)
     summary: str = ""
-    recommended_recovery: Optional[str] = None
+    recommended_recovery: str | None = None
     is_human_verified: bool = False
-    verified_by_actor_id: Optional[str] = None
-    override_reason: Optional[str] = None
-    evaluated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    verified_by_actor_id: str | None = None
+    override_reason: str | None = None
+    evaluated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def is_verified(self) -> bool:
@@ -156,5 +157,5 @@ class VerificationAttempt:
     task_id: str
     attempt_number: int
     status: VerificationStatus
-    result: Optional[VerificationResult] = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    result: VerificationResult | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

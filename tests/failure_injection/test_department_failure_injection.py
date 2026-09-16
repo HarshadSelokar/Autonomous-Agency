@@ -1,10 +1,12 @@
 """Failure injection test suite for Phase 14 Department operating framework."""
 
-import pytest
 from unittest.mock import AsyncMock
-from src.domain.department import Department
-from src.domain.cross_department import DepartmentRequest, DepartmentRequestStatus, HandoffStatus
+
+import pytest
+
 from src.application.cross_department_service import CrossDepartmentService
+from src.domain.cross_department import DepartmentRequestStatus, HandoffStatus
+from src.domain.department import Department
 
 
 @pytest.mark.asyncio

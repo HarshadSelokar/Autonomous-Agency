@@ -4,12 +4,13 @@ Tests cross-department data isolation, unauthorized task/artifact access,
 manager authority enforcement, and governance pause compliance.
 """
 
-import pytest
 from unittest.mock import AsyncMock
-from src.domain.department import Department, DepartmentStatus
-from src.domain.cross_department import DepartmentRequest, DepartmentRequestStatus
-from src.application.department_service import DepartmentService
+
+import pytest
+
 from src.application.cross_department_service import CrossDepartmentService
+from src.application.department_service import DepartmentService
+from src.domain.department import Department, DepartmentStatus
 
 
 @pytest.mark.asyncio

@@ -4,16 +4,17 @@ Tests WebSocket disconnect/reconnect, event ordering, deduplication,
 and state reconciliation.
 """
 
-import pytest
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-from src.domain.events import OfficeStateUpdatedEvent
+import pytest
+
+from src.application.office_projection_service import OfficeProjectionService
 from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
 )
-from src.application.office_projection_service import OfficeProjectionService
+from src.domain.events import OfficeStateUpdatedEvent
 
 
 @pytest.mark.asyncio

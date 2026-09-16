@@ -3,6 +3,7 @@ Unit tests for CommunicationService high-level orchestration, blockers, and esca
 """
 
 from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from src.application.communication_service import CommunicationService

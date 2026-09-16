@@ -2,8 +2,10 @@
 SQLAlchemy ORM Models for Phase 13 Pixel Office Projections & Activity Feed.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from sqlalchemy import Boolean, Column, DateTime, String, Text
+
 from src.infrastructure.database import Base
 
 
@@ -28,7 +30,7 @@ class OfficeWorkstationModel(Base):
     active_tool_name = Column(String(128), nullable=True)
     active_model_id = Column(String(128), nullable=True)
     is_manager = Column(Boolean, default=False)
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(UTC))
 
 
 class OfficeActivityModel(Base):
@@ -40,7 +42,7 @@ class OfficeActivityModel(Base):
     category = Column(String(64), nullable=False, index=True)
     actor_id = Column(String(64), nullable=False, index=True)
     entity_id = Column(String(64), nullable=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(UTC), index=True)
 
 
 class HumanAttentionModel(Base):
@@ -54,4 +56,4 @@ class HumanAttentionModel(Base):
     entity_type = Column(String(64), nullable=False)
     severity = Column(String(32), nullable=False, default="HIGH")
     action_url = Column(String(256), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(UTC), index=True)

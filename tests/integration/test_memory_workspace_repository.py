@@ -2,20 +2,20 @@
 Integration tests for Memory, Workspace, and Artifact SQLAlchemy Repositories.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.domain.artifact import Artifact, ArtifactStatus, compute_sha256
+from src.domain.artifact import Artifact, compute_sha256
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.memory import (
     MemoryAuthority,
     MemoryEntry,
     MemoryProvenance,
     MemoryScope,
-    MemoryStatus,
     MemoryType,
 )
 from src.domain.workspace import Workspace, WorkspaceStatus, WorkspaceType

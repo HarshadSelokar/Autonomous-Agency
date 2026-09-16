@@ -7,7 +7,6 @@ import pytest
 from src.application.tool_approval_service import ToolApprovalService, UnauthorizedApprovalError
 from src.application.tool_execution_pipeline import ToolExecutionPipeline
 from src.application.tool_registry import ToolRegistry
-from src.domain.employee import Employee, EmployeeStatus
 from src.domain.tool import (
     PermissionMode,
     ToolCapability,

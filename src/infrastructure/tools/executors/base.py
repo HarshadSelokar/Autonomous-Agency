@@ -4,7 +4,6 @@ Provider-neutral abstraction for executing tools across workspace, artifact, tas
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 from src.application.secrets_broker import SecretsBroker
 from src.domain.tool import ToolDefinition, ToolRequest, ToolResult

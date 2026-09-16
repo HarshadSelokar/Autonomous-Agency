@@ -2,10 +2,10 @@
 Conversation domain entity, ConversationType enum, and ConversationParticipant domain model.
 """
 
-from datetime import datetime, timezone
+import uuid
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 from src.domain.exceptions import DomainError
 
@@ -43,7 +43,7 @@ class ConversationParticipant:
         self.participant_id = participant_id.strip()
         self.participant_type = participant_type.strip()
         self.role = role.strip()
-        self.joined_at = joined_at or datetime.now(timezone.utc)
+        self.joined_at = joined_at or datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -104,8 +104,8 @@ class Conversation:
         self.related_project_id = related_project_id
         self.status = status
         self.metadata = metadata or {}
-        self.created_at = created_at or datetime.now(timezone.utc)
-        self.updated_at = updated_at or datetime.now(timezone.utc)
+        self.created_at = created_at or datetime.now(UTC)
+        self.updated_at = updated_at or datetime.now(UTC)
 
         # Auto-add creator as participant if provided and not already included
         if self.created_by_employee_id and not self.has_participant(self.created_by_employee_id):
@@ -120,13 +120,13 @@ class Conversation:
         if self.has_participant(participant.participant_id):
             return
         self.participants.append(participant)
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
 
     def remove_participant(self, participant_id: str) -> None:
         initial_len = len(self.participants)
         self.participants = [p for p in self.participants if p.participant_id != participant_id]
         if len(self.participants) < initial_len:
-            self.updated_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         return {

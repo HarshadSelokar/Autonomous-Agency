@@ -6,7 +6,7 @@ SLA tracking, bottleneck detection, and manager escalations.
 
 import logging
 from datetime import UTC, datetime
-from typing import List, Optional, Any
+from typing import Any
 from uuid import uuid4
 
 from src.domain.cross_department import (
@@ -18,12 +18,9 @@ from src.domain.cross_department import (
 )
 from src.domain.events import (
     DepartmentEscalatedEvent,
-    DepartmentHandoffAcceptedEvent,
     DepartmentHandoffCreatedEvent,
-    DepartmentHandoffRejectedEvent,
     DepartmentRequestAcceptedEvent,
     DepartmentRequestCreatedEvent,
-    DepartmentRequestDeliveredEvent,
     DepartmentRequestRejectedEvent,
     DepartmentRequestVerifiedEvent,
 )
@@ -56,10 +53,10 @@ class CrossDepartmentService:
         purpose: str,
         requested_outcome: str,
         priority: DepartmentPriority = DepartmentPriority.MEDIUM,
-        sla_deadline: Optional[datetime] = None,
-        required_capabilities: Optional[List[str]] = None,
-        related_objective_id: Optional[str] = None,
-        related_project_id: Optional[str] = None,
+        sla_deadline: datetime | None = None,
+        required_capabilities: list[str] | None = None,
+        related_objective_id: str | None = None,
+        related_project_id: str | None = None,
     ) -> DepartmentRequest:
         """Submit a formal cross-department work request."""
         req_dept = await self.dept_repo.get_by_id(requester_department_id)
@@ -156,9 +153,9 @@ class CrossDepartmentService:
         request_id: str,
         sender_employee_id: str,
         expected_outcome: str,
-        artifact_ids: Optional[List[str]] = None,
-        evidence_ids: Optional[List[str]] = None,
-        acceptance_criteria: Optional[List[str]] = None,
+        artifact_ids: list[str] | None = None,
+        evidence_ids: list[str] | None = None,
+        acceptance_criteria: list[str] | None = None,
     ) -> DepartmentHandoff:
         """Submit a formal deliverable handoff package for verification."""
         req = await self.req_repo.get_by_id(request_id)
@@ -196,7 +193,7 @@ class CrossDepartmentService:
         return saved
 
     async def verify_handoff(
-        self, handoff_id: str, verifier_employee_id: str, is_approved: bool = True, reason: Optional[str] = None
+        self, handoff_id: str, verifier_employee_id: str, is_approved: bool = True, reason: str | None = None
     ) -> DepartmentHandoff:
         """Verify handoff deliverables using Phase 10 Evidence Verification rules."""
         handoff = await self.handoff_repo.get_by_id(handoff_id)
@@ -249,6 +246,6 @@ class CrossDepartmentService:
 
     async def list_department_requests(
         self, department_id: str, as_requester: bool = True
-    ) -> List[DepartmentRequest]:
+    ) -> list[DepartmentRequest]:
         """List requests for a department."""
         return await self.req_repo.list_by_department(department_id, as_requester=as_requester)

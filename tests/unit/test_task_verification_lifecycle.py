@@ -2,8 +2,10 @@
 Unit tests for TaskLifecycleService + Verification integration (Phase 10).
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
 from src.application.task_lifecycle_service import TaskLifecycleService
 from src.domain.task import Task, TaskStatus
 from src.domain.verification import VerificationResult, VerificationStatus

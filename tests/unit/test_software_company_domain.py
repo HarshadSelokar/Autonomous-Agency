@@ -10,7 +10,6 @@ from src.domain.software_company import (
     DefectSeverity,
     DefectStatus,
     DeliveryStatus,
-    EngineeringPlan,
     RequirementPriority,
     RequirementStatus,
     SoftwareDefect,

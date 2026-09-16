@@ -8,12 +8,12 @@ risks, and opportunities.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from typing import Any, Sequence
 import uuid
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from src.domain.company import (
-    AutonomousCompany,
     CompanyHealthSnapshot,
     CompanyHealthStatus,
     CompanyKPISnapshot,

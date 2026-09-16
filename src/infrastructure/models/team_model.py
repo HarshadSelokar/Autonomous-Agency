@@ -30,13 +30,15 @@ class TeamModel(Base):
     dissolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     members: Mapped[list["TeamMemberModel"]] = relationship(
-        "TeamMemberModel", back_populates="team", cascade="all, delete-orphan", lazy="joined"
+        "TeamMemberModel", back_populates="team", cascade="all, delete-orphan", lazy="selectin"
     )
 
     def to_domain(self) -> Team:
         depts = json.loads(self.department_ids_json) if self.department_ids_json else []
         caps = json.loads(self.capabilities_json) if self.capabilities_json else []
-        domain_members = [m.to_domain() for m in self.members] if self.members else []
+        domain_members = []
+        if "members" in self.__dict__ and self.members:
+            domain_members = [m.to_domain() for m in self.members]
         return Team(
             id=self.id,
             name=self.name,

@@ -14,7 +14,6 @@ from src.domain.decision import (
     DecisionProvenance,
     DecisionStatus,
     DecisionType,
-    ManagerDecision,
 )
 from src.infrastructure.database import Base
 

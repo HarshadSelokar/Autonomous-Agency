@@ -2,11 +2,9 @@
 Unit tests for SandboxExecutionBoundary and path sanitization.
 """
 
-from pathlib import Path
 import pytest
 
 from src.infrastructure.tools.sandboxing import (
-    SSRFViolationError,
     SandboxExecutionBoundary,
     SandboxViolationError,
 )

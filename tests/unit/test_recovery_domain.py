@@ -2,12 +2,10 @@
 Unit tests for Recovery Domain Model (Phase 10).
 """
 
-import pytest
 from src.domain.recovery import (
     FailureBudget,
     FailureCategory,
     FailureRecord,
-    RecoveryAction,
     RecoveryStrategy,
 )
 

@@ -1,26 +1,21 @@
 """Unit tests for Phase 14 Department Domain Entities and Events."""
 
-import pytest
-from datetime import UTC, datetime
-from src.domain.department import (
-    Department,
-    DepartmentHealth,
-    DepartmentPriority,
-    DepartmentStatus,
-)
 from src.domain.cross_department import (
     DepartmentHandoff,
     DepartmentHealthReport,
     DepartmentMetrics,
     DepartmentRequest,
     DepartmentRequestStatus,
-    DepartmentServiceContract,
     HandoffStatus,
+)
+from src.domain.department import (
+    Department,
+    DepartmentHealth,
+    DepartmentPriority,
+    DepartmentStatus,
 )
 from src.domain.events import (
     DepartmentCreatedEvent,
-    DepartmentHandoffCreatedEvent,
-    DepartmentHealthChangedEvent,
     DepartmentRequestCreatedEvent,
 )
 

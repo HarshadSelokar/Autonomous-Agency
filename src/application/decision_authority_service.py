@@ -4,7 +4,7 @@ Enforces strict decision approval authority validation, actor identity verificat
 and the LLM authority boundary (LLM proposes, Human/Manager decides).
 """
 
-from src.domain.decision import Decision, DecisionProvenance, DecisionStatus, DecisionValidationError
+from src.domain.decision import Decision, DecisionProvenance, DecisionStatus
 from src.domain.employee import Employee
 from src.domain.exceptions import ObjectiveValidationError
 from src.domain.repository import EmployeeRepositoryInterface

@@ -1,9 +1,11 @@
 """Unit tests for DepartmentService."""
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
-from src.domain.department import Department, DepartmentHealth, DepartmentStatus
+
 from src.application.department_service import DepartmentService
+from src.domain.department import Department, DepartmentHealth, DepartmentStatus
 
 
 @pytest.mark.asyncio

@@ -6,17 +6,15 @@ and cross-department coordination across Product, Engineering, QA, Marketing, an
 
 import asyncio
 import logging
-from uuid import uuid4
 
-from src.domain.department import DepartmentPriority, DepartmentStatus
-from src.domain.cross_department import DepartmentRequestStatus, HandoffStatus
-from src.application.department_service import DepartmentService
 from src.application.cross_department_service import CrossDepartmentService
-from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
+from src.application.department_service import DepartmentService
+from src.domain.department import DepartmentPriority
 from src.infrastructure.repositories.cross_department_repository import (
     SQLAlchemyDepartmentHandoffRepository,
     SQLAlchemyDepartmentRequestRepository,
 )
+from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("DemoCrossDepartment")

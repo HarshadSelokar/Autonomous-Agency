@@ -3,22 +3,22 @@ Concurrency & Race Condition Tests for Phase 10 Verification Engine.
 """
 
 import asyncio
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+import src.infrastructure.models  # noqa: F401
 from src.application.verification_engine import VerificationEngine
 from src.domain.verification import (
     EvidenceTrustLevel,
-    RuleSeverity,
     VerificationRule,
     VerificationStatus,
     VerificationType,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.verification_repository import VerificationRepository
-import src.infrastructure.models  # noqa: F401
 
 
 @pytest.fixture

@@ -2,7 +2,6 @@
 Unit tests for ToolRegistry and ToolResolver.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.application.tool_registry import ToolRegistry
@@ -14,7 +13,6 @@ from src.domain.tool import (
     ToolDefinition,
     ToolRequest,
     ToolRiskLevel,
-    ToolStatus,
 )
 
 

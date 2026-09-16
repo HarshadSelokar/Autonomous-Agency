@@ -8,17 +8,12 @@ import asyncio
 import logging
 from uuid import uuid4
 
-from src.domain.office import (
-    EmployeeVisualState,
-    HumanAttentionType,
-    OfficeAreaType,
-)
-from src.domain.events import OfficeStateUpdatedEvent
 from src.application.office_projection_service import OfficeProjectionService
 from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
 )
+from src.domain.events import OfficeStateUpdatedEvent
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("DemoPixelOffice")

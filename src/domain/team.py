@@ -5,10 +5,10 @@ Defines entities, value objects, and enums for Team management, member allocatio
 team lifecycle, capabilities derivation, and health metrics.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-import uuid
 
 
 class TeamStatus(str, Enum):

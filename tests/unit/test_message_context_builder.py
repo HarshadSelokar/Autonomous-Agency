@@ -3,6 +3,7 @@ Unit tests for MessageContextBuilder retrieval, relevance limits, and prompt sec
 """
 
 from unittest.mock import MagicMock
+
 import pytest
 
 from src.application.message_context_builder import MessageContextBuilder

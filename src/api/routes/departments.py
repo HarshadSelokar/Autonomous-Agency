@@ -1,6 +1,6 @@
 """FastAPI Router for Department Lifecycle and Health Endpoints."""
 
-from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,18 +42,18 @@ async def create_department(
     return _map_dept_response(dept)
 
 
-@router.get("", response_model=List[DepartmentResponseSchema])
+@router.get("", response_model=list[DepartmentResponseSchema])
 async def list_departments(
     service: DepartmentService = Depends(get_department_service),
-) -> List[DepartmentResponseSchema]:
+) -> list[DepartmentResponseSchema]:
     depts = await service.list_departments()
     return [_map_dept_response(d) for d in depts]
 
 
-@router.post("/bootstrap", response_model=List[DepartmentResponseSchema])
+@router.post("/bootstrap", response_model=list[DepartmentResponseSchema])
 async def bootstrap_departments(
     service: DepartmentService = Depends(get_department_service),
-) -> List[DepartmentResponseSchema]:
+) -> list[DepartmentResponseSchema]:
     depts = await service.bootstrap_enterprise_departments()
     return [_map_dept_response(d) for d in depts]
 

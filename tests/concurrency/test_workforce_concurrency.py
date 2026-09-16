@@ -1,13 +1,13 @@
 """Concurrency test suite for Phase 15 Dynamic Workforce Engine."""
 
 import asyncio
+
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.domain.team import Team, TeamStatus, TeamType
+from src.domain.team import Team, TeamType
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.team_repository import SQLAlchemyTeamRepository
-from src.infrastructure.repositories.workforce_repository import SQLAlchemyWorkforceRepository
 
 
 @pytest.fixture

@@ -2,7 +2,6 @@
 Unit tests for Tool Domain Entities, Capabilities, and Execution State Machine.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.domain.tool import (
@@ -14,8 +13,6 @@ from src.domain.tool import (
     ToolDefinition,
     ToolExecution,
     ToolExecutionStatus,
-    ToolRequest,
-    ToolRiskLevel,
     ToolStateError,
     ToolValidationError,
 )

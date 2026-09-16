@@ -1,18 +1,15 @@
 """FastAPI Routes and WebSocket Endpoint for Phase 13 Pixel Office."""
 
-from typing import List, Optional, Any
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, status
+
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.office import (
-    OfficeCompanyOverviewSchema,
-    WorkstationProjectionSchema,
-    DepartmentLayoutProjectionSchema,
-    OfficeMeetingRoomProjectionSchema,
-    OfficeProjectAreaProjectionSchema,
     HumanAttentionItemSchema,
     OfficeActivityItemSchema,
+    OfficeCompanyOverviewSchema,
+    WorkstationProjectionSchema,
 )
 from src.application.office_projection_service import OfficeProjectionService
 from src.application.office_realtime_service import (
@@ -86,12 +83,12 @@ async def get_company_overview(
     )
 
 
-@router.get("/employees", response_model=List[WorkstationProjectionSchema])
+@router.get("/employees", response_model=list[WorkstationProjectionSchema])
 async def list_workstations(
     service: OfficeProjectionService = Depends(get_office_projection_service),
-) -> List[WorkstationProjectionSchema]:
+) -> list[WorkstationProjectionSchema]:
     overview = await service.build_company_overview()
-    workstations: List[WorkstationProjectionSchema] = []
+    workstations: list[WorkstationProjectionSchema] = []
     for dept in overview.departments:
         for ws in dept.workstations:
             workstations.append(
@@ -120,10 +117,10 @@ async def list_workstations(
     return workstations
 
 
-@router.get("/attention", response_model=List[HumanAttentionItemSchema])
+@router.get("/attention", response_model=list[HumanAttentionItemSchema])
 async def list_attention_queue(
     session: AsyncSession = Depends(get_db_session),
-) -> List[HumanAttentionItemSchema]:
+) -> list[HumanAttentionItemSchema]:
     repo = GovernanceOfficeRepository(session)
     items = repo.list_human_attention_items()
     return [

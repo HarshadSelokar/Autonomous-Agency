@@ -6,11 +6,11 @@ operating cycles, metric snapshots, health snapshots, risks, opportunities,
 portfolio management, resource plans, and continuous improvement proposals.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 
 class CompanyStatus(str, Enum):

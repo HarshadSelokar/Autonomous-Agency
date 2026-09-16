@@ -5,18 +5,17 @@ and deterministic department health evaluation based on Company OS task data.
 """
 
 import logging
-from typing import List, Optional, Dict, Any
+from typing import Any
 from uuid import uuid4
 
+from src.domain.cross_department import DepartmentHealthReport, DepartmentMetrics
 from src.domain.department import (
     Department,
     DepartmentHealth,
     DepartmentStatus,
 )
-from src.domain.cross_department import DepartmentHealthReport, DepartmentMetrics
 from src.domain.events import (
     DepartmentCreatedEvent,
-    DepartmentHealthChangedEvent,
     DepartmentManagerAssignedEvent,
     DepartmentStatusChangedEvent,
 )
@@ -137,10 +136,10 @@ class DepartmentService:
         code: str,
         description: str = "",
         purpose: str = "",
-        department_id: Optional[str] = None,
-        parent_department_id: Optional[str] = None,
-        capabilities: Optional[List[str]] = None,
-        responsibilities: Optional[List[str]] = None,
+        department_id: str | None = None,
+        parent_department_id: str | None = None,
+        capabilities: list[str] | None = None,
+        responsibilities: list[str] | None = None,
     ) -> Department:
         """Create and persist a new Department entity."""
         dept_id = department_id or f"dept-{uuid4().hex[:8]}"
@@ -166,7 +165,7 @@ class DepartmentService:
         return saved
 
     async def update_status(
-        self, department_id: str, new_status: DepartmentStatus, reason: Optional[str] = None
+        self, department_id: str, new_status: DepartmentStatus, reason: str | None = None
     ) -> Department:
         """Update department operational lifecycle status."""
         dept = await self.department_repo.get_by_id(department_id)
@@ -207,11 +206,11 @@ class DepartmentService:
 
         return saved
 
-    async def get_department(self, department_id: str) -> Optional[Department]:
+    async def get_department(self, department_id: str) -> Department | None:
         """Fetch department by ID."""
         return await self.department_repo.get_by_id(department_id)
 
-    async def list_departments(self) -> List[Department]:
+    async def list_departments(self) -> list[Department]:
         """List all departments."""
         return await self.department_repo.list_all()
 
@@ -253,7 +252,7 @@ class DepartmentService:
             metrics=metrics,
         )
 
-    async def bootstrap_enterprise_departments(self) -> List[Department]:
+    async def bootstrap_enterprise_departments(self) -> list[Department]:
         """Configuration-driven initialization seeding standard enterprise departments."""
         created = []
         for defn in STANDARD_ENTERPRISE_DEPARTMENTS:

@@ -3,11 +3,9 @@ Unit tests for Strategy domain entities.
 """
 
 import pytest
+
 from src.domain.strategy import (
     CompanyStrategy,
-    StrategicAnalysis,
-    StrategicInitiative,
-    StrategicObjective,
     StrategyProposal,
     StrategyProposalStatus,
     StrategyProposalType,

@@ -3,6 +3,7 @@ Unit tests for Meeting scheduling, agenda management, and conflict detection.
 """
 
 from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from src.application.meeting_scheduling_service import MeetingSchedulingService
@@ -14,8 +15,6 @@ from src.domain.meeting import (
     MeetingPurpose,
     MeetingSchedulingConflictError,
     MeetingStatus,
-    MeetingValidationError,
-    ParticipantRole,
 )
 from src.domain.repository import EmployeeRepositoryInterface, MeetingRepositoryInterface
 

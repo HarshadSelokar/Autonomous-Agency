@@ -10,7 +10,12 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from src.application.company_observation_service import CompanyObservationService
 from src.application.company_operating_cycle_service import CompanyOperatingCycleService
 from src.application.strategic_intelligence_service import StrategicIntelligenceService
-from src.domain.company import AutonomousCompany, CompanyHealthStatus, CompanyStatus, OperatingCycleState
+from src.domain.company import (
+    AutonomousCompany,
+    CompanyHealthStatus,
+    CompanyStatus,
+    OperatingCycleState,
+)
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.company_repository import SQLAlchemyCompanyRepository
 

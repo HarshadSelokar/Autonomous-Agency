@@ -2,8 +2,7 @@
 FastAPI Routes for Phase 7 Memory Management.
 """
 
-from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.memory_schemas import (
@@ -12,7 +11,6 @@ from src.api.schemas.memory_schemas import (
     MemoryResponse,
     PromoteMemoryRequest,
 )
-from src.application.memory_retrieval_service import MemoryRetrievalService
 from src.application.memory_service import MemoryService, UnauthorizedMemoryPromotionError
 from src.domain.exceptions import EmployeeNotFoundError, ObjectiveValidationError
 from src.domain.memory import (

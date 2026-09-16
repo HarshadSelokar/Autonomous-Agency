@@ -1,23 +1,23 @@
 """Pydantic Schemas for Phase 14 Department Expansion and Cross-Department Collaboration APIs."""
 
-from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 
 class CreateDepartmentSchema(BaseModel):
-    id: Optional[str] = None
+    id: str | None = None
     name: str
     code: str
     description: str = ""
     purpose: str = ""
-    parent_department_id: Optional[str] = None
-    capabilities: List[str] = Field(default_factory=list)
-    responsibilities: List[str] = Field(default_factory=list)
+    parent_department_id: str | None = None
+    capabilities: list[str] = Field(default_factory=list)
+    responsibilities: list[str] = Field(default_factory=list)
 
 
 class UpdateDepartmentStatusSchema(BaseModel):
     status: str
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class AssignDepartmentManagerSchema(BaseModel):
@@ -31,10 +31,10 @@ class DepartmentResponseSchema(BaseModel):
     description: str
     status: str
     purpose: str
-    manager_employee_id: Optional[str] = None
-    parent_department_id: Optional[str] = None
-    capabilities: List[str] = Field(default_factory=list)
-    responsibilities: List[str] = Field(default_factory=list)
+    manager_employee_id: str | None = None
+    parent_department_id: str | None = None
+    capabilities: list[str] = Field(default_factory=list)
+    responsibilities: list[str] = Field(default_factory=list)
     created_at: str
     updated_at: str
 
@@ -55,10 +55,10 @@ class CreateDepartmentRequestSchema(BaseModel):
     purpose: str
     requested_outcome: str
     priority: str = "MEDIUM"
-    sla_deadline: Optional[str] = None
-    required_capabilities: List[str] = Field(default_factory=list)
-    related_objective_id: Optional[str] = None
-    related_project_id: Optional[str] = None
+    sla_deadline: str | None = None
+    required_capabilities: list[str] = Field(default_factory=list)
+    related_objective_id: str | None = None
+    related_project_id: str | None = None
 
 
 class AcceptDepartmentRequestSchema(BaseModel):
@@ -77,12 +77,12 @@ class DepartmentRequestResponseSchema(BaseModel):
     receiving_department_id: str
     requester_employee_id: str
     receiving_manager_id: str
-    delivery_owner_employee_id: Optional[str] = None
+    delivery_owner_employee_id: str | None = None
     purpose: str
     requested_outcome: str
     priority: str
     status: str
-    rejection_reason: Optional[str] = None
+    rejection_reason: str | None = None
     created_at: str
     updated_at: str
 
@@ -90,15 +90,15 @@ class DepartmentRequestResponseSchema(BaseModel):
 class SubmitDepartmentHandoffSchema(BaseModel):
     sender_employee_id: str
     expected_outcome: str
-    artifact_ids: List[str] = Field(default_factory=list)
-    evidence_ids: List[str] = Field(default_factory=list)
-    acceptance_criteria: List[str] = Field(default_factory=list)
+    artifact_ids: list[str] = Field(default_factory=list)
+    evidence_ids: list[str] = Field(default_factory=list)
+    acceptance_criteria: list[str] = Field(default_factory=list)
 
 
 class VerifyDepartmentHandoffSchema(BaseModel):
     verifier_employee_id: str
     is_approved: bool = True
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class DepartmentHandoffResponseSchema(BaseModel):
@@ -110,5 +110,5 @@ class DepartmentHandoffResponseSchema(BaseModel):
     expected_outcome: str
     status: str
     is_verified: bool
-    rejection_reason: Optional[str] = None
+    rejection_reason: str | None = None
     created_at: str

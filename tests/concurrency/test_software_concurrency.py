@@ -3,7 +3,8 @@ Concurrency tests for Phase 9 AI Software Company workflows.
 """
 
 import asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine

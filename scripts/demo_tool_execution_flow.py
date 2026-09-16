@@ -5,15 +5,14 @@ Workspace Isolation, SSRF Defenses, Secrets Redaction, and Evidence Generation.
 """
 
 import asyncio
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.application.secrets_broker import SecretsBroker
 from src.application.tool_approval_service import ToolApprovalService, UnauthorizedApprovalError
 from src.application.tool_execution_pipeline import ToolExecutionPipeline
-from src.application.tool_policy_engine import ToolPolicyEngine
 from src.application.tool_registry import ToolRegistry
-from src.application.tool_resolver import ToolResolver
 from src.application.workspace_authorization_service import WorkspaceAuthorizationService
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.tool import (
@@ -21,7 +20,6 @@ from src.domain.tool import (
     ToolCapability,
     ToolCategory,
     ToolDefinition,
-    ToolExecutionStatus,
     ToolRequest,
     ToolRiskLevel,
 )

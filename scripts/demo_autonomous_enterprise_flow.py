@@ -6,17 +6,15 @@ HUMAN -> COMPANY OBJECTIVE -> EXECUTIVE -> PRODUCT -> ENGINEERING -> QA -> DEVOP
 
 import asyncio
 import logging
-from uuid import uuid4
 
-from src.domain.department import DepartmentPriority, DepartmentStatus
-from src.domain.cross_department import DepartmentRequestStatus, HandoffStatus
-from src.application.department_service import DepartmentService
 from src.application.cross_department_service import CrossDepartmentService
-from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
+from src.application.department_service import DepartmentService
+from src.domain.department import DepartmentPriority
 from src.infrastructure.repositories.cross_department_repository import (
     SQLAlchemyDepartmentHandoffRepository,
     SQLAlchemyDepartmentRequestRepository,
 )
+from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("DemoAutonomousEnterprise")
@@ -61,7 +59,7 @@ async def run_full_enterprise_demo():
 
     # 1. Company Objective & Executive Initialization
     depts = await dept_service.bootstrap_enterprise_departments()
-    logger.info(f"[Phase 3 Manager Orchestration] Executive leadership initialized. 13 Enterprise Operating Departments active.")
+    logger.info("[Phase 3 Manager Orchestration] Executive leadership initialized. 13 Enterprise Operating Departments active.")
 
     # 2. Product -> Engineering Handoff
     req_eng = await cross_service.submit_request(
@@ -96,7 +94,7 @@ async def run_full_enterprise_demo():
         priority=DepartmentPriority.HIGH,
     )
     await cross_service.accept_request(req_devops.request_id, "emp-devops-lead", "emp-sre-1")
-    logger.info(f"[Engineering -> DevOps] Production deployment request accepted.")
+    logger.info("[Engineering -> DevOps] Production deployment request accepted.")
 
     # 5. Finance Approval & Risk Governance
     req_fin = await cross_service.submit_request(
@@ -108,7 +106,7 @@ async def run_full_enterprise_demo():
         priority=DepartmentPriority.HIGH,
     )
     await cross_service.accept_request(req_fin.request_id, "emp-cfo", "emp-fin-analyst")
-    logger.info(f"[Phase 11 Human Governance & Finance] Pricing request approved under financial risk policy.")
+    logger.info("[Phase 11 Human Governance & Finance] Pricing request approved under financial risk policy.")
 
     # 6. Legal Contract Review
     req_leg = await cross_service.submit_request(
@@ -120,7 +118,7 @@ async def run_full_enterprise_demo():
         priority=DepartmentPriority.CRITICAL,
     )
     await cross_service.accept_request(req_leg.request_id, "emp-legal-counsel", "emp-compliance-officer")
-    logger.info(f"[Sales -> Legal] SaaS Master Agreement contract review completed.")
+    logger.info("[Sales -> Legal] SaaS Master Agreement contract review completed.")
 
     # 7. Customer Success & Final Delivery
     logger.info("[Customer Success] Enterprise client onboarded. System operational memory recorded.")

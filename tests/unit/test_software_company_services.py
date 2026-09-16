@@ -2,7 +2,8 @@
 Unit tests for Phase 9 AI Software Company Application Services.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -14,20 +15,16 @@ from src.application.software_delivery_service import SoftwareDeliveryService
 from src.application.software_project_service import SoftwareProjectService
 from src.domain.employee import Employee, EmployeeCapability, EmployeeStatus
 from src.domain.exceptions import UnauthorizedApprovalError
-from src.domain.objective import Objective, ObjectiveStatus
+from src.domain.objective import Objective
 from src.domain.software_company import (
     CodeChange,
     CodeChangeStatus,
     CodeReviewStatus,
-    DefectStatus,
     DeliveryStatus,
     SoftwareProject,
-    SoftwareProjectStatus,
     TestRunStatus,
 )
-
 from src.domain.task import Task, TaskStatus
-
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.objective_repository import SQLAlchemyObjectiveRepository
@@ -40,7 +37,9 @@ from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemySoftwareRequirementRepository,
     SQLAlchemyTestRunRepository,
 )
-from src.infrastructure.repositories.task_dependency_repository import SQLAlchemyTaskDependencyRepository
+from src.infrastructure.repositories.task_dependency_repository import (
+    SQLAlchemyTaskDependencyRepository,
+)
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
 

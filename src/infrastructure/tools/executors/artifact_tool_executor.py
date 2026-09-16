@@ -4,10 +4,9 @@ Handles READ_ARTIFACT, CREATE_ARTIFACT, and UPDATE_ARTIFACT integrating with Pha
 """
 
 import time
-from typing import Any
 
 from src.application.secrets_broker import SecretsBroker
-from src.domain.artifact import Artifact, compute_sha256
+from src.domain.artifact import compute_sha256
 from src.domain.tool import (
     ToolCapability,
     ToolDefinition,

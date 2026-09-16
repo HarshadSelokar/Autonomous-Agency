@@ -2,7 +2,8 @@
 Pydantic Schemas for Phase 10 Verification and Recovery REST APIs.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -12,7 +13,7 @@ class VerificationRuleSchema(BaseModel):
     name: str
     description: str
     target: str
-    expected_condition: Dict[str, Any] = Field(default_factory=dict)
+    expected_condition: dict[str, Any] = Field(default_factory=dict)
     severity: str = "CRITICAL"
     retryable: bool = True
     requires_human: bool = False
@@ -22,27 +23,27 @@ class VerificationRuleSchema(BaseModel):
 class ExpectedOutcomeCreateSchema(BaseModel):
     task_id: str
     description: str
-    criteria: List[str] = Field(default_factory=list)
-    rules: List[VerificationRuleSchema] = Field(default_factory=list)
-    required_evidence_types: List[str] = Field(default_factory=list)
-    policy: Dict[str, Any] = Field(default_factory=dict)
+    criteria: list[str] = Field(default_factory=list)
+    rules: list[VerificationRuleSchema] = Field(default_factory=list)
+    required_evidence_types: list[str] = Field(default_factory=list)
+    policy: dict[str, Any] = Field(default_factory=dict)
 
 
 class VerificationEvidenceCreateSchema(BaseModel):
     source_type: str
     source_id: str
-    task_id: Optional[str] = None
-    workspace_id: Optional[str] = None
+    task_id: str | None = None
+    workspace_id: str | None = None
     trust_level: str = "EXECUTED"
-    checksum: Optional[str] = None
-    commit_sha: Optional[str] = None
-    artifact_version: Optional[str] = None
-    payload: Dict[str, Any] = Field(default_factory=dict)
+    checksum: str | None = None
+    commit_sha: str | None = None
+    artifact_version: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
 
 
 class VerifyTaskRequestSchema(BaseModel):
     task_id: str
-    evidence_ids: Optional[List[str]] = None
+    evidence_ids: list[str] | None = None
 
 
 class HumanOverrideRequestSchema(BaseModel):
@@ -57,11 +58,11 @@ class VerificationResponseSchema(BaseModel):
     outcome_id: str
     status: str
     summary: str
-    recommended_recovery: Optional[str] = None
+    recommended_recovery: str | None = None
     is_human_verified: bool = False
-    verified_by_actor_id: Optional[str] = None
-    override_reason: Optional[str] = None
-    evidence_ids: List[str] = Field(default_factory=list)
+    verified_by_actor_id: str | None = None
+    override_reason: str | None = None
+    evidence_ids: list[str] = Field(default_factory=list)
 
 
 class FailureRecordResponseSchema(BaseModel):
@@ -70,9 +71,9 @@ class FailureRecordResponseSchema(BaseModel):
     category: str
     severity: str
     summary: str
-    details: Dict[str, Any]
+    details: dict[str, Any]
     retryable: bool
-    recommended_strategy: Optional[str]
+    recommended_strategy: str | None
     created_at: str
 
 

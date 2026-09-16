@@ -3,7 +3,7 @@
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.team import Team, TeamMember
+from src.domain.team import Team
 from src.infrastructure.models.team_model import TeamMemberModel, TeamModel
 
 

@@ -19,7 +19,6 @@ from src.domain.software_company import (
     SoftwareDefect,
     SoftwareDelivery,
     SoftwareProject,
-    SoftwareProjectStatus,
     SoftwareRequirement,
     TestRun,
     TestRunStatus,

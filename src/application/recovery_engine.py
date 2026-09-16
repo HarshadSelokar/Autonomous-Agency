@@ -3,9 +3,9 @@ RecoveryEngine Application Service for Phase 10.
 """
 
 from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+
 import uuid
+from typing import Any
 
 from src.domain.events import (
     DomainEvent,
@@ -24,7 +24,7 @@ from src.domain.recovery import (
     RecoveryAction,
     RecoveryStrategy,
 )
-from src.domain.verification import VerificationResult, VerificationStatus
+from src.domain.verification import VerificationResult
 from src.infrastructure.repositories.verification_repository import VerificationRepository
 
 
@@ -34,12 +34,12 @@ class RecoveryEngine:
     def __init__(
         self,
         repository: VerificationRepository,
-        task_lifecycle_service: Optional[Any] = None,
-        employee_selector: Optional[Any] = None,
-        communication_service: Optional[Any] = None,
-        decision_service: Optional[Any] = None,
-        outbox_publisher: Optional[Any] = None,
-        default_budget: Optional[FailureBudget] = None,
+        task_lifecycle_service: Any | None = None,
+        employee_selector: Any | None = None,
+        communication_service: Any | None = None,
+        decision_service: Any | None = None,
+        outbox_publisher: Any | None = None,
+        default_budget: FailureBudget | None = None,
     ):
         self._repository = repository
         self._task_lifecycle_service = task_lifecycle_service
@@ -58,14 +58,14 @@ class RecoveryEngine:
         task_id: str,
         category: FailureCategory,
         summary: str,
-        verification_id: Optional[str] = None,
+        verification_id: str | None = None,
         severity: str = "HIGH",
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
         retryable: bool = True,
-        agent_id: Optional[str] = None,
-        employee_id: Optional[str] = None,
-        execution_id: Optional[str] = None,
-        evidence_ids: Optional[List[str]] = None,
+        agent_id: str | None = None,
+        employee_id: str | None = None,
+        execution_id: str | None = None,
+        evidence_ids: list[str] | None = None,
     ) -> FailureRecord:
         failure_id = f"fail-{uuid.uuid4().hex[:8]}"
 
@@ -135,7 +135,7 @@ class RecoveryEngine:
     def execute_recovery(self, failure_id: str) -> RecoveryAction:
         failures = self._repository.get_failures_by_task("")
         # Search failure across all or get by failure ID
-        target_failure: Optional[FailureRecord] = None
+        target_failure: FailureRecord | None = None
 
         # Fetch failure records
         # If repository supports get_failure, use it, else iterate
@@ -177,7 +177,7 @@ class RecoveryEngine:
         self._publish_event(RecoveryStartedEvent(recovery_action_id=action_id, task_id=task_id, strategy=selected_strategy.value))
 
         success = True
-        details: Dict[str, Any] = {"attempt_number": attempt_number}
+        details: dict[str, Any] = {"attempt_number": attempt_number}
 
         try:
             if selected_strategy in (RecoveryStrategy.REWORK, RecoveryStrategy.REEXECUTE, RecoveryStrategy.RETRY):
@@ -227,7 +227,7 @@ class RecoveryEngine:
         return action
 
 
-def select_failure(repository: VerificationRepository, failure_id: str) -> Optional[FailureRecord]:
+def select_failure(repository: VerificationRepository, failure_id: str) -> FailureRecord | None:
     """Helper to retrieve FailureRecord from repository."""
     model = repository._session.get(
         __import__("src.infrastructure.models.verification_model", fromlist=["FailureRecordModel"]).FailureRecordModel,

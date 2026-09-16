@@ -3,6 +3,7 @@ FastAPI Routes for Phase 8 Tool Management, Executions, Approvals, and Evidence.
 """
 
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,15 +19,12 @@ from src.application.tool_approval_service import ToolApprovalService, Unauthori
 from src.application.tool_execution_pipeline import ToolExecutionPipeline
 from src.application.tool_registry import ToolRegistry
 from src.domain.tool import (
-    ApprovalStatus,
     PermissionMode,
     ToolCapability,
     ToolCategory,
     ToolDefinition,
-    ToolExecutionStatus,
     ToolRequest,
     ToolRiskLevel,
-    ToolStatus,
 )
 from src.infrastructure.database import get_db
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository

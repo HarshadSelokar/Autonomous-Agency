@@ -7,9 +7,9 @@ portfolio management, bottleneck detection, and resource allocation governance.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from typing import Any, Sequence
 import uuid
+from datetime import UTC, datetime
+from typing import Any
 
 from src.domain.company import (
     ContinuousImprovementProposal,

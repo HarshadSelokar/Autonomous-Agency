@@ -3,14 +3,20 @@ Unit tests for Agent Runtime integration with ToolContextProvider and ToolExecut
 """
 
 from typing import Any
+
 import pytest
 
 from src.application.context import ContextBuilder, ToolContextProvider
 from src.application.execution_engine import AgentExecutionEngine
 from src.application.tool_execution_pipeline import ToolExecutionPipeline
 from src.application.tool_registry import ToolRegistry
-from src.domain.agent import Agent, AgentState, ModelConfiguration, PermissionProfile, VerificationPolicy
-from src.domain.model_provider import ModelResponse, UsageInfo
+from src.domain.agent import (
+    Agent,
+    AgentState,
+    ModelConfiguration,
+    PermissionProfile,
+    VerificationPolicy,
+)
 from src.domain.tool import PermissionMode, ToolCapability, ToolCategory, ToolDefinition
 from src.infrastructure.models.fake_provider import FakeModelProvider
 

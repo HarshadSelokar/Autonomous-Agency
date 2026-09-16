@@ -4,19 +4,15 @@ SQLAlchemy ORM Models for Phase 8 Tools, Executions, Approvals, and Evidence.
 
 from datetime import UTC, datetime
 from typing import Any
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+
+from sqlalchemy import JSON, Boolean, DateTime, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.domain.tool import (
-    ApprovalStatus,
     PermissionMode,
-    ToolApproval,
     ToolCapability,
     ToolCategory,
     ToolDefinition,
-    ToolEvidence,
-    ToolExecution,
-    ToolExecutionStatus,
     ToolRiskLevel,
     ToolStatus,
 )

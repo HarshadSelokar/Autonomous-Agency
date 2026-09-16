@@ -17,7 +17,6 @@ import sys
 sys.path.insert(0, os.path.abspath("."))
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-
 from sqlalchemy.orm import sessionmaker
 
 from src.application.code_review_service import CodeReviewService
@@ -30,10 +29,6 @@ from src.domain.objective import Objective
 from src.domain.software_company import (
     CodeReviewStatus,
     DefectSeverity,
-    DefectStatus,
-    DeliveryStatus,
-    SoftwareProjectStatus,
-    TestRunStatus,
 )
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.assignment_repository import SQLAlchemyAssignmentRepository
@@ -49,7 +44,9 @@ from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemySoftwareRequirementRepository,
     SQLAlchemyTestRunRepository,
 )
-from src.infrastructure.repositories.task_dependency_repository import SQLAlchemyTaskDependencyRepository
+from src.infrastructure.repositories.task_dependency_repository import (
+    SQLAlchemyTaskDependencyRepository,
+)
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
 

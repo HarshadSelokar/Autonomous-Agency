@@ -49,8 +49,9 @@ from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemySoftwareRequirementRepository,
     SQLAlchemyTestRunRepository,
 )
-
-from src.infrastructure.repositories.task_dependency_repository import SQLAlchemyTaskDependencyRepository
+from src.infrastructure.repositories.task_dependency_repository import (
+    SQLAlchemyTaskDependencyRepository,
+)
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
 router = APIRouter(tags=["Software Company"])

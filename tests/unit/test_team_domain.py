@@ -3,7 +3,8 @@ Unit tests for Team domain entities.
 """
 
 import pytest
-from src.domain.team import Team, TeamMember, TeamStatus, TeamType, TeamHealth
+
+from src.domain.team import Team, TeamStatus, TeamType
 
 
 def test_team_lifecycle():

@@ -2,20 +2,14 @@
 Unit tests for Phase 13 Pixel Office Domain Entities & Projection Enums.
 """
 
-from datetime import datetime, timezone
-import pytest
 
 from src.domain.office import (
-    DepartmentLayoutProjection,
     EmployeeVisualState,
     EmployeeWorkstationProjection,
     HumanAttentionItem,
     HumanAttentionType,
-    OfficeActivityItem,
     OfficeAreaType,
     OfficeCompanyProjection,
-    OfficeMeetingRoomProjection,
-    OfficeProjectAreaProjection,
 )
 
 

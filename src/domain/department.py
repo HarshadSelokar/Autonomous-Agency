@@ -6,7 +6,6 @@ Represents an organizational boundary operating on the Company OS.
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import List, Optional
 
 
 class DepartmentStatus(str, Enum):
@@ -43,7 +42,7 @@ class DepartmentCapability:
 class DepartmentResponsibility:
     title: str
     description: str
-    capability_names: List[str] = field(default_factory=list)
+    capability_names: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -54,10 +53,10 @@ class Department:
     description: str = ""
     status: DepartmentStatus = DepartmentStatus.ACTIVE
     purpose: str = ""
-    manager_employee_id: Optional[str] = None
-    parent_department_id: Optional[str] = None
-    capabilities: List[str] = field(default_factory=list)
-    responsibilities: List[str] = field(default_factory=list)
-    policies: List[str] = field(default_factory=list)
+    manager_employee_id: str | None = None
+    parent_department_id: str | None = None
+    capabilities: list[str] = field(default_factory=list)
+    responsibilities: list[str] = field(default_factory=list)
+    policies: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))

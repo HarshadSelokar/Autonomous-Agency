@@ -4,6 +4,7 @@ Verifies resilience across 15 failure modes, security boundaries, and architectu
 """
 
 from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from src.application.communication_service import CommunicationService
@@ -14,7 +15,7 @@ from src.application.message_router import (
     CommunicationValidationError,
     MessageRouter,
 )
-from src.domain.conversation import Conversation, ConversationType
+from src.domain.conversation import Conversation
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.message import Message, MessageReference, MessageType
 from src.domain.task import Task, TaskStatus

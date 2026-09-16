@@ -7,7 +7,7 @@ Enforces the core rule: No uncontrolled authority escalation (LLM generated outp
 import uuid
 from typing import Any
 
-from src.domain.exceptions import EmployeeNotFoundError, ObjectiveValidationError
+from src.domain.exceptions import EmployeeNotFoundError
 from src.domain.memory import (
     MemoryAuthority,
     MemoryEntry,

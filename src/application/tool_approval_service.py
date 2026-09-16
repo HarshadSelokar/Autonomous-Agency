@@ -5,17 +5,13 @@ Enforces that an Agent CANNOT approve its own request or self-promote authority.
 """
 
 import uuid
-from datetime import UTC, datetime
 from typing import Any
 
-from src.domain.employee import Employee
 from src.domain.repository import EmployeeRepositoryInterface
 from src.domain.tool import (
     ApprovalStatus,
     ToolApproval,
-    ToolCapability,
     ToolExecution,
-    ToolExecutionStatus,
     ToolValidationError,
 )
 

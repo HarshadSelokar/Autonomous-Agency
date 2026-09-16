@@ -3,16 +3,16 @@ Unit tests for MessageRouter sender authority and routing validation.
 """
 
 from unittest.mock import MagicMock
+
 import pytest
 
 from src.application.message_router import (
     CommunicationAuthorizationError,
-    CommunicationValidationError,
     MessageRouter,
 )
-from src.domain.conversation import Conversation, ConversationParticipant, ConversationType
+from src.domain.conversation import Conversation, ConversationType
 from src.domain.employee import Employee, EmployeeStatus
-from src.domain.message import Message, MessageType
+from src.domain.message import Message
 
 
 @pytest.mark.asyncio

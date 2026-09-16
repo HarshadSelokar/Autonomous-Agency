@@ -3,11 +3,11 @@ Unit tests for DecisionIntegrationService (Task, Plan, and Communication actions
 """
 
 from typing import Any
+
 import pytest
 
 from src.application.decision_integration_service import DecisionIntegrationService
 from src.domain.decision import Decision, DecisionStatus, DecisionValidationError
-from tests.integration.test_decision_repository import SQLAlchemyDecisionRepository
 
 
 class MemoryDecisionRepository:

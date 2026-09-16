@@ -1,13 +1,14 @@
-from typing import AsyncGenerator
-from httpx import ASGITransport, AsyncClient
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+import src.infrastructure.models  # noqa: F401
 from src.api.main import app
 from src.infrastructure.database import Base, get_db
-import src.infrastructure.models  # noqa: F401
 from src.infrastructure.models.objective_model import ObjectiveModel
 from src.infrastructure.models.plan_model import PlanModel
 

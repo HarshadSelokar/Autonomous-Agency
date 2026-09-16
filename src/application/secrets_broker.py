@@ -6,7 +6,6 @@ All tool results, logs, and evidence are automatically redacted.
 """
 
 from typing import Any
-import re
 
 
 class SecretsBroker:

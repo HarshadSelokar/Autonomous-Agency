@@ -2,7 +2,8 @@
 Failure injection and resilience tests for Phase 7 Memory, Workspace, and Artifact systems.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -12,7 +13,7 @@ from src.application.embedding_provider import EmbeddingProviderInterface
 from src.application.memory_retrieval_service import MemoryRetrievalService
 from src.application.memory_service import MemoryService
 from src.domain.artifact import Artifact, compute_sha256
-from src.domain.memory import MemoryAuthority, MemoryEntry, MemoryProvenance, MemoryScope, MemoryType
+from src.domain.memory import MemoryAuthority, MemoryProvenance, MemoryScope, MemoryType
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.memory_repository import SQLAlchemyMemoryRepository

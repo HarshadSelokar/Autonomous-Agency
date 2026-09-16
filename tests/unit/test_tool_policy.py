@@ -2,14 +2,12 @@
 Unit tests for ToolPolicyEngine.
 """
 
-import pytest
 
 from src.application.tool_policy_engine import PolicyDecision, ToolPolicyEngine
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.tool import (
     PermissionMode,
     ToolCapability,
-    ToolCategory,
     ToolDefinition,
     ToolRequest,
     ToolRiskLevel,

@@ -4,15 +4,16 @@ Tests simultaneous employee updates, rapid state transitions, and governance rac
 """
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-from src.domain.events import OfficeStateUpdatedEvent
+import pytest
+
 from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
 )
+from src.domain.events import OfficeStateUpdatedEvent
 
 
 @pytest.mark.asyncio

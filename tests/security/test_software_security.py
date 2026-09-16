@@ -2,7 +2,8 @@
 Security tests for Phase 9 AI Software Company boundaries, self-approval guards, and release governance.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -13,9 +14,6 @@ from src.application.qa_service import QAService
 from src.application.software_delivery_service import SoftwareDeliveryService
 from src.domain.exceptions import UnauthorizedApprovalError
 from src.domain.software_company import (
-    CodeChange,
-    CodeChangeStatus,
-    CodeReviewStatus,
     DefectSeverity,
     SoftwareProject,
 )

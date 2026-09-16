@@ -2,10 +2,11 @@
 Integration API tests for Phase 8 Tool REST Endpoints.
 """
 
-from typing import AsyncGenerator
-from httpx import ASGITransport, AsyncClient
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 

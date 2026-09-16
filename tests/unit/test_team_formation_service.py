@@ -1,14 +1,14 @@
 """Unit tests for TeamFormationService."""
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from src.application.team_formation_service import TeamFormationService
 from src.domain.employee import Employee, EmployeeStatus
-from src.domain.team import Team, TeamStatus, TeamType
+from src.domain.team import TeamStatus, TeamType
 from src.domain.workforce import (
     EmployeeTemplate,
-    WorkforceChangeRequest,
     WorkforceChangeRequestStatus,
     WorkforceChangeRequestType,
 )
@@ -138,5 +138,5 @@ async def test_provision_employee_with_governance(mock_team_repo, mock_workforce
         is_human_approved=True,
     )
     assert emp.name == "Eve"
-    assert "DEVOPS" in emp.capabilities
+    assert any(c.name == "DEVOPS" for c in emp.capabilities)
     mock_employee_repo.save.assert_called_once()

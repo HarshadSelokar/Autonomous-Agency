@@ -7,7 +7,12 @@ from src.application.company_observation_service import CompanyObservationServic
 from src.application.company_operating_cycle_service import CompanyOperatingCycleService
 from src.application.executive_orchestration_service import ExecutiveOrchestrationService
 from src.application.strategic_intelligence_service import StrategicIntelligenceService
-from src.domain.company import AutonomousCompany, CompanyHealthStatus, CompanyStatus, OperatingCycleState
+from src.domain.company import (
+    AutonomousCompany,
+    CompanyHealthStatus,
+    CompanyStatus,
+    OperatingCycleState,
+)
 from src.domain.strategy import StrategyProposalType
 from src.infrastructure.database import Base
 from src.infrastructure.repositories.company_repository import SQLAlchemyCompanyRepository

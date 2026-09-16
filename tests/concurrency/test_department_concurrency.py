@@ -1,11 +1,13 @@
 """Concurrency test suite for Phase 14 Department framework."""
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock
-from src.domain.department import Department
-from src.domain.cross_department import DepartmentPriority
+
+import pytest
+
 from src.application.cross_department_service import CrossDepartmentService
+from src.domain.cross_department import DepartmentPriority
+from src.domain.department import Department
 
 
 @pytest.mark.asyncio

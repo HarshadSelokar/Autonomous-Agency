@@ -2,7 +2,6 @@
 Unit tests for Authoritative Memory derivation from approved Decisions.
 """
 
-from typing import Any
 import pytest
 
 from src.application.decision_integration_service import DecisionIntegrationService

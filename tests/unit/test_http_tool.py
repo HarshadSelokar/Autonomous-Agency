@@ -6,7 +6,7 @@ import pytest
 
 from src.domain.tool import ToolCapability, ToolDefinition, ToolRequest
 from src.infrastructure.tools.executors.http_tool_executor import HTTPToolExecutor
-from src.infrastructure.tools.sandboxing import SSRFViolationError, SandboxExecutionBoundary
+from src.infrastructure.tools.sandboxing import SandboxExecutionBoundary, SSRFViolationError
 
 
 def test_ssrf_validation_loopback_and_metadata() -> None:

@@ -2,11 +2,12 @@
 Integration API tests for Meetings and Decisions REST Endpoints.
 """
 
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta
-from typing import AsyncGenerator
-from httpx import ASGITransport, AsyncClient
+
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 

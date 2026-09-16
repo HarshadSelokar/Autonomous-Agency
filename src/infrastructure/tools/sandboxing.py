@@ -4,10 +4,9 @@ Enforces execution isolation: workspace path sanitization, process limits,
 output size truncation, timeout enforcement, and network SSRF defenses.
 """
 
-from pathlib import Path
-from typing import Any
 import ipaddress
 import urllib.parse
+from pathlib import Path
 
 
 class SandboxViolationError(Exception):

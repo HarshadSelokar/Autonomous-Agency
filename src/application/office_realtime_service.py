@@ -5,7 +5,7 @@ and state reconciliation streams for the Pixel Office.
 """
 
 import logging
-from typing import Dict, Set, List, Optional, Any
+from typing import Any
 from uuid import UUID
 
 from src.domain.events import OfficeStateUpdatedEvent
@@ -20,8 +20,8 @@ class PixelOfficeConnection:
         self,
         connection_id: str,
         user_id: UUID,
-        authorized_departments: Optional[List[str]] = None,
-        authorized_projects: Optional[List[UUID]] = None,
+        authorized_departments: list[str] | None = None,
+        authorized_projects: list[UUID] | None = None,
         websocket: Any = None,
     ) -> None:
         self.connection_id = connection_id
@@ -29,7 +29,7 @@ class PixelOfficeConnection:
         self.authorized_departments = set(authorized_departments or [])
         self.authorized_projects = set(authorized_projects or [])
         self.websocket = websocket
-        self.last_event_id: Optional[str] = None
+        self.last_event_id: str | None = None
 
     def is_authorized_for_event(self, event: OfficeStateUpdatedEvent) -> bool:
         """Check if connection is authorized to receive event based on scopes."""
@@ -49,8 +49,8 @@ class OfficeRealtimeBroadcaster:
     """Manages real-time WebSocket connection lifecycle and event dispatch for Pixel Office."""
 
     def __init__(self) -> None:
-        self._connections: Dict[str, PixelOfficeConnection] = {}
-        self._processed_event_ids: Set[str] = set()
+        self._connections: dict[str, PixelOfficeConnection] = {}
+        self._processed_event_ids: set[str] = set()
 
     def register_connection(self, connection: PixelOfficeConnection) -> None:
         """Register a new active WebSocket connection."""

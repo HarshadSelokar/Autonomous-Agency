@@ -10,7 +10,7 @@ from src.api.schemas.workforce import (
     TeamResponseSchema,
 )
 from src.application.team_formation_service import TeamFormationService
-from src.domain.team import TeamType
+from src.domain.team import Team, TeamType
 from src.infrastructure.database import get_db_session
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository
@@ -117,7 +117,7 @@ async def dissolve_team(
         raise HTTPException(status_code=400, detail=str(err))
 
 
-def _map_team(t) -> TeamResponseSchema:
+def _map_team(t: Team) -> TeamResponseSchema:
     members_schema = [
         TeamMemberResponseSchema(
             id=m.id,

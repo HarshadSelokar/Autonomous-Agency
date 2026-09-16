@@ -3,13 +3,13 @@ Unit tests for Meeting domain entity, lifecycle, participants, and attendance tr
 """
 
 from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from src.domain.meeting import (
     AttendanceStatus,
     Meeting,
     MeetingPurpose,
-    MeetingStateError,
     MeetingStatus,
     MeetingValidationError,
     ParticipantRole,

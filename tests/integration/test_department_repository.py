@@ -3,20 +3,19 @@
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.domain.department import Department, DepartmentStatus
 from src.domain.cross_department import (
     DepartmentHandoff,
     DepartmentPriority,
     DepartmentRequest,
     DepartmentRequestStatus,
-    HandoffStatus,
 )
+from src.domain.department import Department, DepartmentStatus
 from src.infrastructure.database import Base
-from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
 from src.infrastructure.repositories.cross_department_repository import (
     SQLAlchemyDepartmentHandoffRepository,
     SQLAlchemyDepartmentRequestRepository,
 )
+from src.infrastructure.repositories.department_repository import SQLAlchemyDepartmentRepository
 
 
 @pytest.fixture

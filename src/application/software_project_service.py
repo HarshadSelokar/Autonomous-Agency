@@ -4,10 +4,10 @@ Coordinates software project creation, requirements analysis, engineering planni
 capability-based task assignment, and backend-authoritative project status aggregation.
 """
 
-from typing import Any
 import uuid
-from src.application.employee_selector import EmployeeSelector
+from typing import Any
 
+from src.application.employee_selector import EmployeeSelector
 from src.application.event_dispatcher import EventDispatcher
 from src.domain.events import (
     EngineeringPlanCreatedEvent,
@@ -23,7 +23,6 @@ from src.domain.repository import (
 from src.domain.software_company import (
     CodeChangeStatus,
     DefectStatus,
-    DeliveryStatus,
     EngineeringPlan,
     RequirementPriority,
     RequirementStatus,
@@ -33,9 +32,7 @@ from src.domain.software_company import (
     TestRunStatus,
 )
 from src.domain.task import Task, TaskStatus
-
 from src.domain.task_dependency import DependencyType, TaskDependency
-
 from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemyCodeChangeRepository,
     SQLAlchemyCodeReviewRepository,
@@ -46,8 +43,9 @@ from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemySoftwareRequirementRepository,
     SQLAlchemyTestRunRepository,
 )
-
-from src.infrastructure.repositories.task_dependency_repository import SQLAlchemyTaskDependencyRepository
+from src.infrastructure.repositories.task_dependency_repository import (
+    SQLAlchemyTaskDependencyRepository,
+)
 from src.infrastructure.repositories.task_repository import SQLAlchemyTaskRepository
 
 
@@ -304,14 +302,22 @@ class SoftwareProjectService:
         Returns a mapping of task_id -> assigned_employee_id.
         """
         project = await self.project_repo.get_by_id(project_id)
-        if project is None or not project.engineering_plan:
+        if project is None:
+            raise ValueError(f"SoftwareProject '{project_id}' not found.")
+
+        plan = project.engineering_plan
+        if not plan and self.plan_repo:
+            plan = await self.plan_repo.get_by_project(project_id)
+
+        if not plan:
             raise ValueError(f"Project '{project_id}' does not have an engineering plan.")
 
         active_employees = await self.employee_repo.list_all()
         active_employees = [e for e in active_employees if e.is_executable()]
 
         assignments: dict[str, str] = {}
-        for task_id in project.engineering_plan.task_ids:
+        for task_id in plan.task_ids:
+
             task = await self.task_repo.get_by_id(task_id)
             if not task or task.assigned_employee_id:
                 continue

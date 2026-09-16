@@ -2,7 +2,6 @@
 Phase 10 — Verification, Recovery & Autonomous Reliability End-to-End Demonstration Script.
 """
 
-import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool

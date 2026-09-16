@@ -5,21 +5,19 @@ Manages governed team formation, member allocations, cross-department teams,
 temporary project teams, team lifecycle, and controlled employee provisioning under governance.
 """
 
-from datetime import UTC, datetime
 import logging
 import uuid
+from datetime import UTC, datetime
 
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.events import (
-    EmployeeReallocatedEvent,
     TeamDissolvedEvent,
     TeamFormedEvent,
     TeamMemberAddedEvent,
-    TeamMemberRemovedEvent,
     WorkforceChangeRequestedEvent,
     WorkforceDecisionMadeEvent,
 )
-from src.domain.team import Team, TeamHealth, TeamMember, TeamStatus, TeamType
+from src.domain.team import Team, TeamStatus, TeamType
 from src.domain.workforce import (
     EmployeeTemplate,
     WorkforceAllocation,
@@ -28,10 +26,10 @@ from src.domain.workforce import (
     WorkforceChangeRequestType,
     WorkforceDecision,
 )
+from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
+from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository
 from src.infrastructure.repositories.team_repository import SQLAlchemyTeamRepository
 from src.infrastructure.repositories.workforce_repository import SQLAlchemyWorkforceRepository
-from src.infrastructure.repositories.outbox_repository import SQLAlchemyOutboxRepository
-from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +184,7 @@ class TeamFormationService:
                 role_in_team=role_in_team,
                 allocation_percentage=alloc_pct,
             )
-            derived_capabilities.update(emp.capabilities)
+            derived_capabilities.update(c.name if hasattr(c, "name") else str(c) for c in emp.capabilities)
 
             # Create temporary WorkforceAllocation
             alloc = WorkforceAllocation(
@@ -213,14 +211,14 @@ class TeamFormationService:
         saved_team = await self.team_repo.save(team)
 
         if self.outbox_repo:
-            evt = TeamFormedEvent(
+            formed_evt = TeamFormedEvent(
                 team_id=saved_team.id,
                 team_name=saved_team.name,
                 team_type=saved_team.team_type.value,
                 manager_id=saved_team.manager_id,
                 member_count=len(saved_team.members),
             )
-            await self.outbox_repo.save_event(evt)
+            await self.outbox_repo.save_event(formed_evt)
 
         return saved_team
 
@@ -281,6 +279,8 @@ class TeamFormationService:
         # Determine role string
         role_str = template.role or "Engineer"
 
+        from src.domain.employee import EmployeeCapability, EmployeeSkill
+
         new_emp = Employee(
             id=str(uuid.uuid4()),
             employee_code=emp_code,
@@ -291,8 +291,8 @@ class TeamFormationService:
             department_id=department_id,
             manager_id=manager_id,
             status=EmployeeStatus.ACTIVE,
-            capabilities=template.capabilities,
-            skills=template.skills,
+            capabilities=[EmployeeCapability(name=c) for c in template.capabilities],
+            skills=[EmployeeSkill(name=s) for s in template.skills],
         )
         saved_emp = await self.employee_repo.save(new_emp)
 

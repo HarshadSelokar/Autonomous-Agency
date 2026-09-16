@@ -1,15 +1,14 @@
 """Unit tests for WorkforcePlanningService."""
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 from src.application.workforce_planning_service import WorkforcePlanningService
 from src.domain.employee import Employee, EmployeeStatus
 from src.domain.workforce import (
-    CapabilityGap,
     CapacitySnapshot,
     GapSeverity,
-    StaffingRecommendation,
     WorkforceDemand,
 )
 

@@ -5,12 +5,11 @@ and SecretsBroker execution-time credential injection and redaction.
 """
 
 import time
-from typing import Any
+
 import httpx
 
 from src.application.secrets_broker import SecretsBroker
 from src.domain.tool import (
-    ToolCapability,
     ToolDefinition,
     ToolExecutionStatus,
     ToolRequest,

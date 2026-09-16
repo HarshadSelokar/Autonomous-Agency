@@ -1,18 +1,16 @@
 """SQLAlchemy Repositories for Cross-Department Requests, Handoffs, and Service Contracts."""
 
-from typing import List, Optional
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.cross_department import (
     DepartmentHandoff,
     DepartmentRequest,
-    DepartmentServiceContract,
 )
 from src.infrastructure.models.cross_department_model import (
     DepartmentHandoffModel,
     DepartmentRequestModel,
-    DepartmentServiceContractModel,
     department_handoff_domain_to_model,
     department_handoff_model_to_domain,
     department_request_domain_to_model,
@@ -40,7 +38,7 @@ class SQLAlchemyDepartmentRequestRepository:
         await self.session.flush()
         return department_request_model_to_domain(model)
 
-    async def get_by_id(self, request_id: str) -> Optional[DepartmentRequest]:
+    async def get_by_id(self, request_id: str) -> DepartmentRequest | None:
         model = await self.session.get(DepartmentRequestModel, request_id)
         if model is None:
             return None
@@ -48,7 +46,7 @@ class SQLAlchemyDepartmentRequestRepository:
 
     async def list_by_department(
         self, department_id: str, as_requester: bool = True
-    ) -> List[DepartmentRequest]:
+    ) -> list[DepartmentRequest]:
         stmt = select(DepartmentRequestModel)
         if as_requester:
             stmt = stmt.where(DepartmentRequestModel.requester_department_id == department_id)
@@ -59,7 +57,7 @@ class SQLAlchemyDepartmentRequestRepository:
         models = result.scalars().all()
         return [department_request_model_to_domain(m) for m in models]
 
-    async def list_all(self) -> List[DepartmentRequest]:
+    async def list_all(self) -> list[DepartmentRequest]:
         stmt = select(DepartmentRequestModel)
         result = await self.session.execute(stmt)
         models = result.scalars().all()
@@ -85,13 +83,13 @@ class SQLAlchemyDepartmentHandoffRepository:
         await self.session.flush()
         return department_handoff_model_to_domain(model)
 
-    async def get_by_id(self, handoff_id: str) -> Optional[DepartmentHandoff]:
+    async def get_by_id(self, handoff_id: str) -> DepartmentHandoff | None:
         model = await self.session.get(DepartmentHandoffModel, handoff_id)
         if model is None:
             return None
         return department_handoff_model_to_domain(model)
 
-    async def get_by_request_id(self, request_id: str) -> Optional[DepartmentHandoff]:
+    async def get_by_request_id(self, request_id: str) -> DepartmentHandoff | None:
         stmt = select(DepartmentHandoffModel).where(DepartmentHandoffModel.request_id == request_id)
         result = await self.session.execute(stmt)
         model = result.scalars().first()

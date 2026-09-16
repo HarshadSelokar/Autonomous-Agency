@@ -4,7 +4,6 @@ Manages test run execution evidence, failure evaluation, defect reporting,
 and defect-to-task resolution workflows.
 """
 
-from typing import Any
 import uuid
 
 from src.application.event_dispatcher import EventDispatcher
@@ -23,7 +22,6 @@ from src.domain.software_company import (
     TestRunStatus,
 )
 from src.domain.task import Task, TaskStatus
-
 from src.infrastructure.repositories.software_company_repository import (
     SQLAlchemySoftwareDefectRepository,
     SQLAlchemyTestRunRepository,

@@ -2,7 +2,6 @@
 Unit tests for evolved Decision domain model and state machine lifecycle.
 """
 
-from datetime import UTC, datetime
 import pytest
 
 from src.domain.decision import (
