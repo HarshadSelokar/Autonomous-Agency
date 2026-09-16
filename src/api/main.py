@@ -1,12 +1,16 @@
-"""
-FastAPI Application Entry Point for Autonomous AI Organization Platform.
-"""
+"""FastAPI Application Entry Point for Autonomous AI Organization Platform."""
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.middleware.security import (
+    CorrelationIdMiddleware,
+    ProductionSecurityHeadersMiddleware,
+    RequestSizeLimitMiddleware,
+)
 from src.api.routes.agents import router as agents_router
 from src.api.routes.artifacts import router as artifacts_router
 from src.api.routes.communication import router as communication_router
@@ -17,6 +21,7 @@ from src.api.routes.departments import router as departments_router
 from src.api.routes.employees import router as employees_router
 from src.api.routes.experiments import router as experiments_router
 from src.api.routes.governance import router as governance_router
+from src.api.routes.health import router as health_router
 from src.api.routes.innovation import router as innovation_router
 from src.api.routes.knowledge import router as knowledge_router
 from src.api.routes.meetings import router as meetings_router
@@ -35,31 +40,51 @@ from src.api.routes.workforce import router as workforce_router
 from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
 from src.infrastructure.config import settings
+from src.infrastructure.env_validation import validate_production_env
 from src.infrastructure.logging_config import configure_logging
 from src.infrastructure.models.fake_provider import FakeModelProvider
+from src.infrastructure.observability import configure_opentelemetry
 from src.infrastructure.providers.groq_provider import GroqModelProvider
+from src.infrastructure.redis_client import close_redis
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging(level=settings.LOG_LEVEL)
+    validate_production_env(settings)
+    configure_opentelemetry()
     default_provider_registry.register(GroqModelProvider())
     default_provider_registry.register(FakeModelProvider())
     yield
+    await close_redis()
 
 
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning & Research Innovation Engine "
-        "(Phase 1 - Phase 19)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine & Production Infrastructure "
+        "(Phase 1 - Phase 20)"
     ),
-    version="0.19.0",
+    version="0.20.0",
     lifespan=lifespan,
 )
 
+# Register Production Security & Correlation Middlewares
+app.add_middleware(CorrelationIdMiddleware)
+app.add_middleware(ProductionSecurityHeadersMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Include Routers
+app.include_router(health_router)
 app.include_router(agents_router)
 app.include_router(employees_router)
 app.include_router(departments_router)
@@ -86,12 +111,3 @@ app.include_router(knowledge_router)
 app.include_router(experiments_router)
 app.include_router(research_router, prefix="/api/v1")
 app.include_router(innovation_router, prefix="/api/v1")
-
-
-@app.get("/health", tags=["System"])
-async def health_check() -> dict[str, str]:
-    return {
-        "status": "healthy",
-        "app_name": settings.APP_NAME,
-        "environment": settings.APP_ENV,
-    }
