@@ -1311,6 +1311,122 @@ class SwarmVerificationCompletedEvent(DomainEvent):
     status: str = ""
 
 
+# Phase 23 Business Operations Events
+
+@dataclass(frozen=True)
+class BusinessTransactionRecordedEvent(DomainEvent):
+    transaction_id: str = ""
+    transaction_type: str = ""
+    amount_cents: int = 0
+    currency: str = "USD"
+    account_id: str = ""
+    counterparty: str = ""
+    idempotency_key: str | None = None
+
+
+@dataclass(frozen=True)
+class RevenueRecordedEvent(DomainEvent):
+    revenue_id: str = ""
+    customer_id: str = ""
+    amount_cents: int = 0
+    currency: str = "USD"
+    recognition_state: str = "EXPECTED"
+
+
+@dataclass(frozen=True)
+class ExpenseRecordedEvent(DomainEvent):
+    expense_id: str = ""
+    vendor_id: str = ""
+    category: str = ""
+    amount_cents: int = 0
+    currency: str = "USD"
+    department_id: str | None = None
+
+
+@dataclass(frozen=True)
+class InvoiceCreatedEvent(DomainEvent):
+    invoice_id: str = ""
+    invoice_number: str = ""
+    customer_id: str = ""
+    total_cents: int = 0
+    currency: str = "USD"
+    status: str = "DRAFT"
+
+
+@dataclass(frozen=True)
+class InvoiceIssuedEvent(DomainEvent):
+    invoice_id: str = ""
+    invoice_number: str = ""
+    issued_by: str = ""
+
+
+@dataclass(frozen=True)
+class PaymentRecordedEvent(DomainEvent):
+    payment_id: str = ""
+    invoice_id: str | None = None
+    amount_cents: int = 0
+    currency: str = "USD"
+    status: str = "EXPECTED"
+
+
+@dataclass(frozen=True)
+class SubscriptionRenewalDueEvent(DomainEvent):
+    subscription_id: str = ""
+    customer_id: str = ""
+    amount_cents: int = 0
+    renewal_date: str = ""
+
+
+@dataclass(frozen=True)
+class ProcurementRequestedEvent(DomainEvent):
+    request_id: str = ""
+    requester_id: str = ""
+    item_description: str = ""
+    estimated_cents: int = 0
+    currency: str = "USD"
+
+
+@dataclass(frozen=True)
+class ProcurementApprovedEvent(DomainEvent):
+    request_id: str = ""
+    approved_by: str = ""
+    purchase_order_id: str = ""
+
+
+@dataclass(frozen=True)
+class PurchaseOrderCreatedEvent(DomainEvent):
+    purchase_order_id: str = ""
+    vendor_id: str = ""
+    total_cents: int = 0
+
+
+@dataclass(frozen=True)
+class BudgetExceededEvent(DomainEvent):
+    budget_id: str = ""
+    department_id: str | None = None
+    allocated_cents: int = 0
+    consumed_cents: int = 0
+    requested_cents: int = 0
+
+
+@dataclass(frozen=True)
+class ReconciliationMismatchEvent(DomainEvent):
+    reconciliation_id: str = ""
+    internal_ref: str = ""
+    external_ref: str = ""
+    internal_cents: int = 0
+    external_cents: int = 0
+
+
+@dataclass(frozen=True)
+class ReconciliationCompletedEvent(DomainEvent):
+    reconciliation_id: str = ""
+    status: str = "MATCHED"
+    matched_count: int = 0
+    mismatch_count: int = 0
+
+
+
 
 
 

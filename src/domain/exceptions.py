@@ -225,3 +225,62 @@ class SwarmConflictError(DomainError):
     pass
 
 
+class BusinessError(DomainError):
+    """Base exception for all Business Operations domain errors."""
+
+    pass
+
+
+class MoneyArithmeticError(BusinessError):
+    """Raised when monetary calculations involve mismatched currencies or invalid float inputs."""
+
+    pass
+
+
+class BudgetExceededError(BusinessError):
+    """Raised when a requested business expenditure exceeds allocated budget bounds."""
+
+    def __init__(self, budget_id: str, requested_cents: int, remaining_cents: int) -> None:
+        self.budget_id = budget_id
+        self.requested_cents = requested_cents
+        self.remaining_cents = remaining_cents
+        super().__init__(
+            f"Budget '{budget_id}' exceeded: requested {requested_cents} cents, but only {remaining_cents} cents remaining."
+        )
+
+
+class FinancialPeriodClosedError(BusinessError):
+    """Raised when an edit is attempted on a closed financial period without authorization."""
+
+    def __init__(self, period_id: str) -> None:
+        self.period_id = period_id
+        super().__init__(f"Financial period '{period_id}' is closed to modifications.")
+
+
+class ReconciliationMismatchError(BusinessError):
+    """Raised when internal and external transaction records fail to reconcile deterministically."""
+
+    def __init__(self, internal_ref: str, external_ref: str, detail: str) -> None:
+        self.internal_ref = internal_ref
+        self.external_ref = external_ref
+        self.detail = detail
+        super().__init__(
+            f"Reconciliation mismatch between internal '{internal_ref}' and external '{external_ref}': {detail}"
+        )
+
+
+class IdempotencyConflictError(BusinessError):
+    """Raised when a financial request with an existing idempotency key attempts a duplicate operation."""
+
+    def __init__(self, idempotency_key: str) -> None:
+        self.idempotency_key = idempotency_key
+        super().__init__(f"Operation with idempotency key '{idempotency_key}' already processed.")
+
+
+class UnauthorizedFinancialActionError(BusinessError):
+    """Raised when a high-risk financial action lacks proper governance approval or violates separation of duties."""
+
+    pass
+
+
+
