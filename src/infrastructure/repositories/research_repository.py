@@ -517,3 +517,49 @@ class SQLAlchemyResearchRepository:
             )
             for m in models
         ]
+
+    # --- Discoveries, Benchmarks & Technology Evaluations ---
+    async def save_discovery(self, disc: ResearchDiscovery) -> ResearchDiscovery:
+        model = ResearchDiscoveryModel(
+            id=disc.id,
+            trigger_event=disc.trigger_event,
+            trigger_entity_id=disc.trigger_entity_id,
+            description=disc.description,
+            created_request_id=disc.created_request_id,
+            created_at=disc.created_at,
+        )
+        await self.session.merge(model)
+        await self.session.flush()
+        return disc
+
+    async def save_benchmark(self, bench: ResearchBenchmark) -> ResearchBenchmark:
+        model = ResearchBenchmarkModel(
+            id=bench.id,
+            benchmark_type=bench.benchmark_type.value if hasattr(bench.benchmark_type, "value") else str(bench.benchmark_type),
+            target_name=bench.target_name,
+            workload_description=bench.workload_description,
+            metrics=bench.metrics,
+            environment=bench.environment,
+            limitations={"items": bench.limitations},
+            evaluated_at=bench.evaluated_at,
+        )
+        await self.session.merge(model)
+        await self.session.flush()
+        return bench
+
+    async def save_technology_evaluation(self, eval_item: TechnologyEvaluation) -> TechnologyEvaluation:
+        model = TechnologyEvaluationModel(
+            id=eval_item.id,
+            candidate_technology=eval_item.candidate_technology,
+            category=eval_item.category,
+            benchmark_ids={"items": eval_item.benchmark_ids},
+            security_review_summary=eval_item.security_review_summary,
+            cost_analysis=eval_item.cost_analysis,
+            operational_feasibility=eval_item.operational_feasibility,
+            recommendation=eval_item.recommendation,
+            governance_approval_id=eval_item.governance_approval_id,
+            created_at=eval_item.created_at,
+        )
+        await self.session.merge(model)
+        await self.session.flush()
+        return eval_item
