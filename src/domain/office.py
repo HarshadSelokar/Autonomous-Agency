@@ -159,6 +159,10 @@ class OfficeCompanyProjection:
     contested_knowledge_count: int = 0
     stale_knowledge_count: int = 0
     active_experiments_count: int = 0
+    active_research_programs_count: int = 0
+    pending_research_requests_count: int = 0
+    research_discoveries_count: int = 0
+    innovation_proposals_count: int = 0
     company_operating_cycle_state: str = "COMPLETED"
     company_health_status: str = "HEALTHY"
     active_strategy_title: str = "Default Operating Strategy"

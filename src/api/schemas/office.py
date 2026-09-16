@@ -99,6 +99,10 @@ class OfficeCompanyOverviewSchema(BaseModel):
     contested_knowledge_count: int = 0
     stale_knowledge_count: int = 0
     active_experiments_count: int = 0
+    active_research_programs_count: int = 0
+    pending_research_requests_count: int = 0
+    research_discoveries_count: int = 0
+    innovation_proposals_count: int = 0
     attention_items: list[HumanAttentionItemSchema] = Field(default_factory=list)
     recent_activities: list[OfficeActivityItemSchema] = Field(default_factory=list)
     updated_at: str

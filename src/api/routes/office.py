@@ -22,6 +22,7 @@ from src.infrastructure.repositories.governance_repository import GovernanceRepo
 from src.infrastructure.repositories.office_repository import GovernanceOfficeRepository
 
 from src.infrastructure.repositories.knowledge_repository import SQLAlchemyKnowledgeRepository
+from src.infrastructure.repositories.research_repository import SQLAlchemyResearchRepository
 
 router = APIRouter(prefix="/office", tags=["Pixel Office"])
 
@@ -33,11 +34,13 @@ def get_office_projection_service(session: AsyncSession = Depends(get_db_session
     gov_repo = GovernanceRepository(session)
     off_repo = GovernanceOfficeRepository(session)
     k_repo = SQLAlchemyKnowledgeRepository(session)
+    r_repo = SQLAlchemyResearchRepository(session)
     return OfficeProjectionService(
         employee_repository=emp_repo,
         governance_repository=gov_repo,
         office_repository=off_repo,
         knowledge_repository=k_repo,
+        research_repository=r_repo,
     )
 
 
@@ -63,6 +66,10 @@ async def get_company_overview(
         contested_knowledge_count=overview.contested_knowledge_count,
         stale_knowledge_count=overview.stale_knowledge_count,
         active_experiments_count=overview.active_experiments_count,
+        active_research_programs_count=overview.active_research_programs_count,
+        pending_research_requests_count=overview.pending_research_requests_count,
+        research_discoveries_count=overview.research_discoveries_count,
+        innovation_proposals_count=overview.innovation_proposals_count,
         attention_items=[
             HumanAttentionItemSchema(
                 item_id=item.item_id,

@@ -41,6 +41,7 @@ class OfficeProjectionService:
         workforce_repository: Any = None,
         company_repository: Any = None,
         knowledge_repository: Any = None,
+        research_repository: Any = None,
     ) -> None:
         self.employee_repo = employee_repository
         self.department_repo = department_repository
@@ -56,6 +57,7 @@ class OfficeProjectionService:
         self.workforce_repo = workforce_repository
         self.company_repo = company_repository
         self.knowledge_repo = knowledge_repository
+        self.research_repo = research_repository
 
     def derive_employee_visual_state(
         self,
@@ -336,6 +338,23 @@ class OfficeProjectionService:
                     st = ex.status.value if hasattr(ex.status, "value") else str(ex.status)
                     if st == "ACTIVE":
                         active_exp_count += 1
+        active_research_prog_count = 0
+        pending_research_req_count = 0
+        research_disc_count = 0
+        innovation_prop_count = 0
+
+        if self.research_repo:
+            if hasattr(self.research_repo, "list_requests"):
+                res = self.research_repo.list_requests()
+                reqs = await res if isawaitable(res) else res
+                for r in reqs:
+                    st = r.status.value if hasattr(r.status, "value") else str(r.status)
+                    if st in ("PROPOSED", "REQUESTED", "PLANNING"):
+                        pending_research_req_count += 1
+            if hasattr(self.research_repo, "list_proposals"):
+                res = self.research_repo.list_proposals()
+                props = await res if isawaitable(res) else res
+                innovation_prop_count = len(props)
 
         return OfficeCompanyProjection(
             company_name="Autonomous AI Organization",
@@ -354,6 +373,10 @@ class OfficeProjectionService:
             contested_knowledge_count=contested_k_count,
             stale_knowledge_count=stale_k_count,
             active_experiments_count=active_exp_count,
+            active_research_programs_count=active_research_prog_count,
+            pending_research_requests_count=pending_research_req_count,
+            research_discoveries_count=research_disc_count,
+            innovation_proposals_count=innovation_prop_count,
             company_operating_cycle_state=operating_cycle_state,
             company_health_status=company_health_status,
             active_strategy_title=active_strategy_title,
