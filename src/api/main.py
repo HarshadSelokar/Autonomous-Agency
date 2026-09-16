@@ -13,6 +13,7 @@ from src.api.middleware.security import (
 )
 from src.api.routes.agents import router as agents_router
 from src.api.routes.artifacts import router as artifacts_router
+from src.api.routes.business import router as business_router
 from src.api.routes.communication import router as communication_router
 from src.api.routes.company import router as company_router
 from src.api.routes.decisions import router as decisions_router
@@ -113,5 +114,6 @@ app.include_router(experiments_router)
 app.include_router(research_router, prefix="/api/v1")
 app.include_router(innovation_router, prefix="/api/v1")
 app.include_router(swarms_router)
+app.include_router(business_router)
 
 
