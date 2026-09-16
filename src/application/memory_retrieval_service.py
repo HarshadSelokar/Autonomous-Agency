@@ -81,7 +81,10 @@ class MemoryRetrievalService:
         Execute hybrid memory retrieval across active memories.
         Calculates score: Authority Weight + (Similarity * 5.0) + (Confidence * 2.0).
         """
-        all_memories = await self.memory_repo.list_all()
+        if not self.memory_repo:
+            all_memories = []
+        else:
+            all_memories = await self.memory_repo.list_all()
 
         # 1. Scope & Status Filtering
         candidates = [m for m in all_memories if m.status == MemoryStatus.ACTIVE]
