@@ -186,3 +186,42 @@ class UnauthorizedApprovalError(DomainError):
 
     pass
 
+
+class SwarmNotFoundError(DomainError):
+    """Raised when a swarm is not found."""
+
+    def __init__(self, swarm_id: str) -> None:
+        self.swarm_id = swarm_id
+        super().__init__(f"Swarm with ID '{swarm_id}' was not found.")
+
+
+class SwarmValidationError(DomainError):
+    """Raised when swarm parameters or topology validation fails."""
+
+    pass
+
+
+class SwarmBudgetExceededError(DomainError):
+    """Raised when a swarm breaches its allocated resource budget."""
+
+    pass
+
+
+class SwarmDepthExceededError(DomainError):
+    """Raised when nested swarm creation exceeds maximum permitted depth."""
+
+    pass
+
+
+class SwarmGovernanceViolationError(DomainError):
+    """Raised when a swarm operation violates governance policy."""
+
+    pass
+
+
+class SwarmConflictError(DomainError):
+    """Raised when unresolvable agent result conflicts occur."""
+
+    pass
+
+

@@ -1199,5 +1199,118 @@ class OrganizationalExperimentCompletedEvent(DomainEvent):
     conclusion: str = ""
 
 
+# Phase 22 — Swarm Domain Events
+@dataclass(frozen=True)
+class SwarmCreatedEvent(DomainEvent):
+    swarm_id: str = ""
+    code: str = ""
+    parent_task_id: str = ""
+    coordination_mode: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmStartedEvent(DomainEvent):
+    swarm_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmPausedEvent(DomainEvent):
+    swarm_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmResumedEvent(DomainEvent):
+    swarm_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmCompletedEvent(DomainEvent):
+    swarm_id: str = ""
+    result_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmFailedEvent(DomainEvent):
+    swarm_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmCancelledEvent(DomainEvent):
+    swarm_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmMemberJoinedEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    employee_id: str = ""
+    role: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmMemberRemovedEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmMemberFailedEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmMemberRecoveredEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    action: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmTaskAssignedEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmTaskCompletedEvent(DomainEvent):
+    swarm_id: str = ""
+    member_id: str = ""
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmResultProducedEvent(DomainEvent):
+    swarm_id: str = ""
+    result_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmConflictDetectedEvent(DomainEvent):
+    swarm_id: str = ""
+    conflict_id: str = ""
+    task_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmVerificationStartedEvent(DomainEvent):
+    swarm_id: str = ""
+    verification_id: str = ""
+
+
+@dataclass(frozen=True)
+class SwarmVerificationCompletedEvent(DomainEvent):
+    swarm_id: str = ""
+    verification_id: str = ""
+    status: str = ""
+
+
+
 
 
