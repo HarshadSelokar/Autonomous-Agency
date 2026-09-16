@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+scratch
+*.db
+*.sqlite3
+__pycache__
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.env
+.env.local
+node_modules
+dist
+build
+docs
+tests
