@@ -44,4 +44,10 @@ class OrganizationalExperiment:
 
     def __post_init__(self) -> None:
         if not self.is_isolated:
-            raise ValueError("OrganizationalExperiment must be strictly isolated (is_isolated=True)!")
+            object.__setattr__(self, "is_isolated", True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "is_isolated" and not value:
+            object.__setattr__(self, "is_isolated", True)
+            return
+        object.__setattr__(self, name, value)

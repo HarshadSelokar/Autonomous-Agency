@@ -51,10 +51,10 @@ class KnowledgeValidationService:
         """
         if not evidence_ids:
             return False
-        # Reject evidence that solely consists of LLM output tags
         valid_count = 0
         for ev in evidence_ids:
-            if ev and not ev.startswith("llm_gen_"):
+            ev_lower = ev.lower() if ev else ""
+            if ev_lower and not (ev_lower.startswith("llm") or "llm_gen" in ev_lower or "llm-gen" in ev_lower or "llm_generated" in ev_lower or "llm_text" in ev_lower):
                 valid_count += 1
         return valid_count >= 1
 
@@ -73,6 +73,24 @@ class KnowledgeValidationService:
         item = await self.repo.get_knowledge_item_by_id(knowledge_id)
         if not item:
             raise ValueError(f"Knowledge item {knowledge_id} not found")
+
+        # Check for explicit failure indicators in evidence
+        has_failure_evidence = any("fail" in ev.lower() or "error" in ev.lower() for ev in evidence_ids)
+        if has_failure_evidence:
+            item.status = KnowledgeStatus.INVALIDATED
+            await self.repo.save_knowledge_item(item)
+            val = KnowledgeValidation(
+                id=f"val-{uuid.uuid4().hex[:8]}",
+                knowledge_id=knowledge_id,
+                validator_id=validator_id,
+                validator_type=validator_type,
+                evidence_ids=evidence_ids,
+                validation_status="FAILED",
+                confidence_delta=0.0,
+                rationale=f"Validation failed due to negative evidence: {rationale}",
+                timestamp=datetime.now(UTC),
+            )
+            return await self.repo.save_validation(val)
 
         # Independent evidence check
         has_valid_evidence = self.validate_independent_evidence(evidence_ids)
@@ -218,3 +236,16 @@ class KnowledgeValidationService:
         )
 
         return saved
+
+    async def calculate_staleness_decay(self, knowledge_id: str) -> float:
+        """Calculate staleness decay score (0.0 fresh -> 1.0 stale) based on elapsed time."""
+        item = await self.repo.get_knowledge_item_by_id(knowledge_id)
+        if not item:
+            return 1.0
+        now = datetime.now(UTC)
+        created = item.created_at
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=UTC)
+        elapsed_days = (now - created).total_seconds() / 86400.0
+        decay = min(1.0, elapsed_days / 180.0)
+        return round(decay, 4)
