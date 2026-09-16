@@ -1130,4 +1130,74 @@ class ContinuousImprovementProposalSubmittedEvent(DomainEvent):
     governance_required: bool = True
 
 
+# Phase 18 Institutional Knowledge & Learning Events
+
+@dataclass(frozen=True)
+class KnowledgeCandidateDiscoveredEvent(DomainEvent):
+    knowledge_id: str = ""
+    statement: str = ""
+    knowledge_type: str = "FACT"
+    scope: str = "COMPANY"
+
+
+@dataclass(frozen=True)
+class KnowledgeValidatedEvent(DomainEvent):
+    knowledge_id: str = ""
+    validator_id: str = ""
+    validation_status: str = "PASSED"
+
+
+@dataclass(frozen=True)
+class KnowledgeAuthorityPromotedEvent(DomainEvent):
+    knowledge_id: str = ""
+    old_authority: str = ""
+    new_authority: str = ""
+
+
+@dataclass(frozen=True)
+class KnowledgeConflictDetectedEvent(DomainEvent):
+    conflict_id: str = ""
+    knowledge_id_a: str = ""
+    knowledge_id_b: str = ""
+
+
+@dataclass(frozen=True)
+class KnowledgeConflictResolvedEvent(DomainEvent):
+    conflict_id: str = ""
+    resolution_strategy: str = ""
+
+
+@dataclass(frozen=True)
+class KnowledgeMarkedStaleEvent(DomainEvent):
+    knowledge_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class KnowledgeProcedureProposedEvent(DomainEvent):
+    procedure_id: str = ""
+    title: str = ""
+    version: int = 1
+
+
+@dataclass(frozen=True)
+class KnowledgeProcedureApprovedEvent(DomainEvent):
+    procedure_id: str = ""
+    governance_approval_id: str = ""
+
+
+@dataclass(frozen=True)
+class OrganizationalExperimentStartedEvent(DomainEvent):
+    experiment_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class OrganizationalExperimentCompletedEvent(DomainEvent):
+    experiment_id: str = ""
+    title: str = ""
+    conclusion: str = ""
+
+
+
 
