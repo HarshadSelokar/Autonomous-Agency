@@ -283,4 +283,47 @@ class UnauthorizedFinancialActionError(BusinessError):
     pass
 
 
+class GTMError(DomainError):
+    """Base exception for Product, Customer & GTM operations errors."""
+
+    pass
+
+
+class CustomerDataIsolationError(GTMError):
+    """Raised when an attempt is made to access another customer's data or workspace across tenant boundaries."""
+
+    def __init__(self, requestor_customer_id: str, target_customer_id: str) -> None:
+        self.requestor_customer_id = requestor_customer_id
+        self.target_customer_id = target_customer_id
+        super().__init__(
+            f"Customer isolation violation: Customer '{requestor_customer_id}' context attempted access to '{target_customer_id}' data."
+        )
+
+
+class UnauthorizedCommercialCommitmentError(GTMError):
+    """Raised when an unapproved commercial proposal, pricing change, or legal term is attempted without governance."""
+
+    pass
+
+
+class PricingPolicyViolationError(GTMError):
+    """Raised when a discount or price modification breaches corporate policy thresholds without approval."""
+
+    def __init__(self, discount_pct: float, max_allowed_pct: float) -> None:
+        self.discount_pct = discount_pct
+        self.max_allowed_pct = max_allowed_pct
+        super().__init__(
+            f"Pricing discount policy violation: requested {discount_pct}%, but maximum automatic limit is {max_allowed_pct}%."
+        )
+
+
+class DuplicateCustomerError(GTMError):
+    """Raised when creating a duplicate customer record."""
+
+    def __init__(self, customer_identifier: str) -> None:
+        self.customer_identifier = customer_identifier
+        super().__init__(f"Customer record for identifier '{customer_identifier}' already exists.")
+
+
+
 

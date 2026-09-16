@@ -1426,6 +1426,146 @@ class ReconciliationCompletedEvent(DomainEvent):
     mismatch_count: int = 0
 
 
+# Phase 24 Product, Customer & GTM Events
+
+@dataclass(frozen=True)
+class LeadCreatedEvent(DomainEvent):
+    lead_id: str = ""
+    company_name: str = ""
+    contact_email: str = ""
+    source: str = ""
+
+
+@dataclass(frozen=True)
+class LeadQualifiedEvent(DomainEvent):
+    lead_id: str = ""
+    qualified_by: str = ""
+    score: int = 0
+
+
+@dataclass(frozen=True)
+class OpportunityCreatedEvent(DomainEvent):
+    opportunity_id: str = ""
+    lead_id: str | None = None
+    customer_id: str | None = None
+    estimated_value_cents: int = 0
+    currency: str = "USD"
+    stage: str = "IDENTIFIED"
+
+
+@dataclass(frozen=True)
+class OpportunityStageChangedEvent(DomainEvent):
+    opportunity_id: str = ""
+    previous_stage: str = ""
+    new_stage: str = ""
+
+
+@dataclass(frozen=True)
+class ProposalCreatedEvent(DomainEvent):
+    proposal_id: str = ""
+    opportunity_id: str = ""
+    total_amount_cents: int = 0
+    discount_pct: float = 0.0
+
+
+@dataclass(frozen=True)
+class ProposalApprovedEvent(DomainEvent):
+    proposal_id: str = ""
+    approved_by: str = ""
+    governance_approval_id: str | None = None
+
+
+@dataclass(frozen=True)
+class ProposalSentEvent(DomainEvent):
+    proposal_id: str = ""
+    sent_to: str = ""
+
+
+@dataclass(frozen=True)
+class CustomerCreatedEvent(DomainEvent):
+    customer_id: str = ""
+    name: str = ""
+    segment: str = ""
+
+
+@dataclass(frozen=True)
+class CustomerOnboardedEvent(DomainEvent):
+    customer_id: str = ""
+    onboarding_plan_id: str = ""
+
+
+@dataclass(frozen=True)
+class SupportCaseCreatedEvent(DomainEvent):
+    case_id: str = ""
+    customer_id: str = ""
+    subject: str = ""
+    priority: str = "MEDIUM"
+
+
+@dataclass(frozen=True)
+class SupportCaseResolvedEvent(DomainEvent):
+    case_id: str = ""
+    resolved_by: str = ""
+    resolution_notes: str = ""
+
+
+@dataclass(frozen=True)
+class FeedbackReceivedEvent(DomainEvent):
+    feedback_id: str = ""
+    customer_id: str = ""
+    product_id: str = ""
+    category: str = "FEATURE_REQUEST"
+
+
+@dataclass(frozen=True)
+class CampaignStartedEvent(DomainEvent):
+    campaign_id: str = ""
+    name: str = ""
+    budget_cents: int = 0
+
+
+@dataclass(frozen=True)
+class CampaignPausedEvent(DomainEvent):
+    campaign_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class CampaignCompletedEvent(DomainEvent):
+    campaign_id: str = ""
+    leads_generated: int = 0
+
+
+@dataclass(frozen=True)
+class CustomerHealthChangedEvent(DomainEvent):
+    customer_id: str = ""
+    previous_score: float = 0.0
+    new_score: float = 0.0
+    status: str = "HEALTHY"
+
+
+@dataclass(frozen=True)
+class RenewalDueEvent(DomainEvent):
+    customer_id: str = ""
+    renewal_date: str = ""
+
+
+@dataclass(frozen=True)
+class ChurnSignalDetectedEvent(DomainEvent):
+    customer_id: str = ""
+    reason: str = ""
+    risk_score: float = 0.0
+
+
+@dataclass(frozen=True)
+class ProductRequirementCreatedEvent(DomainEvent):
+    requirement_id: str = ""
+    product_id: str = ""
+    title: str = ""
+    source_feedback_id: str | None = None
+
+
+
 
 
 
