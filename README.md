@@ -1,18 +1,19 @@
-# Autonomous AI Organization Platform — Phase 1 to Phase 16
+# Autonomous AI Organization Platform — Phase 1 to Phase 18
 
-This repository implements **Phases 1–16** of the Autonomous AI Organization Platform, including the Phase 16 Autonomous Company Operations, Strategic Intelligence, 10-State Operating Cycle Loop, Non-Authoritative Strategy Simulations, and Governed Organizational Evolution over the unified Company OS.
+This repository implements **Phases 1–18** of the Autonomous AI Organization Platform, including Phase 18 Autonomous Knowledge, Organizational Memory & Institutional Learning with anti-poisoning evidence validation, conflict resolution, versioned procedures, and isolated organizational experiments over the unified Company OS.
 
 ## Core Architectural Principle
 
-$$\text{Company} \rightarrow \text{Departments} \rightarrow \text{Managers} \rightarrow \text{Employees} \rightarrow \text{Agents} \rightarrow \text{Tasks} \rightarrow \text{Tools} \rightarrow \text{Evidence} \rightarrow \text{Verification}$$
+$$\text{Company} \rightarrow \text{Strategy} \rightarrow \text{Departments} \rightarrow \text{Managers} \rightarrow \text{Employees} \rightarrow \text{Agents} \rightarrow \text{Tasks} \rightarrow \text{Evidence} \rightarrow \text{Knowledge} \rightarrow \text{Learning}$$
 
-$$\text{DEPARTMENTS PROVIDE SPECIALIZATION. COMPANY OS PROVIDES COORDINATION.}$$
+$$\text{RAW INFORMATION} \rightarrow \text{EVIDENCE} \rightarrow \text{CANDIDATE} \rightarrow \text{VALIDATED KNOWLEDGE} \rightarrow \text{PROCEDURE} \rightarrow \text{EXPERIMENT}$$
 
-$$\text{EMPLOYEE} \neq \text{AGENT} \neq \text{LLM} \neq \text{DEPARTMENT} \neq \text{PIXEL OFFICE}$$
+$$\text{MEMORY} \neq \text{KNOWLEDGE} \neq \text{POLICY} \neq \text{EXPERIMENT}$$
 
-- **Employee**: Represents organizational identity, corporate title, department membership, skills, capabilities, responsibilities, manager delegation hierarchy, and lifecycle state (`INACTIVE`, `ACTIVE`, `ON_LEAVE`, `SUSPENDED`, `TERMINATED`).
-- **Agent**: Represents execution capabilities, permission profile, model configuration, and state machine (`IDLE` → `READY` → `RUNNING`).
-- **LLM**: Model provider capability (e.g. Groq `llama-3.3-70b-versatile`) invoked by the Agent Runtime engine.
+- **Memory**: Transient episodic/semantic records of past interactions.
+- **Knowledge**: Verified factual claims backed by independent deterministic evidence (`UNVERIFIED` → `OBSERVED` → `EVIDENCE_BACKED` → `VALIDATED` → `CONFIRMED` → `AUTHORITATIVE`).
+- **Policy**: Phase 11 Human Governance authorized organizational operating constraints.
+- **Experiment**: Strictly isolated hypothesis testing (`is_isolated = True`) gated by risk-based governance approval.
 
 ---
 
