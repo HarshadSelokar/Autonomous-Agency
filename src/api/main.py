@@ -32,6 +32,7 @@ from src.api.routes.office import router as office_router
 from src.api.routes.research import router as research_router
 from src.api.routes.runs import router as runs_router
 from src.api.routes.software_projects import router as software_projects_router
+from src.api.routes.swarms import router as swarms_router
 from src.api.routes.tasks import router as tasks_router
 from src.api.routes.teams import router as teams_router
 from src.api.routes.tools import router as tools_router
@@ -63,10 +64,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine & Production Infrastructure "
-        "(Phase 1 - Phase 20)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine, Production Infrastructure & Multi-Agent Swarms "
+        "(Phase 1 - Phase 22)"
     ),
-    version="0.20.0",
+    version="0.22.0",
     lifespan=lifespan,
 )
 
@@ -88,10 +89,10 @@ app.include_router(health_router)
 app.include_router(agents_router)
 app.include_router(employees_router)
 app.include_router(departments_router)
-app.include_router(department_requests_router)
+app.include_router(teams_router)
 app.include_router(objectives_router)
-app.include_router(runs_router)
 app.include_router(tasks_router)
+app.include_router(runs_router)
 app.include_router(communication_router)
 app.include_router(meetings_router)
 app.include_router(decisions_router)
@@ -104,10 +105,12 @@ app.include_router(verifications_router)
 app.include_router(governance_router)
 app.include_router(model_routing_router)
 app.include_router(office_router)
+app.include_router(department_requests_router)
 app.include_router(workforce_router)
-app.include_router(teams_router)
 app.include_router(company_router)
 app.include_router(knowledge_router)
 app.include_router(experiments_router)
-app.include_router(research_router, prefix="/api/v1")
-app.include_router(innovation_router, prefix="/api/v1")
+app.include_router(research_router)
+app.include_router(innovation_router)
+app.include_router(swarms_router)
+

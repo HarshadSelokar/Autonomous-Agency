@@ -117,6 +117,8 @@ class SQLAlchemySwarmRepository(SwarmRepositoryInterface):
                 self.session.add(new_m)
 
         await self.session.flush()
+        await self.session.commit()
+
         return swarm
 
     async def get_by_id(self, swarm_id: str) -> Swarm | None:
@@ -182,6 +184,8 @@ class SQLAlchemySwarmRepository(SwarmRepositoryInterface):
             model.current_tokens = budget.current_tokens
             model.current_retries = budget.current_retries
         await self.session.flush()
+        await self.session.commit()
+
         return budget
 
     async def get_budget(self, swarm_id: str) -> SwarmBudget | None:
@@ -240,6 +244,8 @@ class SQLAlchemySwarmRepository(SwarmRepositoryInterface):
             m.verification_status = result.verification_status
             m.is_completed = result.is_completed
         await self.session.flush()
+        await self.session.commit()
+
         return result
 
     async def get_result_by_swarm(self, swarm_id: str) -> SwarmResult | None:
@@ -280,6 +286,8 @@ class SQLAlchemySwarmRepository(SwarmRepositoryInterface):
         )
         self.session.add(m)
         await self.session.flush()
+        await self.session.commit()
+
         return message
 
     async def list_messages_by_swarm(self, swarm_id: str) -> list[SwarmMessage]:
