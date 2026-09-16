@@ -1,14 +1,14 @@
-# Autonomous AI Organization Platform — Phase 1 to Phase 18
+# Autonomous AI Organization Platform — Phase 1 to Phase 19
 
-This repository implements **Phases 1–18** of the Autonomous AI Organization Platform, including Phase 18 Autonomous Knowledge, Organizational Memory & Institutional Learning with anti-poisoning evidence validation, conflict resolution, versioned procedures, and isolated organizational experiments over the unified Company OS.
+This repository implements **Phases 1–19** of the Autonomous AI Organization Platform, including Phase 19 Autonomous Research, Discovery & Innovation Engine with prompt injection scanning, evidence integrity hashing, source independence enforcement, benchmark evaluations, and governed innovation proposal approval above the unified Company OS.
 
 ## Core Architectural Principle
 
-$$\text{Company} \rightarrow \text{Strategy} \rightarrow \text{Departments} \rightarrow \text{Managers} \rightarrow \text{Employees} \rightarrow \text{Agents} \rightarrow \text{Tasks} \rightarrow \text{Evidence} \rightarrow \text{Knowledge} \rightarrow \text{Learning}$$
+$$\text{Company} \rightarrow \text{Strategy} \rightarrow \text{Discovery} \rightarrow \text{Research} \rightarrow \text{Evidence} \rightarrow \text{Hypothesis} \rightarrow \text{Knowledge} \rightarrow \text{Opportunity} \rightarrow \text{Innovation Proposal} \rightarrow \text{Governance} \rightarrow \text{Initiative}$$
 
-$$\text{RAW INFORMATION} \rightarrow \text{EVIDENCE} \rightarrow \text{CANDIDATE} \rightarrow \text{VALIDATED KNOWLEDGE} \rightarrow \text{PROCEDURE} \rightarrow \text{EXPERIMENT}$$
+$$\text{RAW INFORMATION} \rightarrow \text{SOURCE} \rightarrow \text{EVIDENCE} \rightarrow \text{FINDING} \rightarrow \text{HYPOTHESIS} \rightarrow \text{BENCHMARK} \rightarrow \text{KNOWLEDGE} \rightarrow \text{OPPORTUNITY} \rightarrow \text{PROPOSAL} \rightarrow \text{INITIATIVE}$$
 
-$$\text{MEMORY} \neq \text{KNOWLEDGE} \neq \text{POLICY} \neq \text{EXPERIMENT}$$
+$$\text{RESEARCH} \neq \text{KNOWLEDGE} \neq \text{HYPOTHESIS} \neq \text{DECISION} \neq \text{INITIATIVE}$$
 
 - **Memory**: Transient episodic/semantic records of past interactions.
 - **Knowledge**: Verified factual claims backed by independent deterministic evidence (`UNVERIFIED` → `OBSERVED` → `EVIDENCE_BACKED` → `VALIDATED` → `CONFIRMED` → `AUTHORITATIVE`).

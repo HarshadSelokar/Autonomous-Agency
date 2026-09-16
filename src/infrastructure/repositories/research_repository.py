@@ -151,7 +151,7 @@ class SQLAlchemyResearchRepository:
             created_at=m.created_at,
         )
 
-    async def list_requests() -> list[ResearchRequest]:
+    async def list_requests(self) -> list[ResearchRequest]:
         stmt = select(ResearchRequestModel)
         res = await self.session.execute(stmt)
         models = res.scalars().all()
@@ -492,7 +492,7 @@ class SQLAlchemyResearchRepository:
             created_at=m.created_at,
         )
 
-    async def list_proposals() -> list[InnovationProposal]:
+    async def list_proposals(self) -> list[InnovationProposal]:
         stmt = select(InnovationProposalModel)
         res = await self.session.execute(stmt)
         models = res.scalars().all()
