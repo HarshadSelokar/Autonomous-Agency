@@ -20,6 +20,7 @@ import {
   Rocket,
   Building2,
   ShieldAlert,
+  Globe,
 } from 'lucide-react';
 
 
@@ -30,9 +31,11 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) => {
   const navItems = [
+    { id: 'platform', label: 'Platform 1.0 Control', icon: Globe },
     { id: 'enterprise', label: 'Enterprise OS', icon: Building2 },
     { id: 'resilience', label: 'Resilience & DR', icon: ShieldAlert },
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
+
 
     { id: 'intelligence', label: 'Company Intelligence', icon: Brain },
     { id: 'learning', label: 'Organizational Learning', icon: GraduationCap },

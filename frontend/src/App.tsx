@@ -39,14 +39,16 @@ import { CompanyIntelligenceDashboard } from './components/dashboards/CompanyInt
 import { LearningAdaptationDashboard } from './components/dashboards/LearningAdaptationDashboard';
 import { VentureCreationDashboard } from './components/dashboards/VentureCreationDashboard';
 import { EnterpriseDashboard } from './components/dashboards/EnterpriseDashboard';
+import { PlatformControlCenterDashboard } from './components/dashboards/PlatformControlCenterDashboard';
 import { ResilienceDashboard } from './components/dashboards/ResilienceDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<string>('enterprise');
+  const [activeView, setActiveView] = useState<string>('platform');
   const [activeCompanyId, setActiveCompanyId] = useState<string>('comp-main-01');
   const [activeEnvironment, setActiveEnvironment] = useState<'PRODUCTION' | 'SIMULATION'>('PRODUCTION');
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('DISCONNECTED');
+
 
   const [overview, setOverview] = useState<CompanyOverview | null>(null);
   const [workstations, setWorkstations] = useState<WorkstationProjection[]>([]);
@@ -70,7 +72,7 @@ export const App: React.FC = () => {
   // Load Initial REST Snapshot
   const loadInitialData = useCallback(async () => {
     try {
-      const [ov, ws, dept, tm, tk, prj, mt, gov] = await Promise.allSettled([
+      const [ov, ws, dept, tm, tk, prj, mt, gov] = await Promise.all([
         apiClient.getCompanyOverview(),
         apiClient.getWorkstations(),
         apiClient.getDepartments(),
@@ -81,14 +83,14 @@ export const App: React.FC = () => {
         apiClient.getGovernanceRequests(),
       ]);
 
-      if (ov.status === 'fulfilled') setOverview(ov.value);
-      if (ws.status === 'fulfilled') setWorkstations(ws.value);
-      if (dept.status === 'fulfilled') setDepartments(dept.value);
-      if (tm.status === 'fulfilled') setTeams(tm.value);
-      if (tk.status === 'fulfilled') setTasks(tk.value);
-      if (prj.status === 'fulfilled') setProjects(prj.value);
-      if (mt.status === 'fulfilled') setMeetings(mt.value);
-      if (gov.status === 'fulfilled') setGovernanceRequests(gov.value);
+      setOverview(ov);
+      setWorkstations(ws);
+      setDepartments(dept);
+      setTeams(tm);
+      setTasks(tk);
+      setProjects(prj);
+      setMeetings(mt);
+      setGovernanceRequests(gov);
     } catch (err) {
       console.error('Error fetching initial REST snapshot:', err);
     }
@@ -152,10 +154,13 @@ export const App: React.FC = () => {
 
       {/* Main View Router */}
       <main className="flex-1 relative flex flex-col overflow-hidden">
+        {activeView === 'platform' && <PlatformControlCenterDashboard />}
         {activeView === 'enterprise' && <EnterpriseDashboard />}
+        {activeView === 'resilience' && <ResilienceDashboard />}
         {activeView === 'overview' && (
           <CompanyOverviewDashboard overview={overview} onNavigateView={setActiveView} />
         )}
+
 
         {activeView === 'intelligence' && <CompanyIntelligenceDashboard companyId={activeCompanyId} />}
         {activeView === 'learning' && <LearningAdaptationDashboard companyId={activeCompanyId} />}
@@ -188,7 +193,7 @@ export const App: React.FC = () => {
         {activeView === 'gtm' && <GTMDashboard />}
 
         {/* Fallback for other view tabs */}
-        {!['enterprise', 'overview', 'intelligence', 'learning', 'ventures', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
+        {!['overview', 'intelligence', 'learning', 'ventures', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
           <div className="flex-1 bg-[#090d16] p-8 flex items-center justify-center text-gray-500 text-xs">
             Viewing Operational Domain: <span className="font-bold text-indigo-400 ml-1 uppercase">{activeView}</span>
           </div>
