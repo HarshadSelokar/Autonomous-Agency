@@ -560,6 +560,62 @@ class VentureResourceConflictError(VentureError):
         super().__init__(f"Venture resource conflict in company '{company_id}' for '{resource_type}': {details}")
 
 
+# Phase 29 Enterprise OS Exceptions
+class EnterpriseError(DomainError):
+    """Base class for Phase 29 Enterprise OS domain errors."""
+    pass
+
+
+class UnauthorizedEnterpriseActionError(EnterpriseError):
+    """Raised when an unapproved or unauthorized action is attempted at the enterprise level."""
+
+    def __init__(self, enterprise_id: str, action: str, reason: str = "Explicit governance approval or authority grant required.") -> None:
+        self.enterprise_id = enterprise_id
+        self.action = action
+        self.reason = reason
+        super().__init__(f"Unauthorized enterprise action '{action}' for enterprise '{enterprise_id}': {reason}")
+
+
+class InvalidTopologyCycleError(EnterpriseError):
+    """Raised when an enterprise topology operation creates an illegal cycle in parent-child or dependency relationships."""
+
+    def __init__(self, enterprise_id: str, node_id: str, parent_id: str) -> None:
+        self.enterprise_id = enterprise_id
+        self.node_id = node_id
+        self.parent_id = parent_id
+        super().__init__(f"Invalid topology cycle detected in enterprise '{enterprise_id}': Adding parent '{parent_id}' to node '{node_id}' creates a cycle.")
+
+
+class CrossEnterpriseAccessError(EnterpriseError):
+    """Raised when cross-enterprise data access is attempted without authorization."""
+
+    def __init__(self, requesting_enterprise_id: str, target_enterprise_id: str) -> None:
+        self.requesting_enterprise_id = requesting_enterprise_id
+        self.target_enterprise_id = target_enterprise_id
+        super().__init__(
+            f"Cross-enterprise access denied: Enterprise '{requesting_enterprise_id}' cannot access data of Enterprise '{target_enterprise_id}'."
+        )
+
+
+class AuthorityExpiredError(EnterpriseError):
+    """Raised when an authority grant has expired or has been explicitly revoked."""
+
+    def __init__(self, grant_id: str, reason: str = "Authority grant has expired or was revoked.") -> None:
+        self.grant_id = grant_id
+        self.reason = reason
+        super().__init__(f"Authority grant '{grant_id}' invalid: {reason}")
+
+
+class ResourceAllocationConflictError(EnterpriseError):
+    """Raised when an enterprise resource allocation exceeds available pool capacity or creates unresolvable conflicts."""
+
+    def __init__(self, pool_id: str, requested: float, available: float) -> None:
+        self.pool_id = pool_id
+        self.requested = requested
+        self.available = available
+        super().__init__(f"Resource allocation conflict in pool '{pool_id}': Requested {requested} exceeds available {available}.")
+
+
 
 
 
