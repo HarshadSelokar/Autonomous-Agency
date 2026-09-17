@@ -503,6 +503,64 @@ class AdaptationRollbackError(LearningError):
         super().__init__(f"Adaptation rollback error for proposal '{proposal_id}': {reason}")
 
 
+# Phase 28 Autonomous Innovation & Governed Venture Creation Exceptions
+class VentureError(DomainError):
+    """Base class for Phase 28 Venture & Innovation domain errors."""
+    pass
+
+
+class UnauthorizedVentureCreationError(VentureError):
+    """Raised when an unapproved venture initialization, company creation, or capital allocation is attempted."""
+
+    def __init__(self, proposal_id: str, reason: str = "Human governance approval strictly required prior to venture creation or capital allocation.") -> None:
+        self.proposal_id = proposal_id
+        self.reason = reason
+        super().__init__(f"Unauthorized venture creation for proposal '{proposal_id}': {reason}")
+
+
+class InvalidVentureLifecycleError(VentureError):
+    """Raised when an invalid status transition is attempted on a Venture proposal or venture entity."""
+
+    def __init__(self, proposal_id: str, current_status: str, target_status: str) -> None:
+        self.proposal_id = proposal_id
+        self.current_status = current_status
+        self.target_status = target_status
+        super().__init__(
+            f"Invalid venture status transition for '{proposal_id}': Cannot transition from '{current_status}' to '{target_status}'."
+        )
+
+
+class VentureLaunchBlockedError(VentureError):
+    """Raised when launch is attempted for a venture with incomplete launch readiness checks."""
+
+    def __init__(self, venture_id: str, reason: str = "Launch readiness assessment failed.") -> None:
+        self.venture_id = venture_id
+        self.reason = reason
+        super().__init__(f"Venture launch blocked for '{venture_id}': {reason}")
+
+
+class CrossCompanyVentureAccessError(VentureError):
+    """Raised when cross-company venture or innovation data access is attempted without authorization."""
+
+    def __init__(self, requesting_company_id: str, target_company_id: str) -> None:
+        self.requesting_company_id = requesting_company_id
+        self.target_company_id = target_company_id
+        super().__init__(
+            f"Cross-company venture access denied: Company '{requesting_company_id}' cannot access venture data of Company '{target_company_id}'."
+        )
+
+
+class VentureResourceConflictError(VentureError):
+    """Raised when unresolvable resource allocation conflicts occur between competing ventures."""
+
+    def __init__(self, company_id: str, resource_type: str, details: str) -> None:
+        self.company_id = company_id
+        self.resource_type = resource_type
+        self.details = details
+        super().__init__(f"Venture resource conflict in company '{company_id}' for '{resource_type}': {details}")
+
+
+
 
 
 
