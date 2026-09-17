@@ -318,6 +318,22 @@ from src.infrastructure.models.company_intelligence_model import (
     DecisionOutcomeEvaluationModel,
 )
 
+from src.infrastructure.models.learning_model import (
+    LearningCycleModel,
+    LearningObservationModel,
+    ExpectedVsActualComparisonModel,
+    LearningCandidateModel,
+    LearningValidationModel,
+    LearningConflictModel,
+    LearningPatternModel,
+    ImprovementOpportunityModel,
+    AdaptationProposalModel,
+    AdaptationEvaluationModel,
+    AdaptationExecutionModel,
+    AdaptationOutcomeModel,
+    AdaptationImpactAssessmentModel,
+)
+
 __all__.extend(
     [
         "CompanyModel",
@@ -343,6 +359,19 @@ __all__.extend(
         "CompanyBottleneckModel",
         "CompanyRiskAssessmentModel",
         "DecisionOutcomeEvaluationModel",
+        "LearningCycleModel",
+        "LearningObservationModel",
+        "ExpectedVsActualComparisonModel",
+        "LearningCandidateModel",
+        "LearningValidationModel",
+        "LearningConflictModel",
+        "LearningPatternModel",
+        "ImprovementOpportunityModel",
+        "AdaptationProposalModel",
+        "AdaptationEvaluationModel",
+        "AdaptationExecutionModel",
+        "AdaptationOutcomeModel",
+        "AdaptationImpactAssessmentModel",
     ]
 )
 

@@ -801,6 +801,130 @@ class CompanyIntelligenceRepositoryInterface(ABC):
         pass
 
 
+class LearningRepositoryInterface(ABC):
+    """Abstract Repository Interface for Continuous Organizational Learning & Governed Adaptation."""
+
+    @abstractmethod
+    async def save_learning_cycle(self, cycle: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_learning_cycle_by_id(self, cycle_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_learning_cycles_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_learning_observation(self, observation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_learning_observations_for_cycle(self, cycle_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_expected_vs_actual_comparison(self, comparison: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_comparisons_for_cycle(self, cycle_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_learning_candidate(self, candidate: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_learning_candidate_by_id(self, candidate_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_learning_candidates_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_learning_validation(self, validation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_validations_for_candidate(self, candidate_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_learning_conflict(self, conflict: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_open_conflicts_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_learning_pattern(self, pattern: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_learning_patterns_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_improvement_opportunity(self, opportunity: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_improvement_opportunity_by_id(self, opportunity_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_improvement_opportunities_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_adaptation_proposal(self, proposal: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_adaptation_proposal_by_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_adaptation_proposals_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_adaptation_evaluation(self, evaluation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_adaptation_evaluation_by_proposal_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_adaptation_execution(self, execution: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_adaptation_execution_by_id(self, execution_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_adaptation_outcome(self, outcome: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_adaptation_outcome_by_proposal_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_adaptation_impact_assessment(self, assessment: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_adaptation_impact_assessment_by_proposal_id(self, proposal_id: str) -> Any | None:
+        pass
+
+
 
 
 
