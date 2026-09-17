@@ -39,6 +39,7 @@ import { CompanyIntelligenceDashboard } from './components/dashboards/CompanyInt
 import { LearningAdaptationDashboard } from './components/dashboards/LearningAdaptationDashboard';
 import { VentureCreationDashboard } from './components/dashboards/VentureCreationDashboard';
 import { EnterpriseDashboard } from './components/dashboards/EnterpriseDashboard';
+import { ResilienceDashboard } from './components/dashboards/ResilienceDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
@@ -69,7 +70,7 @@ export const App: React.FC = () => {
   // Load Initial REST Snapshot
   const loadInitialData = useCallback(async () => {
     try {
-      const [ov, ws, dept, tm, tk, prj, mt, gov] = await Promise.all([
+      const [ov, ws, dept, tm, tk, prj, mt, gov] = await Promise.allSettled([
         apiClient.getCompanyOverview(),
         apiClient.getWorkstations(),
         apiClient.getDepartments(),
@@ -80,14 +81,14 @@ export const App: React.FC = () => {
         apiClient.getGovernanceRequests(),
       ]);
 
-      setOverview(ov);
-      setWorkstations(ws);
-      setDepartments(dept);
-      setTeams(tm);
-      setTasks(tk);
-      setProjects(prj);
-      setMeetings(mt);
-      setGovernanceRequests(gov);
+      if (ov.status === 'fulfilled') setOverview(ov.value);
+      if (ws.status === 'fulfilled') setWorkstations(ws.value);
+      if (dept.status === 'fulfilled') setDepartments(dept.value);
+      if (tm.status === 'fulfilled') setTeams(tm.value);
+      if (tk.status === 'fulfilled') setTasks(tk.value);
+      if (prj.status === 'fulfilled') setProjects(prj.value);
+      if (mt.status === 'fulfilled') setMeetings(mt.value);
+      if (gov.status === 'fulfilled') setGovernanceRequests(gov.value);
     } catch (err) {
       console.error('Error fetching initial REST snapshot:', err);
     }
@@ -187,7 +188,7 @@ export const App: React.FC = () => {
         {activeView === 'gtm' && <GTMDashboard />}
 
         {/* Fallback for other view tabs */}
-        {!['overview', 'intelligence', 'learning', 'ventures', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
+        {!['enterprise', 'overview', 'intelligence', 'learning', 'ventures', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
           <div className="flex-1 bg-[#090d16] p-8 flex items-center justify-center text-gray-500 text-xs">
             Viewing Operational Domain: <span className="font-bold text-indigo-400 ml-1 uppercase">{activeView}</span>
           </div>

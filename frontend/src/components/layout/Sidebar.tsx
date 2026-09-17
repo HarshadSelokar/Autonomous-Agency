@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Rocket,
   Building2,
+  ShieldAlert,
 } from 'lucide-react';
 
 
@@ -30,6 +31,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) => {
   const navItems = [
     { id: 'enterprise', label: 'Enterprise OS', icon: Building2 },
+    { id: 'resilience', label: 'Resilience & DR', icon: ShieldAlert },
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
 
     { id: 'intelligence', label: 'Company Intelligence', icon: Brain },
@@ -52,6 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) =>
     { id: 'research', label: 'Research & Innovation', icon: FlaskConical },
     { id: 'infrastructure', label: 'Infrastructure Health', icon: Server },
   ];
+
 
   return (
     <aside className="w-64 bg-[#0f172a]/60 backdrop-blur-md border-r border-white/10 p-4 flex flex-col gap-2 select-none overflow-y-auto">
