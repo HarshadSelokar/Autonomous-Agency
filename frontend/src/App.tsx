@@ -33,10 +33,14 @@ import { InfrastructureDashboard } from './components/dashboards/InfrastructureD
 import { ResearchInnovationDashboard } from './components/dashboards/ResearchInnovationDashboard';
 import { BusinessOperationsDashboard } from './components/dashboards/BusinessOperationsDashboard';
 import { GTMDashboard } from './components/dashboards/GTMDashboard';
+import { CompanyDashboard } from './components/dashboards/CompanyDashboard';
+import { SimulationDashboard } from './components/dashboards/SimulationDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<string>('canvas');
+  const [activeCompanyId, setActiveCompanyId] = useState<string>('comp-main-01');
+  const [activeEnvironment, setActiveEnvironment] = useState<'PRODUCTION' | 'SIMULATION'>('PRODUCTION');
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('DISCONNECTED');
 
   const [overview, setOverview] = useState<CompanyOverview | null>(null);
@@ -130,6 +134,10 @@ export const App: React.FC = () => {
       overview={overview}
       connectionStatus={connectionStatus}
       activeView={activeView}
+      activeCompanyId={activeCompanyId}
+      activeEnvironment={activeEnvironment}
+      onSelectCompany={setActiveCompanyId}
+      onSelectEnvironment={setActiveEnvironment}
       onSelectView={setActiveView}
       onOpenSearch={() => setIsSearchOpen(true)}
       onOpenEmergencyStop={() => setIsEmergencyStopOpen(true)}
@@ -142,6 +150,9 @@ export const App: React.FC = () => {
         {activeView === 'overview' && (
           <CompanyOverviewDashboard overview={overview} onNavigateView={setActiveView} />
         )}
+
+        {activeView === 'companies' && <CompanyDashboard />}
+        {activeView === 'simulations' && <SimulationDashboard />}
 
         {activeView === 'canvas' && (
           <OfficeCanvas
@@ -167,7 +178,7 @@ export const App: React.FC = () => {
         {activeView === 'gtm' && <GTMDashboard />}
 
         {/* Fallback for other view tabs */}
-        {!['overview', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
+        {!['overview', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
           <div className="flex-1 bg-[#090d16] p-8 flex items-center justify-center text-gray-500 text-xs">
             Viewing Operational Domain: <span className="font-bold text-indigo-400 ml-1 uppercase">{activeView}</span>
           </div>

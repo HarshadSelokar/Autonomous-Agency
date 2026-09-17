@@ -25,6 +25,8 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) => {
   const navItems = [
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
+    { id: 'companies', label: 'Companies & Tenants', icon: Building },
+    { id: 'simulations', label: 'What-If Simulations', icon: FlaskConical },
     { id: 'canvas', label: 'Pixel Office Canvas', icon: Grid },
     { id: 'business', label: 'Business & Finance', icon: DollarSign },
     { id: 'gtm', label: 'Product & GTM', icon: Target },

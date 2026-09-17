@@ -10,11 +10,16 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { ConnectionStatus, CompanyOverview } from '../../types/office';
+import { CompanySwitcher } from './CompanySwitcher';
 
 interface AppShellProps {
   overview: CompanyOverview | null;
   connectionStatus: ConnectionStatus;
   activeView: string;
+  activeCompanyId: string;
+  activeEnvironment: string;
+  onSelectCompany: (companyId: string) => void;
+  onSelectEnvironment: (env: 'PRODUCTION' | 'SIMULATION') => void;
   onSelectView: (view: string) => void;
   onOpenSearch: () => void;
   onOpenEmergencyStop: () => void;
@@ -26,6 +31,10 @@ export const AppShell: React.FC<AppShellProps> = ({
   overview,
   connectionStatus,
   activeView,
+  activeCompanyId,
+  activeEnvironment,
+  onSelectCompany,
+  onSelectEnvironment,
   onSelectView,
   onOpenSearch,
   onOpenEmergencyStop,
@@ -49,7 +58,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     <div className="min-h-screen flex flex-col bg-[#090d16] text-gray-100 font-sans">
       {/* Top Navbar Header */}
       <header className="h-16 border-b border-white/10 bg-[#0f172a]/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
-        {/* Left: Brand & Company Selector */}
+        {/* Left: Brand & Company Switcher */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-indigo-400 font-bold text-lg cursor-pointer" onClick={() => onSelectView('canvas')}>
             <Building2 className="w-6 h-6 text-indigo-500" />
@@ -60,10 +69,13 @@ export const AppShell: React.FC<AppShellProps> = ({
 
           <div className="h-4 w-px bg-white/10" />
 
-          <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-medium text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{overview?.company_name || 'Autonomous AI Corp'}</span>
-          </div>
+          {/* Interactive Multi-Company & Environment Switcher */}
+          <CompanySwitcher
+            activeCompanyId={activeCompanyId}
+            activeEnvironment={activeEnvironment}
+            onSelectCompany={onSelectCompany}
+            onSelectEnvironment={onSelectEnvironment}
+          />
 
           {/* Connection Status Badge */}
           <div className={`px-2.5 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5 ${getStatusColor(connectionStatus)}`}>
