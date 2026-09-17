@@ -36,6 +36,7 @@ import { GTMDashboard } from './components/dashboards/GTMDashboard';
 import { CompanyDashboard } from './components/dashboards/CompanyDashboard';
 import { SimulationDashboard } from './components/dashboards/SimulationDashboard';
 import { CompanyIntelligenceDashboard } from './components/dashboards/CompanyIntelligenceDashboard';
+import { LearningAdaptationDashboard } from './components/dashboards/LearningAdaptationDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
@@ -153,6 +154,7 @@ export const App: React.FC = () => {
         )}
 
         {activeView === 'intelligence' && <CompanyIntelligenceDashboard companyId={activeCompanyId} />}
+        {activeView === 'learning' && <LearningAdaptationDashboard companyId={activeCompanyId} />}
         {activeView === 'companies' && <CompanyDashboard />}
         {activeView === 'simulations' && <SimulationDashboard />}
 
@@ -180,7 +182,7 @@ export const App: React.FC = () => {
         {activeView === 'gtm' && <GTMDashboard />}
 
         {/* Fallback for other view tabs */}
-        {!['overview', 'intelligence', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
+        {!['overview', 'intelligence', 'learning', 'companies', 'simulations', 'canvas', 'governance', 'verification', 'recovery', 'workforce', 'infrastructure', 'research', 'business', 'gtm'].includes(activeView) && (
           <div className="flex-1 bg-[#090d16] p-8 flex items-center justify-center text-gray-500 text-xs">
             Viewing Operational Domain: <span className="font-bold text-indigo-400 ml-1 uppercase">{activeView}</span>
           </div>
