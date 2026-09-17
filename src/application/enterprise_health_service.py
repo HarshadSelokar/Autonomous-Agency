@@ -24,11 +24,40 @@ class EnterpriseHealthAndIntelligenceService:
         risks = await self.repo.list_risks_for_enterprise(enterprise_id)
 
         # Dimension scores
-        obj_score = 0.95 if not objectives else sum(min(1.0, o.current_value / o.target_value if o.target_value > 0 else 1.0) for o in objectives) / len(objectives)
-        wf_score = 0.90 if not pools else sum(p.available_capacity / p.total_capacity if p.total_capacity > 0 else 1.0 for p in pools) / len(pools)
+        if not objectives:
+            obj_score = 0.95
+        else:
+            scores = []
+            for o in objectives:
+                tv = getattr(o, "target_value", 0) or 0
+                cv = getattr(o, "current_value", 0) or 0
+                scores.append(min(1.0, (cv / tv) if tv > 0 else 1.0))
+            obj_score = sum(scores) / len(scores) if scores else 0.95
+
+        if not pools:
+            wf_score = 0.90
+        else:
+            p_scores = []
+            for p in pools:
+                tc = getattr(p, "total_capacity", 0) or 0
+                ac = getattr(p, "available_capacity", 0) or 0
+                p_scores.append(ac / tc if tc > 0 else 1.0)
+            wf_score = sum(p_scores) / len(p_scores) if p_scores else 0.90
+
         fin_score = 0.95
-        infra_score = 0.99 if not services else sum(s.available_units / s.capacity_units if s.capacity_units > 0 else 1.0 for s in services) / len(services)
-        gov_score = 1.00 if not risks else max(0.5, 1.0 - (len([r for r in risks if r.status == 'OPEN']) * 0.05))
+
+        if not services:
+            infra_score = 0.99
+        else:
+            s_scores = []
+            for s in services:
+                cu = getattr(s, "capacity_units", 0) or 0
+                au = getattr(s, "available_units", 0) or 0
+                s_scores.append(au / cu if cu > 0 else 1.0)
+            infra_score = sum(s_scores) / len(s_scores) if s_scores else 0.99
+
+        gov_score = 1.00 if not risks else max(0.5, 1.0 - (len([r for r in risks if getattr(r, "status", "") == "OPEN"]) * 0.05))
+
 
         overall = round((obj_score + wf_score + fin_score + infra_score + gov_score) / 5.0, 3)
 
