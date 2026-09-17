@@ -38,10 +38,11 @@ import { SimulationDashboard } from './components/dashboards/SimulationDashboard
 import { CompanyIntelligenceDashboard } from './components/dashboards/CompanyIntelligenceDashboard';
 import { LearningAdaptationDashboard } from './components/dashboards/LearningAdaptationDashboard';
 import { VentureCreationDashboard } from './components/dashboards/VentureCreationDashboard';
+import { EnterpriseDashboard } from './components/dashboards/EnterpriseDashboard';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 
 export const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<string>('canvas');
+  const [activeView, setActiveView] = useState<string>('enterprise');
   const [activeCompanyId, setActiveCompanyId] = useState<string>('comp-main-01');
   const [activeEnvironment, setActiveEnvironment] = useState<'PRODUCTION' | 'SIMULATION'>('PRODUCTION');
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('DISCONNECTED');
@@ -150,6 +151,7 @@ export const App: React.FC = () => {
 
       {/* Main View Router */}
       <main className="flex-1 relative flex flex-col overflow-hidden">
+        {activeView === 'enterprise' && <EnterpriseDashboard />}
         {activeView === 'overview' && (
           <CompanyOverviewDashboard overview={overview} onNavigateView={setActiveView} />
         )}
@@ -157,6 +159,7 @@ export const App: React.FC = () => {
         {activeView === 'intelligence' && <CompanyIntelligenceDashboard companyId={activeCompanyId} />}
         {activeView === 'learning' && <LearningAdaptationDashboard companyId={activeCompanyId} />}
         {activeView === 'ventures' && <VentureCreationDashboard companyId={activeCompanyId} />}
+
         {activeView === 'companies' && <CompanyDashboard />}
         {activeView === 'simulations' && <SimulationDashboard />}
 

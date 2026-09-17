@@ -18,7 +18,9 @@ import {
   Brain,
   GraduationCap,
   Rocket,
+  Building2,
 } from 'lucide-react';
+
 
 interface SidebarProps {
   activeView: string;
@@ -27,7 +29,9 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) => {
   const navItems = [
+    { id: 'enterprise', label: 'Enterprise OS', icon: Building2 },
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
+
     { id: 'intelligence', label: 'Company Intelligence', icon: Brain },
     { id: 'learning', label: 'Organizational Learning', icon: GraduationCap },
     { id: 'ventures', label: 'Autonomous Ventures', icon: Rocket },
