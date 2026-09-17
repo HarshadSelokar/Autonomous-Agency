@@ -925,6 +925,139 @@ class LearningRepositoryInterface(ABC):
         pass
 
 
+class VentureRepositoryInterface(ABC):
+    """Abstract interface for Phase 28 Autonomous Innovation & Governed Venture Creation persistence operations."""
+
+    @abstractmethod
+    async def save_opportunity(self, opportunity: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_opportunity_by_id(self, opportunity_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_opportunities_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_idea(self, idea: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_idea_by_id(self, idea_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_ideas_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_hypothesis(self, hypothesis: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_hypothesis_by_id(self, hypothesis_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_hypotheses_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_product_concept(self, concept: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_product_concept_by_id(self, concept_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_business_model_concept(self, concept: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_business_model_concept_by_id(self, concept_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_business_case(self, business_case: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_business_case_by_id(self, business_case_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_business_cases_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_validation(self, validation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_validation_by_id(self, validation_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_experiment(self, experiment: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_experiment_by_id(self, experiment_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_review(self, review: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_review_by_id(self, review_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_proposal(self, proposal: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_proposal_by_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_proposals_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_initialization_plan(self, plan: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_initialization_plan_by_id(self, plan_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_resource_request(self, request: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def save_launch_readiness(self, readiness: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_launch_readiness_by_proposal_id(self, proposal_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_outcome(self, outcome: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_outcome_by_id(self, outcome_id: str) -> Any | None:
+        pass
+
+
+
 
 
 

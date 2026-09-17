@@ -4,6 +4,22 @@ Import all ORM models to ensure registration with Base.metadata.
 """
 
 from src.infrastructure.models.agent_model import AgentModel
+from src.infrastructure.models.venture_model import (
+    InnovationOpportunityModel,
+    InnovationIdeaModel,
+    BusinessHypothesisModel,
+    ProductConceptModel,
+    BusinessModelConceptModel,
+    VentureBusinessCaseModel,
+    InnovationValidationModel,
+    VentureExperimentModel,
+    InnovationReviewModel,
+    VentureProposalModel,
+    VentureInitializationPlanModel,
+    VentureResourceRequestModel,
+    VentureLaunchReadinessModel,
+    VentureOutcomeModel,
+)
 from src.infrastructure.models.artifact_model import ArtifactModel
 from src.infrastructure.models.assignment_model import AssignmentModel
 from src.infrastructure.models.checkpoint_model import AgentCheckpointModel
@@ -372,6 +388,20 @@ __all__.extend(
         "AdaptationExecutionModel",
         "AdaptationOutcomeModel",
         "AdaptationImpactAssessmentModel",
+        "InnovationOpportunityModel",
+        "InnovationIdeaModel",
+        "BusinessHypothesisModel",
+        "ProductConceptModel",
+        "BusinessModelConceptModel",
+        "VentureBusinessCaseModel",
+        "InnovationValidationModel",
+        "VentureExperimentModel",
+        "InnovationReviewModel",
+        "VentureProposalModel",
+        "VentureInitializationPlanModel",
+        "VentureResourceRequestModel",
+        "VentureLaunchReadinessModel",
+        "VentureOutcomeModel",
     ]
 )
 
