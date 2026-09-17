@@ -74,7 +74,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.candidates_count = cycle.candidates_count
         model.updated_at = datetime.now(UTC)
 
-        await self.session.flush()
+        await self.session.commit()
         return cycle
 
     async def get_learning_cycle_by_id(self, cycle_id: str) -> Optional[LearningCycle]:
@@ -142,7 +142,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.provenance_json = json.dumps(observation.provenance)
         model.observed_at = observation.observed_at
 
-        await self.session.flush()
+        await self.session.commit()
         return observation
 
     async def list_learning_observations_for_cycle(self, cycle_id: str) -> List[LearningObservation]:
@@ -187,7 +187,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.context_json = json.dumps(comparison.context)
         model.evaluated_at = comparison.evaluated_at
 
-        await self.session.flush()
+        await self.session.commit()
         return comparison
 
     async def list_comparisons_for_cycle(self, cycle_id: str) -> List[ExpectedVsActualComparison]:
@@ -233,7 +233,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.generated_by = candidate.generated_by
         model.created_at = candidate.created_at
 
-        await self.session.flush()
+        await self.session.commit()
         return candidate
 
     async def get_learning_candidate_by_id(self, candidate_id: str) -> Optional[LearningCandidate]:
@@ -296,7 +296,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.validated_by = validation.validated_by
         model.validated_at = validation.validated_at
 
-        await self.session.flush()
+        await self.session.commit()
         return validation
 
     async def list_validations_for_candidate(self, candidate_id: str) -> List[LearningValidation]:
@@ -336,7 +336,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.status = conflict.status
         model.detected_at = conflict.detected_at
 
-        await self.session.flush()
+        await self.session.commit()
         return conflict
 
     async def list_open_conflicts_for_company(self, company_id: str) -> List[LearningConflict]:
@@ -376,7 +376,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.evidence_references_json = json.dumps(pattern.evidence_references)
         model.detected_at = pattern.detected_at
 
-        await self.session.flush()
+        await self.session.commit()
         return pattern
 
     async def list_learning_patterns_for_company(self, company_id: str) -> List[LearningPattern]:
@@ -418,7 +418,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.confidence = opportunity.confidence
         model.identified_at = opportunity.identified_at
 
-        await self.session.flush()
+        await self.session.commit()
         return opportunity
 
     async def get_improvement_opportunity_by_id(self, opportunity_id: str) -> Optional[ImprovementOpportunity]:
@@ -483,7 +483,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.governance_approval_id = proposal.governance_approval_id
         model.updated_at = datetime.now(UTC)
 
-        await self.session.flush()
+        await self.session.commit()
         return proposal
 
     async def get_adaptation_proposal_by_id(self, proposal_id: str) -> Optional[AdaptationProposal]:
@@ -553,7 +553,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.evaluation_breakdown_json = json.dumps(evaluation.evaluation_breakdown)
         model.evaluated_at = evaluation.evaluated_at
 
-        await self.session.flush()
+        await self.session.commit()
         return evaluation
 
     async def get_adaptation_evaluation_by_proposal_id(self, proposal_id: str) -> Optional[AdaptationEvaluation]:
@@ -594,7 +594,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.dispatched_at = execution.dispatched_at
         model.completed_at = execution.completed_at
 
-        await self.session.flush()
+        await self.session.commit()
         return execution
 
     async def get_adaptation_execution_by_id(self, execution_id: str) -> Optional[AdaptationExecution]:
@@ -635,7 +635,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.has_regression = outcome.has_regression
         model.measured_at = outcome.measured_at
 
-        await self.session.flush()
+        await self.session.commit()
         return outcome
 
     async def get_adaptation_outcome_by_proposal_id(self, proposal_id: str) -> Optional[AdaptationOutcome]:
@@ -674,7 +674,7 @@ class SQLAlchemyLearningRepository(LearningRepositoryInterface):
         model.rollback_feasibility_score = assessment.rollback_feasibility_score
         model.assessed_at = assessment.assessed_at
 
-        await self.session.flush()
+        await self.session.commit()
         return assessment
 
     async def get_adaptation_impact_assessment_by_proposal_id(self, proposal_id: str) -> Optional[AdaptationImpactAssessment]:

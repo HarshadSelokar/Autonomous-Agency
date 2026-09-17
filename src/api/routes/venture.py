@@ -309,6 +309,27 @@ async def construct_business_case(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
+@router.get("/companies/{company_id}/business-cases")
+async def list_business_cases(
+    company_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    repo = SQLAlchemyVentureRepository(db)
+    bcases = await repo.list_business_cases_for_company(company_id)
+    return [
+        {
+            "id": bc.id,
+            "company_id": bc.company_id,
+            "opportunity_id": bc.opportunity_id,
+            "title": bc.title,
+            "expected_roi": bc.expected_roi,
+            "status": bc.status.value if hasattr(bc.status, "value") else str(bc.status),
+        }
+        for bc in bcases
+    ]
+
+
+
 @router.get("/companies/{company_id}/business-cases/{business_case_id}/sensitivity")
 async def perform_sensitivity_analysis(
     company_id: str,
