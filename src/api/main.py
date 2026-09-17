@@ -41,11 +41,11 @@ from src.api.routes.teams import router as teams_router
 from src.api.routes.tools import router as tools_router
 from src.api.routes.verifications import router as verifications_router
 from src.api.routes.company_intelligence import router as company_intelligence_router
-from src.api.routes.learning import router as learning_router
 from src.api.routes.venture import router as venture_router
 from src.api.routes.enterprise import router as enterprise_router
 from src.api.routes.workforce import router as workforce_router
 from src.api.routes.resilience import router as resilience_router
+from src.api.routes.platform import router as platform_router
 from src.api.middleware.resilience import ResilienceSecurityMiddleware
 
 
@@ -74,11 +74,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
-        "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine, Production Infrastructure, Swarms, Enterprise OS & Production Hardening "
-        "(Phase 1 - Phase 30)"
+        "Autonomous AI Organization Platform 1.0 - "
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine, Production Infrastructure, Swarms, Enterprise OS, Production Hardening & Unified Control Plane "
+        "(Phases 1 - 31)"
     ),
-    version="0.30.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -138,6 +138,8 @@ app.include_router(learning_router)
 app.include_router(venture_router)
 app.include_router(enterprise_router)
 app.include_router(resilience_router)
+app.include_router(platform_router)
+
 
 
 
