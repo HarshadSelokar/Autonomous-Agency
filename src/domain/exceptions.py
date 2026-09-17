@@ -435,6 +435,75 @@ class UnauthorizedDecisionExecutionError(CompanyIntelligenceError):
         super().__init__(f"Unauthorized decision execution for insight '{insight_id}': {reason}")
 
 
+# Phase 27 Continuous Organizational Learning & Governed Adaptation Exceptions
+class LearningError(DomainError):
+    """Base exception for Continuous Organizational Learning domain."""
+    pass
+
+
+class InvalidLearningCycleStateError(LearningError):
+    """Raised when an invalid status transition is attempted on a LearningCycle."""
+
+    def __init__(self, cycle_id: str, current_status: str, target_status: str) -> None:
+        self.cycle_id = cycle_id
+        self.current_status = current_status
+        self.target_status = target_status
+        super().__init__(
+            f"Invalid learning cycle status transition for '{cycle_id}': Cannot transition from '{current_status}' to '{target_status}'."
+        )
+
+
+class InvalidAdaptationStateError(LearningError):
+    """Raised when an invalid status transition is attempted on an AdaptationProposal."""
+
+    def __init__(self, proposal_id: str, current_status: str, target_status: str) -> None:
+        self.proposal_id = proposal_id
+        self.current_status = current_status
+        self.target_status = target_status
+        super().__init__(
+            f"Invalid adaptation proposal status transition for '{proposal_id}': Cannot transition from '{current_status}' to '{target_status}'."
+        )
+
+
+class UnauthorizedAdaptationExecutionError(LearningError):
+    """Raised when an adaptation is dispatched or executed without valid human governance approval."""
+
+    def __init__(self, proposal_id: str, reason: str = "Human governance approval strictly required prior to adaptation execution.") -> None:
+        self.proposal_id = proposal_id
+        self.reason = reason
+        super().__init__(f"Unauthorized adaptation execution for proposal '{proposal_id}': {reason}")
+
+
+class CrossCompanyLearningAccessDeniedError(LearningError):
+    """Raised when cross-company learning or adaptation data access is attempted without authorization."""
+
+    def __init__(self, requesting_company_id: str, target_company_id: str) -> None:
+        self.requesting_company_id = requesting_company_id
+        self.target_company_id = target_company_id
+        super().__init__(
+            f"Cross-company learning access denied: Company '{requesting_company_id}' cannot access learning data of Company '{target_company_id}'."
+        )
+
+
+class UntrustedLearningInjectionError(LearningError):
+    """Raised when an untrusted or unverified learning candidate attempts to override system policies."""
+
+    def __init__(self, candidate_id: str, reason: str = "Untrusted learning candidate cannot override system policy.") -> None:
+        self.candidate_id = candidate_id
+        self.reason = reason
+        super().__init__(f"Untrusted learning injection blocked for candidate '{candidate_id}': {reason}")
+
+
+class AdaptationRollbackError(LearningError):
+    """Raised when an adaptation rollback operation fails or an irreversible adaptation is attempted without authorization."""
+
+    def __init__(self, proposal_id: str, reason: str) -> None:
+        self.proposal_id = proposal_id
+        self.reason = reason
+        super().__init__(f"Adaptation rollback error for proposal '{proposal_id}': {reason}")
+
+
+
 
 
 
