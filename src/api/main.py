@@ -89,6 +89,7 @@ app.add_middleware(
 
 from src.api.routes.simulation import router as simulation_router
 from src.api.routes.company_intelligence import router as company_intelligence_router
+from src.api.routes.learning import router as learning_router
 
 # Include Routers
 app.include_router(health_router)
@@ -123,6 +124,7 @@ app.include_router(business_router)
 app.include_router(gtm_router)
 app.include_router(simulation_router)
 app.include_router(company_intelligence_router)
+app.include_router(learning_router)
 
 
 

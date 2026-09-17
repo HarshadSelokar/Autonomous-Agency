@@ -261,8 +261,8 @@ class AdaptationProposal:
     def transition_status(self, target_status: AdaptationStatus) -> None:
         """Enforces valid state machine transitions for adaptation proposals."""
         valid_transitions = {
-            AdaptationStatus.PROPOSED: [AdaptationStatus.ANALYZING, AdaptationStatus.APPROVED, AdaptationStatus.REJECTED, AdaptationStatus.CANCELLED],
-            AdaptationStatus.ANALYZING: [AdaptationStatus.REVIEW_REQUIRED, AdaptationStatus.APPROVED, AdaptationStatus.REJECTED],
+            AdaptationStatus.PROPOSED: [AdaptationStatus.ANALYZING, AdaptationStatus.APPROVED, AdaptationStatus.EXPERIMENTING, AdaptationStatus.REJECTED, AdaptationStatus.CANCELLED],
+            AdaptationStatus.ANALYZING: [AdaptationStatus.REVIEW_REQUIRED, AdaptationStatus.APPROVED, AdaptationStatus.EXPERIMENTING, AdaptationStatus.REJECTED],
             AdaptationStatus.REVIEW_REQUIRED: [AdaptationStatus.APPROVED, AdaptationStatus.REJECTED, AdaptationStatus.CANCELLED],
             AdaptationStatus.APPROVED: [AdaptationStatus.EXPERIMENTING, AdaptationStatus.ADOPTED, AdaptationStatus.CANCELLED],
             AdaptationStatus.REJECTED: [],
