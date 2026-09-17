@@ -616,6 +616,60 @@ class ResourceAllocationConflictError(EnterpriseError):
         super().__init__(f"Resource allocation conflict in pool '{pool_id}': Requested {requested} exceeds available {available}.")
 
 
+# Phase 30 Resilience, Security & Disaster Recovery Exceptions
+class ResilienceError(DomainError):
+    """Base class for Phase 30 Resilience domain errors."""
+    pass
+
+
+class CircuitBreakerOpenError(ResilienceError):
+    """Raised when an operation is executed on a dependency whose circuit breaker is in OPEN state."""
+
+    def __init__(self, dependency_name: str, recovery_time_seconds: int = 60) -> None:
+        self.dependency_name = dependency_name
+        self.recovery_time_seconds = recovery_time_seconds
+        super().__init__(f"Circuit breaker OPEN for dependency '{dependency_name}': Calls fail fast for next {recovery_time_seconds} seconds.")
+
+
+class RateLimitExceededError(ResilienceError):
+    """Raised when request rate limit is exceeded for an organizational entity or user."""
+
+    def __init__(self, entity_id: str, limit: int, period: str = "minute") -> None:
+        self.entity_id = entity_id
+        self.limit = limit
+        self.period = period
+        super().__init__(f"Rate limit exceeded for entity '{entity_id}': Maximum allowed is {limit} requests per {period}.")
+
+
+class ResilienceTimeoutError(ResilienceError):
+    """Raised when an execution or dependency request exceeds its configured timeout budget."""
+
+    def __init__(self, target_name: str, timeout_seconds: float) -> None:
+        self.target_name = target_name
+        self.timeout_seconds = timeout_seconds
+        super().__init__(f"Resilience timeout exceeded for '{target_name}': Execution timed out after {timeout_seconds} seconds.")
+
+
+class SecurityBoundaryViolationError(ResilienceError):
+    """Raised when prompt injection, unauthorized cross-tenant leakage, or secret exfiltration is detected."""
+
+    def __init__(self, actor_id: str, violation_type: str, details: str) -> None:
+        self.actor_id = actor_id
+        self.violation_type = violation_type
+        self.details = details
+        super().__init__(f"Security boundary violation by actor '{actor_id}' [{violation_type}]: {details}")
+
+
+class DisasterRecoveryError(ResilienceError):
+    """Raised when disaster recovery containment, snapshot verification, or state reconciliation fails."""
+
+    def __init__(self, component: str, reason: str) -> None:
+        self.component = component
+        self.reason = reason
+        super().__init__(f"Disaster recovery error for component '{component}': {reason}")
+
+
+
 
 
 
