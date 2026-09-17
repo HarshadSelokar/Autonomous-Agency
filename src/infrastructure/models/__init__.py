@@ -350,6 +350,25 @@ from src.infrastructure.models.learning_model import (
     AdaptationImpactAssessmentModel,
 )
 
+from src.infrastructure.models.enterprise_model import (
+    EnterpriseModel,
+    EnterpriseOrganizationNodeModel,
+    EnterpriseRelationshipModel,
+    EnterpriseServiceModel,
+    EnterpriseServiceAgreementModel,
+    EnterprisePortfolioModel,
+    EnterprisePortfolioItemModel,
+    EnterpriseObjectiveModel,
+    ObjectiveCascadeModel,
+    EnterprisePolicyProfileModel,
+    AuthorityGrantModel,
+    EnterpriseResourcePoolModel,
+    ResourceAllocationModel,
+    InterCompanyRequestModel,
+    EnterpriseRiskModel,
+    EnterpriseOpportunityModel,
+)
+
 __all__.extend(
     [
         "CompanyModel",
@@ -388,22 +407,26 @@ __all__.extend(
         "AdaptationExecutionModel",
         "AdaptationOutcomeModel",
         "AdaptationImpactAssessmentModel",
-        "InnovationOpportunityModel",
-        "InnovationIdeaModel",
-        "BusinessHypothesisModel",
-        "ProductConceptModel",
-        "BusinessModelConceptModel",
-        "VentureBusinessCaseModel",
-        "InnovationValidationModel",
-        "VentureExperimentModel",
-        "InnovationReviewModel",
-        "VentureProposalModel",
-        "VentureInitializationPlanModel",
-        "VentureResourceRequestModel",
-        "VentureLaunchReadinessModel",
-        "VentureOutcomeModel",
+        "EnterpriseModel",
+        "EnterpriseOrganizationNodeModel",
+        "EnterpriseRelationshipModel",
+        "EnterpriseServiceModel",
+        "EnterpriseServiceAgreementModel",
+        "EnterprisePortfolioModel",
+        "EnterprisePortfolioItemModel",
+        "EnterpriseObjectiveModel",
+        "ObjectiveCascadeModel",
+        "EnterprisePolicyProfileModel",
+        "AuthorityGrantModel",
+        "EnterpriseResourcePoolModel",
+        "ResourceAllocationModel",
+        "InterCompanyRequestModel",
+        "EnterpriseRiskModel",
+        "EnterpriseOpportunityModel",
     ]
 )
+
+
 
 
 

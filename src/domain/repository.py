@@ -1057,6 +1057,167 @@ class VentureRepositoryInterface(ABC):
         pass
 
 
+class EnterpriseRepositoryInterface(ABC):
+    """Abstract interface for Phase 29 Enterprise OS persistence operations."""
+
+    @abstractmethod
+    async def save_enterprise(self, enterprise: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_enterprise_by_id(self, enterprise_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def get_enterprise_by_code(self, code: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_enterprises(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_topology_node(self, node: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_topology_node_by_id(self, node_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_topology_nodes_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_relationship(self, relationship: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_relationships_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_service(self, service: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_service_by_id(self, service_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_services_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_service_agreement(self, agreement: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_agreements_for_service(self, service_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_portfolio(self, portfolio: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_portfolio_by_id(self, portfolio_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_portfolios_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_portfolio_item(self, item: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_items_for_portfolio(self, portfolio_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_objective(self, objective: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_objective_by_id(self, objective_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_objectives_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_objective_cascade(self, cascade: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_cascades_for_objective(self, objective_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_policy_profile(self, profile: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_policy_profile_by_node_id(self, node_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_authority_grant(self, grant: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_authority_grants_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_resource_pool(self, pool: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_resource_pool_by_id(self, pool_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_resource_pools_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_resource_allocation(self, allocation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def save_intercompany_request(self, request: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_intercompany_request_by_id(self, request_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_intercompany_requests_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_risk(self, risk: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_risks_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_opportunity(self, opportunity: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_opportunities_for_enterprise(self, enterprise_id: str) -> list[Any]:
+        pass
+
+
+
 
 
 
