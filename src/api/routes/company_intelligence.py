@@ -96,6 +96,28 @@ async def list_intelligence_runs(
     ]
 
 
+@router.get("/companies/{company_id}/runs/{run_id}")
+async def get_intelligence_run(
+    company_id: str,
+    run_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    repo = SQLAlchemyCompanyIntelligenceRepository(db)
+    run = await repo.get_intelligence_run_by_id(run_id)
+    if not run or run.company_id != company_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Intelligence run not found.")
+    return {
+        "id": run.id,
+        "company_id": run.company_id,
+        "purpose": run.purpose,
+        "scope": run.scope,
+        "status": run.status.value,
+        "findings_count": run.findings_count,
+        "uncertainty_score": run.uncertainty_score,
+        "created_at": run.created_at.isoformat(),
+    }
+
+
 @router.get("/companies/{company_id}/health")
 async def get_company_health(
     company_id: str,
@@ -240,6 +262,9 @@ async def execute_decision_insight(
     db: AsyncSession = Depends(get_db),
 ):
     repo = SQLAlchemyCompanyIntelligenceRepository(db)
+    insight = await repo.get_decision_insight_by_id(insight_id)
+    if not insight or insight.company_id != company_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Decision insight not found.")
     bridge_svc = DecisionExecutionBridgeService(repo)
     try:
         exec_payload = await bridge_svc.execute_decision_insight(
@@ -248,10 +273,10 @@ async def execute_decision_insight(
             governance_approval_id=payload.governance_approval_id,
         )
         return exec_payload
-    except UnauthorizedDecisionExecutionError as exc:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
-    except DecisionInsightExpiredError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except UnauthorizedDecisionExecutionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except DecisionInsightExpiredError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.post("/companies/{company_id}/decision-outcomes/evaluate", status_code=status.HTTP_201_CREATED)
