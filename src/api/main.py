@@ -40,6 +40,9 @@ from src.api.routes.tasks import router as tasks_router
 from src.api.routes.teams import router as teams_router
 from src.api.routes.tools import router as tools_router
 from src.api.routes.verifications import router as verifications_router
+from src.api.routes.company_intelligence import router as company_intelligence_router
+from src.api.routes.learning import router as learning_router
+from src.api.routes.venture import router as venture_router
 from src.api.routes.workforce import router as workforce_router
 from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
@@ -125,6 +128,7 @@ app.include_router(gtm_router)
 app.include_router(simulation_router)
 app.include_router(company_intelligence_router)
 app.include_router(learning_router)
+app.include_router(venture_router)
 
 
 
