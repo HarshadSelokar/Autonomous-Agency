@@ -369,6 +369,16 @@ from src.infrastructure.models.enterprise_model import (
     EnterpriseOpportunityModel,
 )
 
+from src.infrastructure.models.resilience_model import (
+    CircuitBreakerModel,
+    ResiliencePolicyModel,
+    SecurityIncidentModel,
+    SecuritySignalModel,
+    AuditTrailLogModel,
+    DependencyHealthSnapshotModel,
+    ProductionReadinessItemModel,
+)
+
 __all__.extend(
     [
         "CompanyModel",
@@ -423,11 +433,12 @@ __all__.extend(
         "InterCompanyRequestModel",
         "EnterpriseRiskModel",
         "EnterpriseOpportunityModel",
+        "CircuitBreakerModel",
+        "ResiliencePolicyModel",
+        "SecurityIncidentModel",
+        "SecuritySignalModel",
+        "AuditTrailLogModel",
+        "DependencyHealthSnapshotModel",
+        "ProductionReadinessItemModel",
     ]
 )
-
-
-
-
-
-

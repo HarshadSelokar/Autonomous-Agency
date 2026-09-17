@@ -1217,6 +1217,83 @@ class EnterpriseRepositoryInterface(ABC):
         pass
 
 
+class ResilienceRepositoryInterface(ABC):
+    """Abstract interface for Phase 30 Resilience, Security, Audit & DR persistence."""
+
+    @abstractmethod
+    async def save_circuit_breaker(self, cb: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_circuit_breaker_by_name(self, name: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_circuit_breakers(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_resilience_policy(self, policy: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_resilience_policy_by_name(self, policy_name: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_resilience_policies(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_security_incident(self, incident: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_security_incident_by_code(self, incident_code: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_security_incidents(self, status: str | None = None) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_security_signal(self, signal: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_security_signals_for_incident(self, incident_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_audit_log(self, audit_log: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_latest_audit_log(self) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_audit_logs(self, actor_id: str | None = None, limit: int = 100) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_dependency_health_snapshot(self, snapshot: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_latest_dependency_snapshots(self) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_readiness_item(self, item: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_readiness_items(self) -> list[Any]:
+        pass
+
+
+
 
 
 
