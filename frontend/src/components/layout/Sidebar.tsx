@@ -17,6 +17,7 @@ import {
   Target,
   Brain,
   GraduationCap,
+  Rocket,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -29,6 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onSelectView }) =>
     { id: 'overview', label: 'Company Overview', icon: LayoutDashboard },
     { id: 'intelligence', label: 'Company Intelligence', icon: Brain },
     { id: 'learning', label: 'Organizational Learning', icon: GraduationCap },
+    { id: 'ventures', label: 'Autonomous Ventures', icon: Rocket },
     { id: 'companies', label: 'Companies & Tenants', icon: Building },
     { id: 'simulations', label: 'What-If Simulations', icon: FlaskConical },
     { id: 'canvas', label: 'Pixel Office Canvas', icon: Grid },
