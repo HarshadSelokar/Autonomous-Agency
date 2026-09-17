@@ -693,6 +693,115 @@ class MultiCompanyRepositoryInterface(ABC):
         pass
 
 
+class CompanyIntelligenceRepositoryInterface(ABC):
+    """Abstract Repository Interface for Company Intelligence & Decision Support Operations."""
+
+    @abstractmethod
+    async def save_intelligence_run(self, run: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_intelligence_run_by_id(self, run_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_intelligence_runs_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_intelligence_finding(self, finding: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_findings_for_run(self, run_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_decision_question(self, question: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_decision_question_by_id(self, question_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_decision_questions_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_decision_option(self, option: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_options_for_question(self, question_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_decision_evaluation(self, evaluation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_evaluation_for_option(self, option_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_decision_insight(self, insight: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_decision_insight_by_id(self, insight_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def get_decision_insight_by_question_id(self, question_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def list_decision_insights_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_company_health_assessment(self, assessment: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_latest_health_assessment_for_company(self, company_id: str) -> Any | None:
+        pass
+
+    @abstractmethod
+    async def save_company_bottleneck(self, bottleneck: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_active_bottlenecks_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_risk_assessment(self, risk: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_risks_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_opportunity_assessment(self, opportunity: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def list_opportunities_for_company(self, company_id: str) -> list[Any]:
+        pass
+
+    @abstractmethod
+    async def save_decision_outcome_evaluation(self, evaluation: Any) -> Any:
+        pass
+
+    @abstractmethod
+    async def get_outcome_evaluation_by_insight_id(self, insight_id: str) -> Any | None:
+        pass
+
+
+
 
 
 

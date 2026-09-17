@@ -305,6 +305,19 @@ from src.infrastructure.models.company_model import (
     SimulationFinancialRecordModel,
 )
 
+from src.infrastructure.models.company_intelligence_model import (
+    IntelligenceRunModel,
+    IntelligenceFindingModel,
+    DecisionQuestionModel,
+    DecisionOptionModel,
+    DecisionEvaluationModel,
+    DecisionInsightModel,
+    CompanyHealthAssessmentModel,
+    CompanyBottleneckModel,
+    CompanyRiskAssessmentModel,
+    DecisionOutcomeEvaluationModel,
+)
+
 __all__.extend(
     [
         "CompanyModel",
@@ -320,6 +333,16 @@ __all__.extend(
         "SimulationScenarioModel",
         "SimulationResultModel",
         "SimulationFinancialRecordModel",
+        "IntelligenceRunModel",
+        "IntelligenceFindingModel",
+        "DecisionQuestionModel",
+        "DecisionOptionModel",
+        "DecisionEvaluationModel",
+        "DecisionInsightModel",
+        "CompanyHealthAssessmentModel",
+        "CompanyBottleneckModel",
+        "CompanyRiskAssessmentModel",
+        "DecisionOutcomeEvaluationModel",
     ]
 )
 
