@@ -1758,6 +1758,89 @@ class DecisionOutcomeEvaluatedEvent(DomainEvent):
     variance_summary: str = ""
 
 
+# Phase 27 Continuous Organizational Learning & Governed Adaptation Events
+@dataclass(frozen=True)
+class LearningCycleCreatedEvent(DomainEvent):
+    cycle_id: str = ""
+    company_id: str = ""
+    purpose: str = ""
+
+
+@dataclass(frozen=True)
+class LearningObservationCreatedEvent(DomainEvent):
+    observation_id: str = ""
+    cycle_id: str = ""
+    company_id: str = ""
+    source_subsystem: str = ""
+
+
+@dataclass(frozen=True)
+class LearningCandidateCreatedEvent(DomainEvent):
+    candidate_id: str = ""
+    cycle_id: str = ""
+    company_id: str = ""
+    statement: str = ""
+
+
+@dataclass(frozen=True)
+class LearningCandidateValidatedEvent(DomainEvent):
+    validation_id: str = ""
+    candidate_id: str = ""
+    company_id: str = ""
+    is_valid: bool = False
+
+
+@dataclass(frozen=True)
+class LearningPatternDetectedEvent(DomainEvent):
+    pattern_id: str = ""
+    company_id: str = ""
+    pattern_name: str = ""
+
+
+@dataclass(frozen=True)
+class ImprovementOpportunityCreatedEvent(DomainEvent):
+    opportunity_id: str = ""
+    company_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class AdaptationProposalCreatedEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+    adaptation_type: str = ""
+
+
+@dataclass(frozen=True)
+class AdaptationExperimentDispatchedEvent(DomainEvent):
+    execution_id: str = ""
+    proposal_id: str = ""
+    company_id: str = ""
+    governance_approval_id: str = ""
+
+
+@dataclass(frozen=True)
+class AdaptationAdoptedEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+
+
+@dataclass(frozen=True)
+class AdaptationRolledBackEvent(DomainEvent):
+    proposal_id: str = ""
+    company_id: str = ""
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class AdaptationOutcomeRecordedEvent(DomainEvent):
+    outcome_id: str = ""
+    proposal_id: str = ""
+    company_id: str = ""
+    has_regression: bool = False
+
+
+
 
 
 
