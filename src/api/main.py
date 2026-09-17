@@ -45,6 +45,9 @@ from src.api.routes.learning import router as learning_router
 from src.api.routes.venture import router as venture_router
 from src.api.routes.enterprise import router as enterprise_router
 from src.api.routes.workforce import router as workforce_router
+from src.api.routes.resilience import router as resilience_router
+from src.api.middleware.resilience import ResilienceSecurityMiddleware
+
 
 from src.api.routes.workspaces import router as workspaces_router
 from src.application.provider_registry import default_provider_registry
@@ -72,10 +75,10 @@ app = FastAPI(
     title=settings.APP_NAME,
     description=(
         "Autonomous AI Organization Platform - "
-        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine, Production Infrastructure & Multi-Agent Swarms "
-        "(Phase 1 - Phase 22)"
+        "Agent Runtime, Employee Framework, Manager Orchestration, Task Engine, Communication, Meetings, Memory/Workspace, Tools, AI Software Company, Verification/Recovery, Governance, Model Routing, Pixel Office, Enterprise Departments, Dynamic Workforce, Autonomous Company OS, Institutional Learning, Research Engine, Production Infrastructure, Swarms, Enterprise OS & Production Hardening "
+        "(Phase 1 - Phase 30)"
     ),
-    version="0.22.0",
+    version="0.30.0",
     lifespan=lifespan,
 )
 
@@ -83,6 +86,7 @@ app = FastAPI(
 app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(ProductionSecurityHeadersMiddleware)
 app.add_middleware(RequestSizeLimitMiddleware)
+app.add_middleware(ResilienceSecurityMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -133,6 +137,8 @@ app.include_router(learning_router)
 
 app.include_router(venture_router)
 app.include_router(enterprise_router)
+app.include_router(resilience_router)
+
 
 
 
