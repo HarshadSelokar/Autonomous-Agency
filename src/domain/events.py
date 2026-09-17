@@ -1676,6 +1676,89 @@ class SimulationResultProducedEvent(DomainEvent):
     scenario_name: str = ""
 
 
+# Phase 26 Company Intelligence & Decision Support Events
+@dataclass(frozen=True)
+class IntelligenceRunCreatedEvent(DomainEvent):
+    run_id: str = ""
+    company_id: str = ""
+    purpose: str = ""
+
+
+@dataclass(frozen=True)
+class IntelligenceRunCompletedEvent(DomainEvent):
+    run_id: str = ""
+    company_id: str = ""
+    findings_count: int = 0
+
+
+@dataclass(frozen=True)
+class DecisionQuestionCreatedEvent(DomainEvent):
+    question_id: str = ""
+    company_id: str = ""
+    question: str = ""
+
+
+@dataclass(frozen=True)
+class DecisionOptionEvaluatedEvent(DomainEvent):
+    option_id: str = ""
+    question_id: str = ""
+    company_id: str = ""
+    overall_score: float = 0.0
+
+
+@dataclass(frozen=True)
+class DecisionInsightCreatedEvent(DomainEvent):
+    insight_id: str = ""
+    question_id: str = ""
+    company_id: str = ""
+    version: int = 1
+
+
+@dataclass(frozen=True)
+class DecisionInsightExpiredEvent(DomainEvent):
+    insight_id: str = ""
+    company_id: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyHealthAssessedEvent(DomainEvent):
+    assessment_id: str = ""
+    company_id: str = ""
+    overall_status: str = ""
+
+
+@dataclass(frozen=True)
+class BottleneckDetectedEvent(DomainEvent):
+    bottleneck_id: str = ""
+    company_id: str = ""
+    bottleneck_name: str = ""
+    severity: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyRiskAssessedEvent(DomainEvent):
+    risk_id: str = ""
+    company_id: str = ""
+    title: str = ""
+    severity: str = ""
+
+
+@dataclass(frozen=True)
+class CompanyOpportunityAssessedEvent(DomainEvent):
+    opportunity_id: str = ""
+    company_id: str = ""
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class DecisionOutcomeEvaluatedEvent(DomainEvent):
+    evaluation_id: str = ""
+    insight_id: str = ""
+    company_id: str = ""
+    variance_summary: str = ""
+
+
+
 
 
 

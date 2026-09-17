@@ -399,6 +399,43 @@ class InvalidLifecycleTransitionError(MultiCompanyError):
         )
 
 
+# Phase 26 Company Intelligence & Decision Support Exceptions
+class CompanyIntelligenceError(DomainError):
+    """Base exception for Company Intelligence & Decision Support domain."""
+    pass
+
+
+class InvalidIntelligenceRunStateError(CompanyIntelligenceError):
+    """Raised when an invalid status transition is attempted on an IntelligenceRun."""
+
+    def __init__(self, run_id: str, current_status: str, target_status: str) -> None:
+        self.run_id = run_id
+        self.current_status = current_status
+        self.target_status = target_status
+        super().__init__(
+            f"Invalid intelligence run transition for '{run_id}': Cannot transition from '{current_status}' to '{target_status}'."
+        )
+
+
+class DecisionInsightExpiredError(CompanyIntelligenceError):
+    """Raised when an action is attempted on an expired decision insight."""
+
+    def __init__(self, insight_id: str, reason: str = "Decision insight has expired.") -> None:
+        self.insight_id = insight_id
+        self.reason = reason
+        super().__init__(f"Decision insight '{insight_id}' is expired: {reason}")
+
+
+class UnauthorizedDecisionExecutionError(CompanyIntelligenceError):
+    """Raised when attempting to execute a recommendation that has not passed human governance approval."""
+
+    def __init__(self, insight_id: str, reason: str = "Human governance approval strictly required prior to execution.") -> None:
+        self.insight_id = insight_id
+        self.reason = reason
+        super().__init__(f"Unauthorized decision execution for insight '{insight_id}': {reason}")
+
+
+
 
 
 
