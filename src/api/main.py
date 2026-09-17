@@ -87,6 +87,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from src.api.routes.simulation import router as simulation_router
+from src.api.routes.company_intelligence import router as company_intelligence_router
+
 # Include Routers
 app.include_router(health_router)
 app.include_router(agents_router)
@@ -119,5 +122,7 @@ app.include_router(swarms_router)
 app.include_router(business_router)
 app.include_router(gtm_router)
 app.include_router(simulation_router)
+app.include_router(company_intelligence_router)
+
 
 
