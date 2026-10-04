@@ -18,24 +18,23 @@ from src.domain.model_routing import (
     ModelSelectionRequest,
     RoutingStrategy,
 )
-from src.infrastructure.database import get_db
+from src.infrastructure.database import get_db, run_with_sync_session
 from src.infrastructure.repositories.model_routing_repository import ModelRoutingRepository
 
 router = APIRouter(prefix="/models", tags=["Model Routing"])
 
 
-def get_model_router(db: Session = Depends(get_db)) -> ModelRouter:
-    repo = ModelRoutingRepository(db)
-    return ModelRouter(repository=repo)
+def _router(session: Session) -> ModelRouter:
+    return ModelRouter(repository=ModelRoutingRepository(session))
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def register_model_profile(
+async def register_model_profile(
     payload: ModelProfileCreateSchema,
-    router_service: ModelRouter = Depends(get_model_router),
+    db: Any = Depends(get_db),
 ) -> dict[str, str]:
     caps = [ModelCapability(c) for c in payload.capabilities]
-    profile = router_service.register_model_profile(
+    profile = await run_with_sync_session(db, lambda session: _router(session).register_model_profile(
         model_id=payload.model_id,
         provider_name=payload.provider_name,
         model_name=payload.model_name,
@@ -47,14 +46,14 @@ def register_model_profile(
         quality_score=payload.quality_score,
         is_active=payload.is_active,
         is_approved_for_production=payload.is_approved_for_production,
-    )
+    ))
     return {"model_id": profile.model_id, "status": "REGISTERED"}
 
 
 @router.post("/route", response_model=ModelSelectionDecisionResponseSchema)
-def route_model(
+async def route_model(
     payload: ModelRouteRequestSchema,
-    router_service: ModelRouter = Depends(get_model_router),
+    db: Any = Depends(get_db),
 ) -> ModelSelectionDecisionResponseSchema:
     caps = [ModelCapability(c) for c in payload.required_capabilities]
     request = ModelSelectionRequest(
@@ -72,7 +71,9 @@ def route_model(
     )
 
     try:
-        decision = router_service.route_model(request)
+        decision = await run_with_sync_session(
+            db, lambda session: _router(session).route_model(request)
+        )
         return ModelSelectionDecisionResponseSchema(
             decision_id=decision.decision_id,
             request_id=decision.request_id,
@@ -92,16 +93,16 @@ def route_model(
 
 
 @router.post("/health", status_code=status.HTTP_200_OK)
-def update_health(
+async def update_health(
     payload: ModelProviderHealthUpdateSchema,
-    router_service: ModelRouter = Depends(get_model_router),
+    db: Any = Depends(get_db),
 ) -> dict[str, str]:
-    health = router_service.update_provider_health(
+    health = await run_with_sync_session(db, lambda session: _router(session).update_provider_health(
         provider_name=payload.provider_name,
         model_id=payload.model_id,
         is_healthy=payload.is_healthy,
         error_rate=payload.error_rate,
         latency_p95_ms=payload.latency_p95_ms,
         last_failure_reason=payload.last_failure_reason,
-    )
+    ))
     return {"model_id": health.model_id, "status": "UPDATED", "is_healthy": str(health.is_healthy)}

@@ -5,8 +5,8 @@ Alembic migration 029: Create Phase 30 Resilience, Security, Audit & DR database
 from alembic import op
 import sqlalchemy as sa
 
-revision = '029_create_phase30_resilience_tables'
-down_revision = '028_create_phase29_enterprise_tables'
+revision = '029'
+down_revision = '028'
 branch_labels = None
 depends_on = None
 
@@ -36,8 +36,8 @@ def upgrade() -> None:
         sa.Column('target_name', sa.String(length=255), nullable=False, unique=True),
         sa.Column('retry_policy_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('timeout_policy_json', sa.Text(), nullable=False, server_default='{}'),
-        sa.Column('circuit_breaker_enabled', sa.Boolean(), nullable=False, server_default=sa.text('1')),
-        sa.Column('fallback_enabled', sa.Boolean(), nullable=False, server_default=sa.text('1')),
+        sa.Column('circuit_breaker_enabled', sa.Boolean(), nullable=False, server_default=sa.text('true')),
+        sa.Column('fallback_enabled', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('degradation_behavior', sa.String(length=64), nullable=False, server_default='NORMAL'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     )
@@ -68,7 +68,7 @@ def upgrade() -> None:
         sa.Column('severity', sa.String(length=64), nullable=False, server_default='HIGH'),
         sa.Column('raw_content', sa.Text(), nullable=False, server_default=''),
         sa.Column('sanitized_content', sa.Text(), nullable=False, server_default=''),
-        sa.Column('is_blocked', sa.Boolean(), nullable=False, server_default=sa.text('1')),
+        sa.Column('is_blocked', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('metadata_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('detected_at', sa.DateTime(timezone=True), nullable=False),
     )
@@ -98,7 +98,7 @@ def upgrade() -> None:
         'dependency_health_snapshots',
         sa.Column('id', sa.String(length=64), primary_key=True),
         sa.Column('dependency_name', sa.String(length=255), nullable=False),
-        sa.Column('is_available', sa.Boolean(), nullable=False, server_default=sa.text('1')),
+        sa.Column('is_available', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('latency_ms', sa.Float(), nullable=False, server_default='0.0'),
         sa.Column('error_rate_pct', sa.Float(), nullable=False, server_default='0.0'),
         sa.Column('circuit_state', sa.String(length=64), nullable=False, server_default='CLOSED'),

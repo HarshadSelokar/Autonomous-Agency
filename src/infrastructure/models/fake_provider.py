@@ -33,8 +33,29 @@ class FakeModelProvider(ModelProviderInterface):
             input_tokens=10, output_tokens=20, total_tokens=30
         )
         self._should_fail_with = should_fail_with
+        self._scripted_responses: list[ModelResponse] = []
         self.call_count: int = 0
         self.last_request: ModelRequest | None = None
+        self.requests: list[ModelRequest] = []
+
+    def script(
+        self,
+        content: str = "",
+        tool_calls: list[dict[str, Any]] | None = None,
+        structured_output: dict[str, Any] | None = None,
+    ) -> None:
+        """Queue one response; queued responses are returned in order before the canned one."""
+        self._scripted_responses.append(
+            ModelResponse(
+                content=content,
+                provider="fake",
+                model="fake",
+                usage=self._canned_usage,
+                structured_output=structured_output,
+                tool_calls=tool_calls or [],
+                finish_reason="tool_calls" if tool_calls else "stop",
+            )
+        )
 
     @property
     def provider_name(self) -> str:
@@ -57,6 +78,7 @@ class FakeModelProvider(ModelProviderInterface):
     async def generate(self, request: ModelRequest) -> ModelResponse:
         self.call_count += 1
         self.last_request = request
+        self.requests.append(request)
 
         if self._should_fail_with is not None:
             raise self._should_fail_with
@@ -72,6 +94,9 @@ class FakeModelProvider(ModelProviderInterface):
             raise AuthenticationError("Fake invalid API key")
         if request.model == "simulate-invalid-response":
             raise InvalidResponseError("Fake malformed response")
+
+        if self._scripted_responses:
+            return self._scripted_responses.pop(0)
 
         return ModelResponse(
             content=self._canned_content,

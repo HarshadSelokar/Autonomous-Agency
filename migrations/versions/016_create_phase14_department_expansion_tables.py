@@ -66,7 +66,7 @@ def upgrade() -> None:
         sa.Column('status', sa.String(length=32), nullable=False, server_default='PROPOSED'),
         sa.Column('acceptance_criteria_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('verification_id', sa.String(length=64), nullable=True),
-        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('rejection_reason', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('handoff_id')

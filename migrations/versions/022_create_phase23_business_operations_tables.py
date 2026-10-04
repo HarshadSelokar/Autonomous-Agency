@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column('currency', sa.String(length=10), nullable=False, server_default='USD'),
         sa.Column('balance_cents', sa.BigInteger(), nullable=False, server_default='0'),
         sa.Column('department_id', sa.String(length=36), nullable=True),
-        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('metadata_json', JSON(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -210,7 +210,7 @@ def upgrade() -> None:
         sa.Column('payment_terms', sa.String(length=50), nullable=False, server_default='NET_30'),
         sa.Column('status', sa.String(length=50), nullable=False, server_default='ACTIVE'),
         sa.Column('risk_level', sa.String(length=50), nullable=False, server_default='LOW'),
-        sa.Column('bank_details_verified', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('bank_details_verified', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('metadata_json', JSON(), nullable=True),
         sa.PrimaryKeyConstraint('id')

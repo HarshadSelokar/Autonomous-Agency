@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column('constraints', JSON(), nullable=True),
         sa.Column('evidence_requirements', JSON(), nullable=True),
         sa.Column('status', sa.String(length=50), nullable=False, server_default='REQUESTED'),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
@@ -96,9 +96,9 @@ def upgrade() -> None:
         sa.Column('source_type', sa.String(length=50), nullable=False, server_default='INTERNAL_DOCUMENT'),
         sa.Column('access_method', sa.String(length=50), nullable=False, server_default='READ'),
         sa.Column('provenance', sa.Text(), nullable=False, server_default=''),
-        sa.Column('is_external', sa.Boolean(), nullable=False, server_default='0'),
-        sa.Column('is_untrusted', sa.Boolean(), nullable=False, server_default='1'),
-        sa.Column('prompt_injection_checked', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_external', sa.Boolean(), nullable=False, server_default='false'),
+        sa.Column('is_untrusted', sa.Boolean(), nullable=False, server_default='true'),
+        sa.Column('prompt_injection_checked', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('reliability_score', sa.Float(), nullable=False, server_default='0.5'),
         sa.Column('retrieved_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -112,7 +112,7 @@ def upgrade() -> None:
         sa.Column('content_snippet', sa.Text(), nullable=False, server_default=''),
         sa.Column('data_points', JSON(), nullable=True),
         sa.Column('integrity_hash', sa.String(length=128), nullable=False, server_default=''),
-        sa.Column('is_independent', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('is_independent', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('corroboration_count', sa.Integer(), nullable=False, server_default='1'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -221,7 +221,7 @@ def upgrade() -> None:
         sa.Column('risks', JSON(), nullable=True),
         sa.Column('reversibility', sa.String(length=50), nullable=False, server_default='HIGH'),
         sa.Column('governance_request_id', sa.String(length=36), nullable=True),
-        sa.Column('is_approved', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_approved', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('strategic_initiative_id', sa.String(length=36), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')

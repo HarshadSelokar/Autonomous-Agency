@@ -22,8 +22,56 @@ class Settings(BaseSettings):
 
     # Groq Model Provider
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
     GROQ_TIMEOUT_SECONDS: int = 60
+
+    # OpenAI-compatible Model Provider (OpenAI, OpenRouter, Ollama, ...)
+    OPENAI_API_KEY: str = ""
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+    OPENAI_MODEL: str = "gpt-4o"
+
+    # Authentication
+    AUTH_REQUIRED: bool = True
+    AUTH_SECRET_KEY: str = ""
+    AUTH_TOKEN_TTL_MINUTES: int = 480
+    ADMIN_API_KEY: str = ""
+
+    # Software Studio (autonomous dev team)
+    STUDIO_WORKSPACES_DIR: str = "scratch/studio"
+    # "loop" = our agent loop on a model provider (API key); "agy" = Antigravity CLI (subscription)
+    STUDIO_ENGINE: str = "loop"
+    STUDIO_PROVIDER: str = "groq"
+    STUDIO_MODEL: str = ""
+    STUDIO_MAX_AGENT_STEPS: int = 30
+    STUDIO_MAX_REWORK_ROUNDS: int = 2
+    STUDIO_COMMAND_TIMEOUT_SECONDS: int = 300
+    # Antigravity CLI engine
+    AGY_COMMAND: str = "agy"
+    AGY_MODEL_MANAGER: str = "gemini-3.1-pro-high"
+    AGY_MODEL_DEVELOPER: str = "gemini-3.8-flash-high"
+    AGY_MODEL_REVIEWER: str = "gemini-3.1-pro-low"
+    AGY_FALLBACK_MODEL: str = "gemini-3.7-flash-medium"
+    AGY_TIMEOUT_MINUTES: int = 20
+    # Substrings (case-insensitive) of an agy error that mean "this model is out of quota"
+    AGY_QUOTA_MARKERS: list[str] = Field(
+        default_factory=lambda: ["quota", "rate limit", "resource_exhausted", "resource exhausted", "429"]
+    )
+    # How many developers work tickets at the same time, each in its own git worktree
+    STUDIO_DEVELOPERS: int = 2
+    # When every model is out of quota the project waits this long, then resumes by itself
+    STUDIO_QUOTA_RETRY_MINUTES: int = 30
+    # Restart projects that were running when the API process stopped
+    STUDIO_AUTO_RESUME: bool = True
+    # Seconds between checks for a human decision on a ticket awaiting approval
+    STUDIO_APPROVAL_POLL_SECONDS: float = 2.0
+
+    STUDIO_ALLOWED_COMMANDS: list[str] = Field(
+        default_factory=lambda: [
+            "python", "python3", "pytest", "pip", "uv", "ruff", "mypy",
+            "node", "npm", "npx", "pnpm", "yarn", "tsc",
+            "go", "cargo", "make", "git",
+        ]
+    )
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/agent_runtime"

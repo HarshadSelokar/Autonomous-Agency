@@ -31,7 +31,7 @@ def upgrade() -> None:
         sa.Column('duration_days', sa.Integer(), nullable=False, server_default='30'),
         sa.Column('deadline', sa.DateTime(timezone=True), nullable=True),
         sa.Column('risk_level', sa.String(length=32), nullable=False, server_default='LOW'),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
@@ -98,7 +98,7 @@ def upgrade() -> None:
         sa.Column('project_id', sa.String(length=64), nullable=True),
         sa.Column('department_id', sa.String(length=64), nullable=True),
         sa.Column('allocation_percentage', sa.Float(), nullable=False, server_default='100.0'),
-        sa.Column('is_temporary', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('is_temporary', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('start_time', sa.DateTime(timezone=True), nullable=False),
         sa.Column('end_time', sa.DateTime(timezone=True), nullable=True),
         sa.Column('status', sa.String(length=32), nullable=False, server_default='ACTIVE'),

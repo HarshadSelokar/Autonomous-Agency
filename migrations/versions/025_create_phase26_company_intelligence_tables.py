@@ -51,7 +51,7 @@ def upgrade() -> None:
         sa.Column('observation_summary', sa.Text(), nullable=False),
         sa.Column('evidence_references_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('confidence', sa.Float(), nullable=False, server_default='0.9'),
-        sa.Column('is_anomaly', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_anomaly', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
@@ -70,7 +70,7 @@ def upgrade() -> None:
         sa.Column('requester_id', sa.String(length=64), nullable=False, server_default='SYSTEM'),
         sa.Column('constraints_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('decision_deadline', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
@@ -84,7 +84,7 @@ def upgrade() -> None:
         sa.Column('company_id', sa.String(length=64), nullable=False),
         sa.Column('option_name', sa.String(length=128), nullable=False),
         sa.Column('description', sa.Text(), nullable=False),
-        sa.Column('is_no_action_baseline', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_no_action_baseline', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('assumptions_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('required_resources_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('expected_benefits_json', sa.Text(), nullable=False, server_default='{}'),
@@ -133,10 +133,10 @@ def upgrade() -> None:
         sa.Column('recommendation_summary', sa.Text(), nullable=False),
         sa.Column('recommended_option_id', sa.String(length=64), nullable=True),
         sa.Column('uncertainty_analysis_json', sa.Text(), nullable=False, server_default='{}'),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('governance_approval_id', sa.String(length=64), nullable=True),
-        sa.Column('is_executed', sa.Boolean(), nullable=False, server_default='0'),
-        sa.Column('is_expired', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_executed', sa.Boolean(), nullable=False, server_default='false'),
+        sa.Column('is_expired', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
@@ -171,7 +171,7 @@ def upgrade() -> None:
         sa.Column('evidence_summary', sa.Text(), nullable=False),
         sa.Column('suspected_causes_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('detected_at', sa.DateTime(timezone=True), nullable=False),
-        sa.Column('is_resolved', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_resolved', sa.Boolean(), nullable=False, server_default='false'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index('ix_company_bottlenecks_company_id', 'company_bottlenecks', ['company_id'], unique=False)
@@ -192,7 +192,7 @@ def upgrade() -> None:
         sa.Column('assessed_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_company_risks_company_id', 'company_risk_assessments', ['company_id'], unique=False)
+    op.create_index('ix_company_risk_assessments_company_id', 'company_risk_assessments', ['company_id'], unique=False)
 
     # 10. decision_outcome_evaluations
     op.create_table(

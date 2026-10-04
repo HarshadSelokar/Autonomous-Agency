@@ -1,5 +1,11 @@
 # Autonomous AI Organization Platform — Progress Report
 
+> **Update, 2026-10-04.** The sections below describe phases 1-19 as originally reported and
+> overstate readiness ("ready for production deployment"). Current, verified status is in
+> [README.md](README.md). Since this report: phases 20-31 were committed, the Software Studio
+> (agents working in a real git repository), authentication, and several correctness fixes
+> were added.
+
 ## Executive Summary
 
 The **Autonomous AI Organization Platform** is an enterprise-grade, multi-agent operating system and platform designed for running fully autonomous, governed, self-learning AI companies.

@@ -14,6 +14,7 @@ class OutboxMessageModel(Base):
     __tablename__ = "outbox_messages"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    tenant_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
     event_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     payload_json: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="PENDING", index=True)

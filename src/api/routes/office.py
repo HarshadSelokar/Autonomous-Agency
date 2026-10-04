@@ -2,8 +2,11 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.api.auth import AuthenticationFailed, principal_from_credentials
+from src.infrastructure.config import settings
 
 from src.api.schemas.office import (
     HumanAttentionItemSchema,
@@ -16,7 +19,7 @@ from src.application.office_realtime_service import (
     OfficeRealtimeBroadcaster,
     PixelOfficeConnection,
 )
-from src.infrastructure.database import get_db_session
+from src.infrastructure.database import SyncRepositoryBridge, get_db_session, run_with_sync_session
 from src.infrastructure.repositories.employee_repository import SQLAlchemyEmployeeRepository
 from src.infrastructure.repositories.governance_repository import GovernanceRepository
 from src.infrastructure.repositories.office_repository import GovernanceOfficeRepository
@@ -31,8 +34,9 @@ global_broadcaster = OfficeRealtimeBroadcaster()
 
 def get_office_projection_service(session: AsyncSession = Depends(get_db_session)) -> OfficeProjectionService:
     emp_repo = SQLAlchemyEmployeeRepository(session)
-    gov_repo = GovernanceRepository(session)
-    off_repo = GovernanceOfficeRepository(session)
+    # Both repositories use the synchronous Session API
+    gov_repo = SyncRepositoryBridge(GovernanceRepository, session)
+    off_repo = SyncRepositoryBridge(GovernanceOfficeRepository, session)
     k_repo = SQLAlchemyKnowledgeRepository(session)
     r_repo = SQLAlchemyResearchRepository(session)
     return OfficeProjectionService(
@@ -138,8 +142,9 @@ async def list_workstations(
 async def list_attention_queue(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[HumanAttentionItemSchema]:
-    repo = GovernanceOfficeRepository(session)
-    items = repo.list_human_attention_items()
+    items = await run_with_sync_session(
+        session, lambda sync_session: GovernanceOfficeRepository(sync_session).list_human_attention_items()
+    )
     return [
         HumanAttentionItemSchema(
             item_id=item.item_id,
@@ -166,7 +171,21 @@ async def reconcile_state(
 
 
 @router.websocket("/ws")
-async def office_websocket_endpoint(websocket: WebSocket, client_id: str = "anon-client"):
+async def office_websocket_endpoint(
+    websocket: WebSocket, client_id: str = "anon-client", token: str | None = None
+):
+    # HTTP middleware does not see WebSocket handshakes, so credentials are checked here.
+    # Browsers cannot set headers on a WebSocket, hence the ?token= query parameter.
+    if settings.AUTH_REQUIRED:
+        try:
+            principal = principal_from_credentials(
+                bearer_token=token, api_key=websocket.headers.get("X-API-Key")
+            )
+        except AuthenticationFailed:
+            principal = None
+        if principal is None:
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            return
     await websocket.accept()
     conn = PixelOfficeConnection(
         connection_id=client_id,

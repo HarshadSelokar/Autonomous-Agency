@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "013_create_phase10_verification_and_recovery_tables"
-down_revision: str | None = "012_create_phase9_software_company_tables"
+revision: str = "013"
+down_revision: str | None = "012"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(length=32), nullable=False, server_default="PENDING"),
         sa.Column("summary", sa.Text(), nullable=False, server_default=""),
         sa.Column("recommended_recovery", sa.String(length=64), nullable=True),
-        sa.Column("is_human_verified", sa.Boolean(), nullable=False, server_default="0"),
+        sa.Column("is_human_verified", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("verified_by_actor_id", sa.String(length=64), nullable=True),
         sa.Column("override_reason", sa.Text(), nullable=True),
         sa.Column("evidence_ids", sa.JSON(), nullable=False),
@@ -90,8 +90,8 @@ def upgrade() -> None:
         sa.Column("severity", sa.String(length=32), nullable=False, server_default="HIGH"),
         sa.Column("summary", sa.Text(), nullable=False, server_default=""),
         sa.Column("details", sa.JSON(), nullable=False),
-        sa.Column("retryable", sa.Boolean(), nullable=False, server_default="1"),
-        sa.Column("recoverable", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("retryable", sa.Boolean(), nullable=False, server_default="true"),
+        sa.Column("recoverable", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("recommended_strategy", sa.String(length=64), nullable=True),
         sa.Column("agent_id", sa.String(length=64), nullable=True),
         sa.Column("employee_id", sa.String(length=64), nullable=True),
@@ -112,7 +112,7 @@ def upgrade() -> None:
         sa.Column("task_id", sa.String(length=64), nullable=False),
         sa.Column("strategy", sa.String(length=64), nullable=False),
         sa.Column("attempt_number", sa.Integer(), nullable=False, server_default="1"),
-        sa.Column("success", sa.Boolean(), nullable=False, server_default="0"),
+        sa.Column("success", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("details", sa.JSON(), nullable=False),
         sa.Column("executed_by", sa.String(length=64), nullable=False, server_default="SYSTEM"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),

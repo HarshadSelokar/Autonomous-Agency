@@ -6,7 +6,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.task_schemas import (
     SchedulerRunRequest,
@@ -46,7 +46,7 @@ router = APIRouter(tags=["Task Engine"])
 
 
 def get_task_services(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> tuple[
     SQLAlchemyTaskRepository,
     SQLAlchemyTaskDependencyRepository,

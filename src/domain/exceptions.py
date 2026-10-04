@@ -9,6 +9,15 @@ class DomainError(Exception):
     pass
 
 
+class EntityNotFoundError(DomainError):
+    """Raised when a requested domain entity is not found."""
+
+    def __init__(self, entity: str, entity_id: str) -> None:
+        self.entity = entity
+        self.entity_id = entity_id
+        super().__init__(f"{entity} with ID '{entity_id}' was not found.")
+
+
 class InvalidStateTransitionError(DomainError):
     """Raised when an invalid state transition is attempted."""
 
@@ -669,10 +678,53 @@ class DisasterRecoveryError(ResilienceError):
         super().__init__(f"Disaster recovery error for component '{component}': {reason}")
 
 
+class TenantNotFoundError(DomainError):
+    """Raised when a tenant is not found."""
+
+    def __init__(self, tenant_id_or_slug: str) -> None:
+        self.tenant_id_or_slug = tenant_id_or_slug
+        super().__init__(f"Tenant '{tenant_id_or_slug}' was not found.")
 
 
+class TenantValidationError(DomainError):
+    """Raised when tenant data fails validation."""
+
+    pass
 
 
+class DuplicateTenantError(DomainError):
+    """Raised when attempting to create a tenant with duplicate slug or ID."""
+
+    def __init__(self, slug: str) -> None:
+        self.slug = slug
+        super().__init__(f"Tenant with slug '{slug}' already exists.")
 
 
+class QuotaExceededError(DomainError):
+    """Raised when a tenant, employee, or project quota is exceeded."""
 
+    def __init__(self, entity: str, entity_id: str, quota_type: str, requested: float, limit: float) -> None:
+        self.entity = entity
+        self.entity_id = entity_id
+        self.quota_type = quota_type
+        self.requested = requested
+        self.limit = limit
+        super().__init__(f"Quota '{quota_type}' exceeded for {entity} '{entity_id}': Requested {requested}, limit is {limit}.")
+
+
+class QuotaExhaustedError(ModelExecutionError):
+    """Raised when a model subscription or API quota is used up and waiting is the only fix."""
+
+    pass
+
+
+class ResourceBudgetExceededError(DomainError):
+    """Raised when a token, cost, or compute budget allocation is exceeded."""
+
+    def __init__(self, tenant_id: str, project_id: str, budget_type: str, current_usage: float, budget_limit: float) -> None:
+        self.tenant_id = tenant_id
+        self.project_id = project_id
+        self.budget_type = budget_type
+        self.current_usage = current_usage
+        self.budget_limit = budget_limit
+        super().__init__(f"Budget '{budget_type}' exceeded for tenant '{tenant_id}' (project '{project_id}'): Current usage {current_usage}, limit is {budget_limit}.")
