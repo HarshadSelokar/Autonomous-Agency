@@ -18,7 +18,7 @@ Under development, not production ready.
 | Business, GTM, venture, enterprise modules (phases 14-31) | Data models and deterministic services; no model-driven behaviour |
 | Phases 32-41 (workflow v2, audit, resilience, control plane) | Stored in the database; exposed through `/control-plane` |
 | Databases | Migrations `001`-`040` and the main flows verified on PostgreSQL 18 and SQLite |
-| Pixel Office frontend | Dashboard with mock-data fallback; not yet driven by the studio |
+| Pixel Office frontend | Pixel-art office driven live by the studio: agents at desks with status bubbles, task board, activity, ask, changes, team. The older dashboards are at `#/legacy` and still fall back to mock data |
 
 ## Quick start
 
@@ -117,6 +117,18 @@ the project waits `STUDIO_QUOTA_RETRY_MINUTES` and resumes.
 - This is a policy boundary, not an OS sandbox. An allowed program (for example `python`) can
   still reach the network and the rest of the disk. Run the API in a container or VM before
   pointing it at code you do not trust.
+
+## Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:3000, proxies to the API on port 8000
+```
+
+Sign in with an email and password, or paste `ADMIN_API_KEY`. The office refreshes every
+1.5 seconds from `/studio/projects/{id}` and its event feed. Everything on screen is real
+data: when the API is unreachable the page says so instead of showing sample data.
 
 ## Authentication
 
