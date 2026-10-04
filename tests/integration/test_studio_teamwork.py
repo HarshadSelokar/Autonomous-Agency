@@ -505,3 +505,100 @@ async def test_projects_cut_off_by_a_restart_are_resumed(api):
     assert (await client.get(f"/studio/projects/{project['id']}")).json()["status"] == "COMPLETED"
     assert sorted(engine.attempts) == ["alpha", "beta"]
     assert TeamRole.MANAGER.value in {m["role"] for m in (await client.get(f"/studio/projects/{project['id']}")).json()["team"]}
+
+
+async def test_member_can_be_renamed_while_the_team_is_working(api):
+    client, studio, engine, _ = api
+    project = await create(client, developers=1, engine="loop")
+    base = f"/studio/projects/{project['id']}"
+    developer = next(m for m in (await client.get(base)).json()["team"] if m["role"] == "DEVELOPER")
+
+    hold = asyncio.Event()
+    original = engine.develop
+
+    async def slow(task: AgentTask, attempt: int) -> None:
+        await hold.wait()
+        original(task, attempt)
+
+    engine.develop = slow
+    await client.post(f"{base}/start")
+    for _ in range(500):  # wait until the developer is inside a ticket
+        if engine.attempts:
+            break
+        await asyncio.sleep(0.01)
+    try:
+        renamed = await client.patch(f"{base}/team/{developer['id']}", json={"name": "Kiran"})
+        assert renamed.status_code == 200, renamed.text
+    finally:
+        hold.set()
+    await studio.wait(project["id"])
+
+    detail = (await client.get(base)).json()
+    assert detail["status"] == "COMPLETED"
+    # The run saved the project many times after the rename and did not put the old name back
+    assert "Kiran" in [m["name"] for m in detail["team"]]
+    assert developer["name"] not in [m["name"] for m in detail["team"]]
+    events = (await client.get(f"{base}/events")).json()
+    assert "Kiran" in {e["actor_name"] for e in events if e["actor_role"] == "DEVELOPER"}
+
+
+async def test_delete_project_keeps_the_code_unless_asked(api, tmp_path, monkeypatch):
+    from src.infrastructure.config import settings
+
+    monkeypatch.setattr(settings, "STUDIO_WORKSPACES_DIR", str(tmp_path / "ws"))
+    client, studio, engine, _ = api
+
+    kept = await create(client, developers=1, engine="loop")
+    hold = asyncio.Event()
+    original = engine.develop
+
+    async def slow(task: AgentTask, attempt: int) -> None:
+        await hold.wait()
+        original(task, attempt)
+
+    engine.develop = slow
+    await client.post(f"/studio/projects/{kept['id']}/start")
+    try:
+        running = await client.delete(f"/studio/projects/{kept['id']}")
+        assert running.status_code == 409  # must be stopped first
+    finally:
+        hold.set()
+    await studio.wait(kept["id"])
+    workspace = Path((await client.get(f"/studio/projects/{kept['id']}")).json()["workspace_path"])
+    assert (workspace / "alpha.txt").exists()
+
+    assert (await client.delete(f"/studio/projects/{kept['id']}")).status_code == 204
+    assert (await client.get(f"/studio/projects/{kept['id']}")).status_code == 404
+    assert await studio.store.list_tickets(kept["id"]) == []
+    assert await studio.store.list_events(kept["id"]) == []
+    assert (workspace / "alpha.txt").exists()  # the team's code is still on disk
+
+    engine.develop = original
+    engine.attempts.clear()
+    removed = await create(client, developers=1, engine="loop")
+    await client.post(f"/studio/projects/{removed['id']}/start")
+    await studio.wait(removed["id"])
+    second = Path((await client.get(f"/studio/projects/{removed['id']}")).json()["workspace_path"])
+    assert second.is_dir()
+
+    gone = await client.delete(f"/studio/projects/{removed['id']}", params={"remove_workspace": "true"})
+    assert gone.status_code == 204
+    assert not second.exists()
+    assert workspace.exists()  # only the deleted project's folder went
+    assert (await client.get("/studio/projects")).json() == []
+
+
+def test_workspace_removal_refuses_paths_outside_the_studio_folder(tmp_path, monkeypatch):
+    from src.application.studio_service import _remove_workspace
+    from src.infrastructure.config import settings
+
+    monkeypatch.setattr(settings, "STUDIO_WORKSPACES_DIR", str(tmp_path / "ws"))
+    outside = tmp_path / "important"
+    outside.mkdir()
+    (outside / "keep.txt").write_text("x", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="not a studio workspace"):
+        _remove_workspace(outside)
+    with pytest.raises(ValueError, match="not a studio workspace"):
+        _remove_workspace(tmp_path / "ws")  # the studio folder itself is not a project
+    assert (outside / "keep.txt").exists()

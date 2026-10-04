@@ -33,6 +33,20 @@ logger = logging.getLogger(__name__)
 WRITE_TOOLS = {"write_to_file", "replace_file_content", "multi_replace_file_content", "sed_file", "notebook_edit"}
 PATH_PARAMETERS = ("TargetFile", "AbsolutePath", "DirectoryPath", "SearchDirectory", "SearchPath")
 BRIEF_DIR_PREFIX = "agy-brief-"
+# Signs that the connection to the model service dropped, as opposed to the request being wrong
+NETWORK_ERROR_MARKERS = (
+    "request failed",
+    "forcibly closed",
+    "connection reset",
+    "connection refused",
+    "broken pipe",
+    "unexpected eof",
+    "i/o timeout",
+    "no such host",
+    "tls handshake",
+    "wsasend",
+    "wsarecv",
+)
 
 EDITING_RULES = """
 Environment rules (these override anything above that conflicts):
@@ -65,7 +79,9 @@ class AgyEngine:
         command: list[str] | None = None,
         timeout_minutes: int | None = None,
         fallback_model: str | None = None,
+        network_retry_delays: tuple[float, ...] = (5.0, 20.0, 60.0),
     ) -> None:
+        self.network_retry_delays = network_retry_delays
         self.command = command or [settings.AGY_COMMAND]
         self.timeout_minutes = timeout_minutes or settings.AGY_TIMEOUT_MINUTES
         self.fallback_model = (
@@ -82,7 +98,7 @@ class AgyEngine:
         should_cancel: Callable[[], bool] | None = None,
     ) -> AgentLoopResult:
         try:
-            return await self._run_once(task, model, on_event, should_cancel)
+            return await self._run_with_network_retry(task, model, on_event, should_cancel)
         except ModelExecutionError as exc:
             if not self._is_quota_error(exc):
                 raise
@@ -105,6 +121,38 @@ class AgyEngine:
                 if self._is_quota_error(fallback_exc):
                     raise QuotaExhaustedError(str(fallback_exc)) from fallback_exc
                 raise
+
+    async def _run_with_network_retry(
+        self,
+        task: AgentTask,
+        model: str,
+        on_event: EventSink | None,
+        should_cancel: Callable[[], bool] | None,
+    ) -> AgentLoopResult:
+        """A dropped connection to the model service is retried; edits already made stay in place."""
+        for attempt, delay in enumerate([*self.network_retry_delays, None]):
+            try:
+                return await self._run_once(task, model, on_event, should_cancel)
+            except ModelExecutionError as exc:
+                if delay is None or self._is_quota_error(exc) or not self._is_network_error(exc):
+                    raise
+                logger.warning("agy lost its connection (attempt %d); retrying in %ss", attempt + 1, delay)
+                if on_event is not None:
+                    await on_event(
+                        {
+                            "type": "tool_call",
+                            "tool": "retry",
+                            "arguments": {"attempt": attempt + 1},
+                            "summary": "connection dropped, retrying",
+                        }
+                    )
+                await asyncio.sleep(delay)
+        raise AssertionError("unreachable")
+
+    @staticmethod
+    def _is_network_error(exc: Exception) -> bool:
+        text = str(exc).lower()
+        return any(marker in text for marker in NETWORK_ERROR_MARKERS)
 
     @staticmethod
     def _is_quota_error(exc: Exception) -> bool:

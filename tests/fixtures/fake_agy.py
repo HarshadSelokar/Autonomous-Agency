@@ -71,6 +71,18 @@ def main() -> int:
             emit({"event": "result", "result": {"status": "ERROR", "response": "", "error": "RESOURCE_EXHAUSTED: quota exceeded for model", "usage": {}}})
             return 1
         result["response"] = f"answered by {model}"
+    elif scenario == "network_then_ok":
+        counter = Path(os.environ["FAKE_AGY_RECORD"]).with_suffix(".count")
+        seen = int(counter.read_text()) if counter.exists() else 0
+        counter.write_text(str(seen + 1))
+        if seen < 2:
+            message = (
+                'API error (attempt 1): request failed: Post "https://example.invalid/v1": write tcp '
+                "10.0.0.2:64732->10.0.0.1:443: wsasend: An existing connection was forcibly closed by the remote host."
+            )
+            emit({"event": "result", "result": {"status": "ERROR", "response": "", "error": message, "usage": {}}})
+            return 1
+        result["response"] = f"answered after {seen} dropped connections"
     elif scenario == "error":
         emit({"event": "result", "result": {"status": "ERROR", "response": "", "error": "something broke", "usage": {}}})
         return 1

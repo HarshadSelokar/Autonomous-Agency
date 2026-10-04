@@ -712,6 +712,17 @@ class QuotaExceededError(DomainError):
         super().__init__(f"Quota '{quota_type}' exceeded for {entity} '{entity_id}': Requested {requested}, limit is {limit}.")
 
 
+class ToolCallRejectedError(ModelExecutionError):
+    """
+    Raised when a provider refuses the model's tool call (unknown tool, malformed arguments).
+    `failed_generation` is what the model tried to send, when the provider reports it.
+    """
+
+    def __init__(self, message: str, failed_generation: str = "") -> None:
+        super().__init__(message)
+        self.failed_generation = failed_generation
+
+
 class QuotaExhaustedError(ModelExecutionError):
     """Raised when a model subscription or API quota is used up and waiting is the only fix."""
 

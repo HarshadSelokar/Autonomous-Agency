@@ -231,3 +231,43 @@ async def test_openai_compatible_provider_sends_tools_and_parses_calls():
     assert response.tool_calls == [{"id": "c9", "name": "echo", "arguments": {"text": "x"}}]
     assert response.content == ""
     assert response.usage.total_tokens == 12
+
+
+async def test_answer_sent_to_a_nonexistent_tool_is_salvaged_as_the_final_answer():
+    from src.domain.exceptions import ToolCallRejectedError
+
+    attempted = json.dumps({"name": "json", "arguments": {"approved": False, "feedback": "Missing tests."}})
+    provider = FakeModelProvider(
+        should_fail_with=ToolCallRejectedError("Groq rejected the tool call", failed_generation=attempted)
+    )
+    final_tool = {
+        "name": "submit_review",
+        "description": "Submit",
+        "parameters": {"type": "object", "required": ["approved", "feedback"]},
+    }
+
+    result = await run(make_loop(provider), RecordingToolbox(), final_tool=final_tool)
+
+    assert result.completed
+    assert result.final_payload == {"approved": False, "feedback": "Missing tests."}
+    assert provider.call_count == 1  # no retry needed
+
+
+async def test_rejected_call_without_the_required_fields_is_not_salvaged():
+    from src.domain.exceptions import ToolCallRejectedError
+
+    class RejectingOnce(FakeModelProvider):
+        async def generate(self, request: ModelRequest):
+            if self.call_count == 0:
+                self.call_count += 1
+                raise ToolCallRejectedError("rejected", failed_generation='{"name": "json", "arguments": {"note": "hi"}}')
+            return await super().generate(request)
+
+    provider = RejectingOnce()
+    provider.script(tool_calls=[{"id": "c1", "name": "submit_review", "arguments": {"approved": True, "feedback": "ok"}}])
+    final_tool = {"name": "submit_review", "description": "", "parameters": {"type": "object", "required": ["approved", "feedback"]}}
+
+    result = await run(make_loop(provider), RecordingToolbox(), final_tool=final_tool)
+
+    assert result.final_payload == {"approved": True, "feedback": "ok"}
+    assert provider.call_count == 2  # told about the rejection, then answered properly

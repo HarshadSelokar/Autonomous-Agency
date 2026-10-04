@@ -64,19 +64,19 @@ class TeamMember:
         return {"id": self.id, "name": self.name, "role": self.role.value}
 
 
-DEVELOPER_NAMES = ["Dev", "Dana", "Drew", "Devi", "Dario", "Dua"]
+DEVELOPER_NAMES = ["Srujan", "Aditya Y", "Abhyudaya", "Arya", "Manthan", "Om"]
 
 
 def default_team(project_id: str, developers: int = 1) -> list[TeamMember]:
     developers = max(1, min(developers, len(DEVELOPER_NAMES)))
-    team = [TeamMember(id=f"{project_id}-manager", name="Maya", role=TeamRole.MANAGER)]
+    team = [TeamMember(id=f"{project_id}-manager", name="Aruhi", role=TeamRole.MANAGER)]
     for index in range(developers):
         suffix = "developer" if index == 0 else f"developer-{index + 1}"
         team.append(
             TeamMember(id=f"{project_id}-{suffix}", name=DEVELOPER_NAMES[index], role=TeamRole.DEVELOPER)
         )
-    team.append(TeamMember(id=f"{project_id}-qa", name="Quinn", role=TeamRole.QA))
-    team.append(TeamMember(id=f"{project_id}-reviewer", name="Rhea", role=TeamRole.REVIEWER))
+    team.append(TeamMember(id=f"{project_id}-qa", name="Indrayani", role=TeamRole.QA))
+    team.append(TeamMember(id=f"{project_id}-reviewer", name="Tanu", role=TeamRole.REVIEWER))
     return team
 
 

@@ -342,6 +342,23 @@ async def start_project(
     return ProjectResponse(**_project_fields(project, studio))
 
 
+@router.delete("/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: str,
+    remove_workspace: bool = Query(False, description="Also delete the code folder the team worked in"),
+    studio: StudioService = Depends(get_studio),
+    principal: Principal | None = Depends(get_principal),
+) -> None:
+    """Delete a project that is not running. The team's code is kept unless remove_workspace is true."""
+    await _load(project_id, studio, principal)
+    try:
+        await studio.delete_project(project_id, remove_workspace=remove_workspace)
+    except ProjectAlreadyRunningError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Stop the project before deleting it.") from exc
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+
+
 @router.post("/projects/{project_id}/cancel")
 async def cancel_project(
     project_id: str,

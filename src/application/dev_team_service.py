@@ -60,6 +60,8 @@ class DevProjectStore(Protocol):
     async def set_ticket_approval(
         self, project_id: str, ticket_id: str, approval: str, feedback: str
     ) -> bool: ...
+    async def set_members(self, project_id: str, members: list[dict[str, str]]) -> None: ...
+    async def delete_project(self, project_id: str) -> None: ...
 
 
 class InMemoryDevProjectStore:
@@ -109,6 +111,14 @@ class InMemoryDevProjectStore:
             return False
         ticket.approval, ticket.approval_feedback = approval, feedback
         return True
+
+    async def set_members(self, project_id: str, members: list[dict[str, str]]) -> None:
+        self.projects[project_id].members = members
+
+    async def delete_project(self, project_id: str) -> None:
+        self.projects.pop(project_id, None)
+        self.tickets = {k: t for k, t in self.tickets.items() if t.project_id != project_id}
+        self.events = [e for e in self.events if e.project_id != project_id]
 
 
 def extract_json(text: str) -> dict[str, Any] | None:
@@ -237,6 +247,16 @@ class DevTeamOrchestrator:
             else settings.STUDIO_APPROVAL_POLL_SECONDS
         )
 
+    async def _save(self, project: DevProject) -> None:
+        """
+        Save the run's view of the project. The team roster is owned by the user (members can
+        be renamed while the team works), so it is refreshed from storage, never overwritten.
+        """
+        stored = await self.store.get_project(project.id)
+        if stored is not None and stored is not project:
+            project.members = stored.members
+        await self.store.save_project(project)
+
     # ----------------------------------------------------------------- events
     async def _emit(
         self,
@@ -247,11 +267,13 @@ class DevTeamOrchestrator:
         ticket: DevTicket | None = None,
         detail: dict[str, Any] | None = None,
     ) -> None:
+        # Use the member's current name: they can be renamed while the team works
+        current = next((m for m in project.team() if m.id == member.id), member)
         event = await self.store.add_event(
             ActivityEvent(
                 project_id=project.id,
                 actor_id=member.id,
-                actor_name=member.name,
+                actor_name=current.name,
                 actor_role=member.role.value,
                 kind=kind,
                 summary=summary,
@@ -455,7 +477,7 @@ class DevTeamOrchestrator:
                 await self._reset_interrupted(project, workspace, tickets)
 
             project.set_status(ProjectStatus.RUNNING)
-            await self.store.save_project(project)
+            await self._save(project)
 
             await self._work_all(project, workspace, tickets, should_cancel)
 
@@ -468,20 +490,20 @@ class DevTeamOrchestrator:
             project.set_status(
                 ProjectStatus.COMPLETED if blocked == 0 else ProjectStatus.NEEDS_ATTENTION
             )
-            await self.store.save_project(project)
+            await self._save(project)
             await self._emit(project, manager, "project", project.summary)
         except CancellationError:
             project.set_status(ProjectStatus.CANCELLED)
-            await self.store.save_project(project)
+            await self._save(project)
             await self._emit(project, manager, "project", "Project cancelled.")
         except QuotaExhaustedError as exc:
             project.set_status(ProjectStatus.WAITING_FOR_QUOTA, failure_reason=str(exc)[:1000])
-            await self.store.save_project(project)
+            await self._save(project)
             await self._emit(project, manager, "project", "Out of model quota; waiting to resume.")
         except Exception as exc:
             logger.exception("Dev project %s failed", project.id)
             project.set_status(ProjectStatus.FAILED, failure_reason=f"{type(exc).__name__}: {exc}")
-            await self.store.save_project(project)
+            await self._save(project)
             await self._emit(project, manager, "project", f"Project failed: {exc}")
         return project
 
@@ -532,7 +554,7 @@ class DevTeamOrchestrator:
                 for task in finished:
                     free.append(running.pop(task))
                     task.result()  # re-raise whatever stopped the ticket
-                    await self.store.save_project(project)
+                    await self._save(project)
         finally:
             for task in running:
                 task.cancel()
@@ -550,7 +572,7 @@ class DevTeamOrchestrator:
         project.branch = branch
         if not project.base_commit:
             project.base_commit = base_commit
-        await self.store.save_project(project)
+        await self._save(project)
         return workspace
 
     @staticmethod
@@ -605,7 +627,7 @@ class DevTeamOrchestrator:
     ) -> list[DevTicket]:
         manager = project.member(TeamRole.MANAGER)
         project.set_status(ProjectStatus.PLANNING)
-        await self.store.save_project(project)
+        await self._save(project)
         await self._emit(project, manager, "status", "planning the work")
 
         plan = await self._ask_for_json(
@@ -668,7 +690,7 @@ class DevTeamOrchestrator:
         for ticket in tickets:
             await self.store.save_ticket(ticket)
         project.summary = str((plan or {}).get("summary", ""))[:2000]
-        await self.store.save_project(project)
+        await self._save(project)
         await self._emit(
             project,
             manager,

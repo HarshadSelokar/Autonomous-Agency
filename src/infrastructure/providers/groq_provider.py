@@ -16,6 +16,7 @@ from src.domain.exceptions import (
     ProviderUnavailableError,
     RateLimitError,
     TimeoutError,
+    ToolCallRejectedError,
 )
 from src.domain.model_provider import (
     ModelProviderInterface,
@@ -90,6 +91,12 @@ class GroqModelProvider(ModelProviderInterface):
         except groq.APIStatusError as e:
             if e.status_code in (500, 502, 503, 504):
                 raise ProviderUnavailableError(f"Groq server error ({e.status_code}): {e}") from e
+            error = (e.body or {}).get("error") if isinstance(getattr(e, "body", None), dict) else None
+            if isinstance(error, dict) and error.get("code") == "tool_use_failed":
+                raise ToolCallRejectedError(
+                    f"Groq rejected the tool call: {error.get('message', '')}",
+                    failed_generation=str(error.get("failed_generation") or ""),
+                ) from e
             raise ModelExecutionError(f"Groq API error ({e.status_code}): {e}") from e
         except Exception as e:
             raise ModelExecutionError(f"Unexpected Groq provider error: {e}") from e

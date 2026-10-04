@@ -14,7 +14,7 @@ from typing import Any, Protocol
 
 from src.application.provider_registry import ModelProviderRegistry, default_provider_registry
 from src.application.retry import RetryPolicy
-from src.domain.exceptions import CancellationError, ModelExecutionError
+from src.domain.exceptions import CancellationError, ModelExecutionError, ToolCallRejectedError
 from src.domain.model_provider import ChatMessage, ModelRequest
 
 EventSink = Callable[[dict[str, Any]], Awaitable[None]]
@@ -22,8 +22,34 @@ MAX_REJECTED_TOOL_CALLS = 2
 
 
 def _is_rejected_tool_call(exc: Exception) -> bool:
+    if isinstance(exc, ToolCallRejectedError):
+        return True
     text = str(exc).lower()
     return "tool call validation failed" in text or "tool_use_failed" in text
+
+
+def _salvage_final_answer(exc: Exception, final_tool: dict[str, Any] | None) -> dict[str, Any] | None:
+    """
+    Some models put their structured answer in a call to a tool that does not exist (often
+    named "json"). If the rejected call's arguments have everything the final tool requires,
+    that is the answer.
+    """
+    if final_tool is None or not isinstance(exc, ToolCallRejectedError) or not exc.failed_generation:
+        return None
+    try:
+        attempted = json.loads(exc.failed_generation)
+    except json.JSONDecodeError:
+        return None
+    arguments = attempted.get("arguments") if isinstance(attempted, dict) else None
+    if isinstance(arguments, str):
+        try:
+            arguments = json.loads(arguments)
+        except json.JSONDecodeError:
+            return None
+    required = final_tool.get("parameters", {}).get("required", [])
+    if isinstance(arguments, dict) and required and all(key in arguments for key in required):
+        return arguments
+    return None
 
 
 @dataclass
@@ -134,6 +160,13 @@ class AgentLoop:
             except ModelExecutionError as exc:
                 # Some providers reject a malformed or unknown tool call with an error instead
                 # of returning it. Tell the model what happened and let it try again.
+                salvaged = _salvage_final_answer(exc, final_tool)
+                if salvaged is not None:
+                    result.final_payload = salvaged
+                    result.final_text = json.dumps(salvaged)
+                    result.stop_reason = "completed"
+                    await emit({"type": "final", "step": result.steps, "content": result.final_text})
+                    return result
                 if not _is_rejected_tool_call(exc) or rejected_calls >= MAX_REJECTED_TOOL_CALLS:
                     raise
                 rejected_calls += 1

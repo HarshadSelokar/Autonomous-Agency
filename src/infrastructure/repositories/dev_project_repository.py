@@ -8,7 +8,7 @@ own short session instead of holding one for the whole run.
 import asyncio
 import uuid
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -195,6 +195,25 @@ class SQLAlchemyDevProjectStore:
             result = await session.execute(stmt)
             await session.commit()
             return bool(result.rowcount)
+
+    async def set_members(self, project_id: str, members: list[dict[str, str]]) -> None:
+        """Update only the team roster, leaving everything the running team writes alone."""
+        async with self.session_factory() as session:
+            await session.execute(
+                update(DevProjectModel).where(DevProjectModel.id == project_id).values(members=members)
+            )
+            await session.commit()
+
+    async def delete_project(self, project_id: str) -> None:
+        async with self.session_factory() as session:
+            # Explicit, so it does not depend on the database enforcing ON DELETE CASCADE
+            await session.execute(
+                delete(DevActivityEventModel).where(DevActivityEventModel.project_id == project_id)
+            )
+            await session.execute(delete(DevTicketModel).where(DevTicketModel.project_id == project_id))
+            await session.execute(delete(DevProjectModel).where(DevProjectModel.id == project_id))
+            await session.commit()
+        self._event_locks.pop(project_id, None)
 
     async def mark_active_as_interrupted(self) -> list[str]:
         """

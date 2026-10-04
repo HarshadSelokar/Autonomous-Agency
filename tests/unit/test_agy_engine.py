@@ -134,6 +134,21 @@ async def test_quota_error_without_fallback_is_raised(workspace, record, monkeyp
         await run(AgyEngine(command=FAKE_AGY, fallback_model=""), task(workspace))
 
 
+async def test_dropped_connection_is_retried(workspace, record, monkeypatch):
+    scenario(monkeypatch, "network_then_ok")
+
+    result, events = await run(AgyEngine(command=FAKE_AGY, network_retry_delays=(0.01, 0.01)), task(workspace))
+
+    assert result.final_text == "answered after 2 dropped connections"
+    assert [e["summary"] for e in events if e.get("tool") == "retry"] == ["connection dropped, retrying"] * 2
+
+
+async def test_dropped_connection_gives_up_after_the_retries(workspace, record, monkeypatch):
+    scenario(monkeypatch, "network_then_ok")
+    with pytest.raises(ModelExecutionError, match="forcibly closed"):
+        await run(AgyEngine(command=FAKE_AGY, network_retry_delays=(0.01,)), task(workspace))
+
+
 async def test_failed_and_crashed_runs_raise(workspace, record, monkeypatch):
     scenario(monkeypatch, "error")
     with pytest.raises(ModelExecutionError, match="something broke"):

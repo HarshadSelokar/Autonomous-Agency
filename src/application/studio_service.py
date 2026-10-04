@@ -8,8 +8,12 @@ over). A project that runs out of model quota waits and resumes by itself.
 
 import asyncio
 import logging
+import os
+import shutil
+import stat
 import uuid
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any, Protocol
 
 from src.application.dev_team_service import ActivityListener, DevProjectStore, DevTeamOrchestrator
@@ -38,6 +42,21 @@ _ACTIVE_TICKET_STATES = {
 
 class ProjectAlreadyRunningError(Exception):
     pass
+
+
+def _remove_workspace(path: Path) -> None:
+    """Remove a project's working copy, but only if it really is inside the studio folder."""
+    root = Path(settings.STUDIO_WORKSPACES_DIR).resolve()
+    target = path.resolve()
+    if root not in target.parents or not target.is_dir():
+        raise ValueError(f"Refusing to delete '{target}': it is not a studio workspace.")
+
+    def make_writable(function: Any, failed_path: str, _error: Any) -> None:
+        os.chmod(failed_path, stat.S_IWRITE)  # git marks its object files read-only
+        function(failed_path)
+
+    shutil.rmtree(target, onerror=make_writable)
+    shutil.rmtree(target.parent / f"{target.name}.worktrees", ignore_errors=True)
 
 
 class TeamDirectory(Protocol):
@@ -120,18 +139,21 @@ class StudioService:
         members = project.team()
         members.append(TeamMember(id=f"{project.id}-{role.value.lower()}-{uuid.uuid4().hex[:6]}", name=name, role=role))
         project.set_team(members)  # validates role counts
-        await self.store.save_project(project)
+        await self.store.set_members(project.id, project.members)
         return project
 
     async def rename_member(self, project_id: str, member_id: str, name: str) -> DevProject:
-        project = await self._editable(project_id)
+        """Renaming is allowed while the team works: it changes no one's job."""
+        project = await self.store.get_project(project_id)
+        if project is None:
+            raise ValueError(f"Dev project '{project_id}' not found.")
         members = project.team()
         target = next((m for m in members if m.id == member_id), None)
         if target is None:
             raise ValueError(f"Team member '{member_id}' not found.")
-        target.name = name
+        target.name = name.strip()
         project.set_team(members)
-        await self.store.save_project(project)
+        await self.store.set_members(project.id, project.members)
         return project
 
     async def remove_member(self, project_id: str, member_id: str) -> DevProject:
@@ -140,8 +162,19 @@ class StudioService:
         if not any(m.id == member_id for m in members):
             raise ValueError(f"Team member '{member_id}' not found.")
         project.set_team([m for m in members if m.id != member_id])
-        await self.store.save_project(project)
+        await self.store.set_members(project.id, project.members)
         return project
+
+    async def delete_project(self, project_id: str, remove_workspace: bool = False) -> None:
+        """
+        Delete a stopped project: its record, tickets and activity. The code the team wrote
+        stays on disk unless remove_workspace is set.
+        """
+        project = await self._editable(project_id)
+        self._drop_retry(project_id)
+        if remove_workspace and project.workspace_path:
+            await asyncio.to_thread(_remove_workspace, Path(project.workspace_path))
+        await self.store.delete_project(project_id)
 
     # ------------------------------------------------------------------- run
     def is_running(self, project_id: str) -> bool:
