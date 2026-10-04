@@ -153,8 +153,17 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
           )}
 
           {/* Department Quadrants Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredDepts.map((deptId) => {
+          {filteredDepts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 glass-panel text-center max-w-md mx-auto my-12 space-y-3">
+              <Building className="w-12 h-12 text-indigo-400 opacity-60 animate-pulse" />
+              <h3 className="text-sm font-bold text-gray-200">No Workstations Found</h3>
+              <p className="text-xs text-gray-400">
+                No active employee workstations found for the selected department filter.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredDepts.map((deptId) => {
               const deptWorkstations = deptMap[deptId] || [];
               const deptInfo = departments.find(
                 (d) => d.department_id === deptId || d.name.toUpperCase() === deptId.toUpperCase()
@@ -200,6 +209,7 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
               );
             })}
           </div>
+          )}
         </div>
       </div>
     </div>
