@@ -1,0 +1,11 @@
+{
+  "task_id": "task-health-01",
+  "title": "Add Health Check Endpoint",
+  "problem_statement": "Implement a health check utility function 'get_health_status()' in health.py returning {'status': 'healthy', 'version': '1.0.0'}. Add unit tests in test_health.py.",
+  "test_command": "python -c \"import health; assert health.get_health_status()['status'] == 'healthy'\"",
+  "timeout_seconds": 600,
+  "metadata": {
+    "category": "api",
+    "difficulty": "easy"
+  }
+}

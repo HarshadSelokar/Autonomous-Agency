@@ -254,6 +254,36 @@ curl http://localhost:8000/studio/projects \
 
 ---
 
+## Benchmark & Evaluation Harness
+
+The platform includes a built-in benchmark harness to evaluate agent teams on real coding tasks and generate structured scorecard reports (pass rates, rework attempts, duration, and diff metrics).
+
+### Running Benchmarks
+
+```bash
+# Run a single benchmark task
+python -m scripts.run_benchmark_harness --task benchmarks/tasks/01_add_health_check.json --engine loop
+
+# Run an entire suite of tasks and export a markdown report
+python -m scripts.run_benchmark_harness \
+  --tasks-dir benchmarks/tasks \
+  --engine loop \
+  --output benchmarks/scorecard.md
+
+# Run benchmarks using containerized Docker isolation
+python -m scripts.run_benchmark_harness \
+  --tasks-dir benchmarks/tasks \
+  --runner-mode docker
+```
+
+Benchmark task specifications (`benchmarks/tasks/*.json`) define:
+* `task_id` and `title`
+* `problem_statement`: Goal given to the Manager
+* `test_command`: Ground truth automated test verification
+* `timeout_seconds`: Safety ceiling per task
+
+---
+
 ## Testing
 
 ```bash
@@ -276,6 +306,8 @@ cd frontend && npm run build
 
 ```
 agency/
+├── benchmarks/               # Standardized task specifications for agent evaluations
+│   └── tasks/                # Benchmark JSON task definitions
 ├── src/
 │   ├── domain/               # Core entities, state machines, events, value objects
 │   ├── application/          # Agent loops, developer team orchestrator, studio service

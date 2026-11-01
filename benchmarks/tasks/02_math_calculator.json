@@ -1,0 +1,11 @@
+{
+  "task_id": "task-math-02",
+  "title": "Add Safe Division Math Function",
+  "problem_statement": "Implement safe_divide(a, b) in calc.py that returns a / b when b != 0, and None when b == 0. Ensure type annotations are present.",
+  "test_command": "python -c \"import calc; assert calc.safe_divide(10, 2) == 5.0 and calc.safe_divide(5, 0) is None\"",
+  "timeout_seconds": 600,
+  "metadata": {
+    "category": "core",
+    "difficulty": "easy"
+  }
+}
