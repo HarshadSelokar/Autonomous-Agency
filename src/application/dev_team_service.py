@@ -42,6 +42,9 @@ from src.infrastructure.config import settings
 logger = logging.getLogger(__name__)
 
 MAX_TICKETS = 12
+# (manifest file, what exists once installed, install command)
+DEPENDENCY_STEPS: list[tuple[str, str, str]] = [("package.json", "node_modules", "npm install")]
+DEPENDENCY_INSTALL_TIMEOUT_SECONDS = 900
 HUMAN_ACTOR_ROLE = "HUMAN"
 ActivityListener = Callable[[ActivityEvent], Awaitable[None]]
 CancelCheck = Callable[[], bool] | None
@@ -568,6 +571,7 @@ class DevTeamOrchestrator:
             local_path=project.local_path,
             base_dir=self.workspaces_dir,
         )
+        await workspace.exclude_generated_folders()
         project.workspace_path = str(workspace.root)
         project.branch = branch
         if not project.base_commit:
@@ -587,9 +591,19 @@ class DevTeamOrchestrator:
     async def _reset_interrupted(
         self, project: DevProject, workspace: ProjectWorkspace, tickets: list[DevTicket]
     ) -> None:
-        """On restart, half-finished tickets go back to TODO and their unmerged work goes."""
+        """
+        On restart, half-finished tickets go back to TODO and their unmerged work goes.
+        Blocked tickets also get another go: starting the project again is how a human says
+        "try once more", and the developer is shown why the ticket was blocked.
+        """
         await workspace.discard_pending()
         for ticket in tickets:
+            if ticket.status == TicketStatus.BLOCKED:
+                if ticket.attempts == 0:
+                    ticket.feedback = ""  # it was only waiting on another ticket
+                ticket.move_to(TicketStatus.TODO)
+                await self.store.save_ticket(ticket)
+                continue
             if ticket.status not in IN_FLIGHT_TICKET_STATUSES:
                 continue
             await workspace.remove_worktree(
@@ -717,7 +731,8 @@ class DevTeamOrchestrator:
         worktree_path = self._worktree_path(workspace, ticket)
         async with merge_lock:
             worktree = await workspace.add_worktree(worktree_path, branch, project.branch)
-        feedback = ""
+        # A ticket being retried after it was blocked starts from why it was blocked
+        feedback = ticket.feedback if ticket.attempts > 0 else ""
 
         try:
             for attempt in range(1, self.max_rework_rounds + 2):
@@ -833,6 +848,9 @@ class DevTeamOrchestrator:
         if not project.test_command:
             return ""
         await self._move(project, qa, ticket, TicketStatus.TESTING, qa.id)
+        install_failure = await self._install_dependencies(project, qa, ticket, worktree)
+        if install_failure:
+            return install_failure
         await self._emit(project, qa, "tool_call", "running tests", ticket)
         test = await self.runner.run(project.test_command, worktree.root)
         if test.ok:
@@ -842,6 +860,29 @@ class DevTeamOrchestrator:
             project, qa, "status", "tests failed, sending back", ticket, {"output": test.output[-1500:]}
         )
         return f"`{project.test_command}` failed:\n{test.output[-4000:]}"
+
+    async def _install_dependencies(
+        self, project: DevProject, qa: TeamMember, ticket: DevTicket, worktree: ProjectWorkspace
+    ) -> str:
+        """
+        Install what the project declares before testing it. Each ticket has its own working
+        copy, and agents that cannot run commands cannot do this themselves.
+        """
+        for manifest, installed_marker, command in DEPENDENCY_STEPS:
+            if not (worktree.root / manifest).is_file() or (worktree.root / installed_marker).exists():
+                continue
+            await self._emit(project, qa, "tool_call", "installing dependencies", ticket, {"command": command})
+            try:
+                result = await self.runner.run(command, worktree.root, DEPENDENCY_INSTALL_TIMEOUT_SECONDS)
+            except CommandNotAllowedError as exc:
+                return f"Dependencies could not be installed: {exc}"
+            if not result.ok:
+                await self._emit(
+                    project, qa, "status", "dependency install failed, sending back", ticket,
+                    {"output": result.output[-1500:]},
+                )
+                return f"`{command}` failed, so the tests could not run:\n{result.output[-4000:]}"
+        return ""
 
     async def _await_human(
         self, project: DevProject, ticket: DevTicket, diff: str, should_cancel: CancelCheck

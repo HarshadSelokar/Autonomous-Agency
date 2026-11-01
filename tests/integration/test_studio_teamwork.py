@@ -602,3 +602,90 @@ def test_workspace_removal_refuses_paths_outside_the_studio_folder(tmp_path, mon
     with pytest.raises(ValueError, match="not a studio workspace"):
         _remove_workspace(tmp_path / "ws")  # the studio folder itself is not a project
     assert (outside / "keep.txt").exists()
+
+
+async def test_dependencies_are_installed_before_tests_and_never_committed(tmp_path: Path, monkeypatch):
+    import src.application.dev_team_service as service
+
+    # Stand-in for "npm install": the manifest is deps.json and installing creates node_modules/
+    monkeypatch.setattr(service, "DEPENDENCY_STEPS", [("deps.json", "node_modules", "python install.py")])
+    store = InMemoryDevProjectStore()
+
+    def develop(task: AgentTask, attempt: int) -> None:
+        root = task.workspace_root
+        (root / "deps.json").write_text("{}", encoding="utf-8")
+        (root / "install.py").write_text(
+            "import os\nos.makedirs('node_modules/lib')\nopen('node_modules/lib/tool.txt', 'w').write('ok')\n",
+            encoding="utf-8",
+        )
+        # The test only passes if the install step ran first
+        (root / "check.py").write_text(
+            "import os, sys\nsys.exit(0 if os.path.exists('node_modules/lib/tool.txt') else 1)\n", encoding="utf-8"
+        )
+
+    engine = TeamEngine([ticket("alpha")], develop)
+    project = await make_project(store, developers=1, test_command="python check.py")
+
+    result = await orchestrator_for(store, engine, tmp_path).run_project(project.id)
+
+    assert result.status == ProjectStatus.COMPLETED, (result.failure_reason, [t.feedback for t in await store.list_tickets(project.id)])
+    assert "installing dependencies" in [e.summary for e in store.events]
+    workspace = ProjectWorkspace(Path(result.workspace_path))
+    committed = (await workspace.git("ls-files")).output.split()
+    assert "check.py" in committed and "deps.json" in committed
+    assert not any(path.startswith("node_modules") for path in committed)
+    assert "a/node_modules" not in engine.review_briefs[0]  # and it never reached the reviewer's diff
+
+
+async def test_failed_install_goes_back_to_the_developer(tmp_path: Path, monkeypatch):
+    import src.application.dev_team_service as service
+
+    monkeypatch.setattr(service, "DEPENDENCY_STEPS", [("deps.json", "node_modules", "python install.py")])
+    store = InMemoryDevProjectStore()
+
+    def develop(task: AgentTask, attempt: int) -> None:
+        root = task.workspace_root
+        (root / "deps.json").write_text("{}", encoding="utf-8")
+        broken = "import sys\nprint('cannot resolve package left-pad')\nsys.exit(1)\n"
+        fixed = "import os\nos.makedirs('node_modules')\n"
+        (root / "install.py").write_text(broken if attempt == 1 else fixed, encoding="utf-8")
+
+    engine = TeamEngine([ticket("alpha")], develop)
+    project = await make_project(store, developers=1, test_command="python -c pass")
+
+    result = await orchestrator_for(store, engine, tmp_path).run_project(project.id)
+
+    assert result.status == ProjectStatus.COMPLETED, result.failure_reason
+    assert "`python install.py` failed" in engine.developer_briefs[1]
+    assert "cannot resolve package left-pad" in engine.developer_briefs[1]
+
+
+async def test_resume_retries_blocked_tickets_with_their_feedback(tmp_path: Path):
+    store = InMemoryDevProjectStore()
+    state = {"fixed": False}
+
+    def develop(task: AgentTask, attempt: int) -> None:
+        (task.workspace_root / "check.py").write_text(
+            f"import sys\nsys.exit({0 if state['fixed'] else 1})\n", encoding="utf-8"
+        )
+        write_own_file(task, attempt)
+
+    engine = TeamEngine([ticket("first"), ticket("second", depends_on=[1])], develop)
+    project = await make_project(store, developers=1, test_command="python check.py")
+    orchestrator = orchestrator_for(store, engine, tmp_path)
+
+    stuck = await orchestrator.run_project(project.id)
+    assert stuck.status == ProjectStatus.NEEDS_ATTENTION
+    assert [t.status for t in await store.list_tickets(project.id)] == [TicketStatus.BLOCKED, TicketStatus.BLOCKED]
+
+    state["fixed"] = True
+    briefs_before = len(engine.developer_briefs)
+    resumed = await orchestrator.run_project(project.id)
+
+    assert resumed.status == ProjectStatus.COMPLETED, resumed.failure_reason
+    assert [t.status for t in await store.list_tickets(project.id)] == [TicketStatus.DONE, TicketStatus.DONE]
+    retry_brief = engine.developer_briefs[briefs_before]
+    assert "Your ticket: first" in retry_brief and "`python check.py` failed" in retry_brief
+    # The ticket that was only waiting on the first one starts clean
+    second_brief = next(b for b in engine.developer_briefs[briefs_before:] if "Your ticket: second" in b)
+    assert "previous attempt" not in second_brief

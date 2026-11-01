@@ -14,6 +14,7 @@ from src.infrastructure.config import settings
 SNAPSHOT_IGNORED_DIRS = {
     ".git", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", "dist", "build",
 }
+GENERATED_FOLDERS = ["node_modules/", ".venv/", "venv/", "__pycache__/", ".pytest_cache/"]
 AGENT_GIT_IDENTITY = ["-c", "user.name=Agency Dev Team", "-c", "user.email=agents@agency.local"]
 
 
@@ -110,6 +111,22 @@ class ProjectWorkspace:
     async def diff_since(self, base_commit: str, max_chars: int = 200_000) -> str:
         diff = (await self.git("diff", f"{base_commit}..HEAD")).output if base_commit else ""
         return diff[:max_chars]
+
+    async def exclude_generated_folders(self) -> None:
+        """
+        Keep installed dependencies and caches out of every commit, whatever the project's own
+        .gitignore says. Written to the repository's local exclude file, which all of its
+        worktrees share and which is never committed.
+        """
+        git_dir = (await self.git("rev-parse", "--git-common-dir")).output.strip()
+        if not git_dir:
+            return
+        exclude = (self.root / git_dir).resolve() / "info" / "exclude"
+        exclude.parent.mkdir(parents=True, exist_ok=True)
+        existing = exclude.read_text(encoding="utf-8") if exclude.exists() else ""
+        missing = [entry for entry in GENERATED_FOLDERS if entry not in existing.splitlines()]
+        if missing:
+            exclude.write_text(existing.rstrip("\n") + "\n" + "\n".join(missing) + "\n", encoding="utf-8")
 
     # -------------------------------------------------------------- worktrees
     async def add_worktree(self, path: Path, branch: str, start_point: str) -> "ProjectWorkspace":
