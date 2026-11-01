@@ -108,6 +108,10 @@ async def test_memory_workspace_artifact_repositories(async_session: AsyncSessio
     assert fetched_ws is not None
     assert fetched_ws.name == "Task T-100 Workspace"
 
+    fetched_workspaces_by_owner = await ws_repo.list_by_owner("TASK:t-100")
+    assert len(fetched_workspaces_by_owner) == 1
+    assert fetched_workspaces_by_owner[0].id == "ws-repo-1"
+
     fetched_arts = await art_repo.list_by_workspace_id("ws-repo-1")
     assert len(fetched_arts) == 1
     assert fetched_arts[0].name == "research.md"

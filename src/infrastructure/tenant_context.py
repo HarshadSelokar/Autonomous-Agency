@@ -65,6 +65,6 @@ def install_tenant_scoping(base: type) -> None:
             if getattr(obj, "__tenant_is_self__", False):
                 # A tenant row belongs to itself, so its own users can read it
                 if getattr(obj, "tenant_id", None) is None:
-                    obj.tenant_id = obj.id
+                    setattr(obj, "tenant_id", getattr(obj, "id", None))
             elif tenant_id is not None and getattr(obj, "tenant_id", None) is None:
-                obj.tenant_id = tenant_id
+                setattr(obj, "tenant_id", tenant_id)

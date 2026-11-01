@@ -9,6 +9,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 
 
 class SoftwareProjectStatus(str, Enum):
@@ -192,7 +193,7 @@ class SoftwareDelivery:
     requested_by_employee_id: str = ""
     approved_by_employee_id: str | None = None
     status: DeliveryStatus = DeliveryStatus.DRAFT
-    evidence_summary: dict = field(default_factory=dict)
+    evidence_summary: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 

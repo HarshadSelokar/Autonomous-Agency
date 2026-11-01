@@ -184,7 +184,13 @@ class CommandRunner:
                     check=False,
                 )
             else:
-                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                killpg = getattr(os, "killpg", None)
+                getpgid = getattr(os, "getpgid", None)
+                sigkill = getattr(signal, "SIGKILL", getattr(signal, "SIGTERM", 9))
+                if killpg and getpgid:
+                    killpg(getpgid(process.pid), sigkill)
+                else:
+                    process.kill()
         except (ProcessLookupError, OSError):
             process.kill()
 

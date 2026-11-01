@@ -4,7 +4,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 
-from src.domain.department import DepartmentHealth, DepartmentPriority
+from src.domain.department import (
+    DepartmentHealth as DepartmentHealth,
+    DepartmentPriority as DepartmentPriority,
+)
 
 
 class DepartmentRequestStatus(str, Enum):

@@ -21,7 +21,7 @@ class BusinessObservabilityService:
     def _redact_sensitive(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Redacts sensitive banking identifiers, API tokens, and secret fields."""
         sensitive_keys = {"bank_account", "api_key", "secret", "token", "password", "card_number"}
-        redacted = {}
+        redacted: Dict[str, Any] = {}
         for k, v in data.items():
             if any(s in k.lower() for s in sensitive_keys):
                 redacted[k] = "[REDACTED]"

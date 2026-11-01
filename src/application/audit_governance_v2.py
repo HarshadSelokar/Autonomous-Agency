@@ -8,7 +8,7 @@ from src.domain.audit_v2 import AuditActionType, AuditRecordV2
 
 
 class AuditGovernanceV2Service:
-    def __init__(self, repository=None):
+    def __init__(self, repository: Any = None) -> None:
         self.repository = repository
         # Map tenant_id -> list of AuditRecordV2
         self._audit_chains: dict[str, list[AuditRecordV2]] = {}

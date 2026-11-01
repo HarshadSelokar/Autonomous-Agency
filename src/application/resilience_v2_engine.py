@@ -14,7 +14,7 @@ from src.domain.resilience_v2 import (
 
 
 class ResilienceV2Engine:
-    def __init__(self, repository=None):
+    def __init__(self, repository: Any = None) -> None:
         self.repository = repository
         self._policies: dict[str, ResilienceV2Policy] = {}
         self._fault_counters: dict[str, int] = defaultdict(int)

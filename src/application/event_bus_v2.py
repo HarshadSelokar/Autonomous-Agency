@@ -9,7 +9,7 @@ from src.domain.event_v2 import EventV2, OutboxMessage, OutboxStatus
 
 
 class EventBusV2:
-    def __init__(self, repository=None):
+    def __init__(self, repository: Any = None) -> None:
         self.repository = repository
         # Map event_type -> list of subscriber callbacks
         self._subscribers: dict[str, list[Callable[[EventV2], None]]] = defaultdict(list)

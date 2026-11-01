@@ -117,7 +117,7 @@ class ResilienceEngine:
         await self.check_circuit_breaker(target_name)
 
         attempt = 1
-        last_exception = None
+        last_exception: Exception | None = None
 
         while attempt <= policy.max_attempts:
             try:

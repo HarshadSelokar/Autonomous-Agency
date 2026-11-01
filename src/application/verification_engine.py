@@ -114,7 +114,7 @@ class VerificationEngine:
             )
         else:
             # Reconstruct domain outcome from model
-            rules_data_list: List[Dict[str, Any]] = outcome_model.rules_data if isinstance(outcome_model.rules_data, list) else []
+            rules_data_list: list[dict[str, Any]] = outcome_model.rules_data if isinstance(outcome_model.rules_data, list) else []
             rules = [
                 VerificationRule(
                     rule_id=str(r["rule_id"]),
@@ -131,8 +131,8 @@ class VerificationEngine:
                 )
                 for r in rules_data_list
             ]
-            criteria_list: List[str] = outcome_model.criteria if isinstance(outcome_model.criteria, list) else []
-            req_ev_list: List[str] = outcome_model.required_evidence_types if isinstance(outcome_model.required_evidence_types, list) else []
+            criteria_list: list[str] = outcome_model.criteria if isinstance(outcome_model.criteria, list) else []
+            req_ev_list: list[str] = outcome_model.required_evidence_types if isinstance(outcome_model.required_evidence_types, list) else []
             outcome = ExpectedOutcome(
                 outcome_id=outcome_model.id,
                 task_id=outcome_model.task_id,

@@ -16,7 +16,7 @@ from src.domain.workflow_v2 import (
 
 
 class WorkflowEngineV2:
-    def __init__(self, repository=None):
+    def __init__(self, repository: Any = None) -> None:
         """
         In-memory / repository-backed durable workflow engine.
         """

@@ -35,6 +35,16 @@ class SQLAlchemyWorkspaceRepository:
         model = result.unique().scalar_one_or_none()
         return workspace_model_to_domain(model) if model else None
 
+    async def list_by_owner(self, owner_id: str) -> list[Workspace]:
+        stmt = (
+            select(WorkspaceModel)
+            .where(WorkspaceModel.owner_id == owner_id)
+            .order_by(WorkspaceModel.created_at.desc())
+        )
+        result = await self.session.execute(stmt)
+        models = result.unique().scalars().all()
+        return [workspace_model_to_domain(m) for m in models]
+
     async def list_all(self) -> list[Workspace]:
         stmt = select(WorkspaceModel).order_by(WorkspaceModel.created_at.desc())
         result = await self.session.execute(stmt)
