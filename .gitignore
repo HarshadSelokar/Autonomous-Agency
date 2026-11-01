@@ -59,3 +59,7 @@ frontend/dist/
 # Runtime output: agent workspaces, artifact storage, backups
 scratch/studio/
 scratch/artifact_storage/
+
+
+remain-random-work.txt
+next-phases.txt
