@@ -39,6 +39,165 @@ const SHELF = { x: 296, y: 128, units: 3 };
 const RIG = { x: 444, y: 212 };
 const WHITEBOARD = { x: 232, y: 9 };
 
+/* ---------------------------------------------------------------- leisure
+   What free agents do in the open space. This is decided entirely in the browser from the
+   clock: no model is asked anything, so it costs no tokens. */
+const PING_PONG = { x: 314, y: 212 };
+const CHESS = { x: 392, y: 264 };
+
+export interface Leisure {
+  spot: Spot;
+  /** Shown above one player of a pair, so two bubbles do not cover the table. */
+  label: string;
+  game: 'pingpong' | 'chess' | 'chat' | 'meeting';
+}
+
+const LEISURE_PAIRS: { game: Leisure['game']; label: string; spots: [Spot, Spot] }[] = [
+  {
+    game: 'pingpong',
+    label: 'playing table tennis',
+    spots: [
+      { x: PING_PONG.x - 8, y: PING_PONG.y + 20, aisleX: 286, facing: 'down' },
+      { x: PING_PONG.x + 48, y: PING_PONG.y + 20, aisleX: 372, facing: 'down' },
+    ],
+  },
+  {
+    game: 'chess',
+    label: 'playing chess',
+    spots: [
+      { x: CHESS.x - 8, y: CHESS.y + 14, aisleX: 372, facing: 'down' },
+      { x: CHESS.x + 24, y: CHESS.y + 14, aisleX: 436, facing: 'down' },
+    ],
+  },
+  {
+    game: 'chat',
+    label: '…',
+    spots: [
+      { x: 290, y: 290, aisleX: 286, facing: 'down' },
+      { x: 304, y: 292, aisleX: 286, facing: 'down' },
+    ],
+  },
+  {
+    game: 'chat',
+    label: '…',
+    spots: [
+      { x: 374, y: 166, aisleX: 286, facing: 'down' },
+      { x: 388, y: 168, aisleX: 286, facing: 'down' },
+    ],
+  },
+];
+
+/* --------------------------------------------------------------- meetings
+   Team meetings are also only a picture of what is going on: free agents gather at the
+   meeting table. Nothing is said, so nothing is spent. */
+export type MeetingKind = 'planning' | 'huddle' | 'wrapup';
+
+const MEETING_LABEL: Record<MeetingKind, string> = {
+  planning: '',
+  huddle: 'team huddle',
+  wrapup: 'wrap-up',
+};
+
+// Chairs around the meeting table, filled in an order that keeps neighbours (and their name
+// tags) apart for as long as possible. The top-centre chair stays empty: the manager stands there.
+const topSeat = (chair: number): Spot => ({ x: 208 + chair * 22, y: 60, aisleX: 172, facing: 'down', seated: true });
+const bottomSeat = (chair: number): Spot => ({ x: 208 + chair * 22, y: 95, aisleX: 172, facing: 'up', seated: true });
+const MEETING_SEATS: Spot[] = [
+  topSeat(0), topSeat(4), bottomSeat(2), bottomSeat(0), bottomSeat(4),
+  topSeat(1), topSeat(3), bottomSeat(1), bottomSeat(3),
+];
+
+/** Seat every free team member at the meeting table; the manager stands at the whiteboard. */
+export function assignMeeting(free: TeamMember[], kind: MeetingKind): Map<string, Leisure> {
+  const result = new Map<string, Leisure>();
+  let seat = 0;
+  for (const member of free) {
+    if (member.role === 'MANAGER') {
+      result.set(member.id, {
+        spot: { x: WHITEBOARD.x + 24, y: 42, aisleX: 172, facing: 'down' },
+        label: MEETING_LABEL[kind],
+        game: 'meeting',
+      });
+    } else if (seat < MEETING_SEATS.length) {
+      result.set(member.id, { spot: MEETING_SEATS[seat], label: '', game: 'meeting' });
+      seat += 1;
+    }
+  }
+  return result;
+}
+
+export const LEISURE_EPOCH_MS = 50_000;
+
+/**
+ * Pair up free team members for a break. The same epoch and the same free people always give
+ * the same pairs, so the scene is stable between refreshes; a new epoch reshuffles.
+ */
+export function assignLeisure(free: TeamMember[], epoch: number): Map<string, Leisure> {
+  const result = new Map<string, Leisure>();
+  if (free.length < 2) return result;
+
+  let seed = (epoch * 2654435761) >>> 0;
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const people = [...free].sort((a, b) => a.id.localeCompare(b.id));
+  for (let i = people.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [people[i], people[j]] = [people[j], people[i]];
+  }
+  // Most, not all, take a break; the rest stay at their desks
+  const pairs = Math.min(LEISURE_PAIRS.length, Math.max(1, Math.floor((people.length * 0.75) / 2)));
+  const offset = Math.floor(random() * LEISURE_PAIRS.length);
+  for (let pair = 0; pair < pairs; pair++) {
+    const activity = LEISURE_PAIRS[(offset + pair) % LEISURE_PAIRS.length];
+    for (let seat = 0; seat < 2; seat++) {
+      const label = activity.game === 'chat' || seat === 0 ? activity.label : '';
+      result.set(people[pair * 2 + seat].id, { spot: activity.spots[seat], label, game: activity.game });
+    }
+  }
+  return result;
+}
+
+function drawPingPong(ctx: Ctx, playing: boolean, tick: number) {
+  const { x, y } = PING_PONG;
+  rect(ctx, '#2b2f3a', x + 3, y + 24, 2, 5);
+  rect(ctx, '#2b2f3a', x + 35, y + 24, 2, 5);
+  rect(ctx, '#2f6f55', x, y, 40, 24);
+  rect(ctx, '#3b8a69', x + 1, y + 1, 38, 22);
+  rect(ctx, '#e9f3ee', x + 1, y + 11, 38, 1);
+  rect(ctx, '#e9f3ee', x, y, 40, 1);
+  rect(ctx, '#e9f3ee', x, y + 23, 40, 1);
+  rect(ctx, '#dfe6ea', x + 19, y - 2, 2, 27); // net
+  if (playing) {
+    const phase = (tick % 56) / 56;
+    const travel = phase < 0.5 ? phase * 2 : 2 - phase * 2;
+    const ballX = x + 3 + travel * 33;
+    const ballY = y + 10 + Math.sin(tick / 11) * 5 - Math.abs(Math.sin(phase * Math.PI * 2)) * 4;
+    rect(ctx, '#fff7d6', ballX, ballY, 2, 2);
+  } else {
+    rect(ctx, '#c4574f', x + 5, y + 6, 4, 4); // paddles left on the table
+    rect(ctx, '#4f7cc4', x + 30, y + 14, 4, 4);
+  }
+}
+
+function drawChess(ctx: Ctx, playing: boolean, tick: number) {
+  const { x, y } = CHESS;
+  rect(ctx, '#8f6839', x + 2, y + 14, 2, 5);
+  rect(ctx, '#8f6839', x + 12, y + 14, 2, 5);
+  rect(ctx, '#c9a26b', x, y, 16, 15);
+  for (let row = 0; row < 4; row++) {
+    for (let column = 0; column < 4; column++) {
+      rect(ctx, (row + column) % 2 ? '#3d4150' : '#f4f1ea', x + 2 + column * 3, y + 2 + row * 3, 3, 3);
+    }
+  }
+  const move = playing ? Math.floor(tick / 90) % 4 : 0;
+  rect(ctx, '#c4574f', x + 3 + move * 3, y + 3, 1, 1);
+  rect(ctx, '#4f7cc4', x + 12 - move * 3, y + 12, 1, 1);
+  rect(ctx, '#c4574f', x + 9, y + 6, 1, 1);
+  rect(ctx, '#4f7cc4', x + 6, y + 9, 1, 1);
+}
+
 export function deskFor(member: TeamMember, team: TeamMember[]): Desk {
   if (member.role === 'MANAGER') return MANAGER_DESK;
   if (member.role === 'REVIEWER') return REVIEWER_DESK;
@@ -48,10 +207,14 @@ export function deskFor(member: TeamMember, team: TeamMember[]): Desk {
 }
 
 /** Where a team member should be, given what the API says they are doing. */
-export function spotFor(member: TeamMember, team: TeamMember[]): { spot: Spot; typing: boolean } {
+export function spotFor(
+  member: TeamMember,
+  team: TeamMember[],
+  leisure?: Map<string, Leisure>
+): { spot: Spot; typing: boolean } {
   const desk = deskFor(member, team);
   const seat = seatOf(desk);
-  if (member.state === 'IDLE') return { spot: seat, typing: false };
+  if (member.state === 'IDLE') return { spot: leisure?.get(member.id)?.spot ?? seat, typing: false };
 
   const activity = member.activity.toLowerCase();
   const index = team.findIndex((m) => m.id === member.id);
@@ -328,6 +491,11 @@ export interface Actor {
   step: number;
 }
 
+/** A game is only animated once both players are standing at the table. */
+function bothArrived(actors: Actor[], spots: [Spot, Spot]): boolean {
+  return spots.every((spot) => actors.some((a) => Math.abs(a.x - spot.x) < 1 && Math.abs(a.y - spot.y) < 1));
+}
+
 export function drawScene(ctx: Ctx, actors: Actor[], team: TeamMember[], tick: number, selectedId: string | null) {
   ctx.imageSmoothingEnabled = false;
   drawFloor(ctx);
@@ -345,6 +513,8 @@ export function drawScene(ctx: Ctx, actors: Actor[], team: TeamMember[], tick: n
   const drawables: Drawable[] = [
     { y: 58 + 30, draw: () => drawMeetingTable(ctx) },
     { y: RIG.y + 40, draw: () => drawRig(ctx, testing, tick) },
+    { y: PING_PONG.y + 24, draw: () => drawPingPong(ctx, bothArrived(actors, LEISURE_PAIRS[0].spots), tick) },
+    { y: CHESS.y + 16, draw: () => drawChess(ctx, bothArrived(actors, LEISURE_PAIRS[1].spots), tick) },
     { y: 110, draw: () => drawPlant(ctx, 150, 84) },
     { y: 300, draw: () => drawPlant(ctx, 10, 296) },
     { y: 300, draw: () => drawPlant(ctx, 490, 296) },

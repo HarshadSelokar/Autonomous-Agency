@@ -449,8 +449,10 @@ export const StudioApp: React.FC = () => {
       <main className="workspace">
         <section className="floor">
           <OfficeView
+            key={project.id}
             team={project.team}
             tickets={project.tickets}
+            status={project.status}
             running={project.is_running}
             selectedId={selectedAgent}
             onSelect={setSelectedAgent}
