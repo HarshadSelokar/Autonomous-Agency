@@ -245,7 +245,7 @@ def upgrade() -> None:
         sa.Column('progress_pct', sa.Float(), nullable=False, server_default='0.0'),
         sa.Column('resource_utilization_pct', sa.Float(), nullable=False, server_default='0.0'),
         sa.Column('status', sa.String(length=32), nullable=False, server_default='ACTIVE'),
-        sa.Column('has_bottleneck', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('has_bottleneck', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('bottleneck_description', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -262,7 +262,7 @@ def upgrade() -> None:
         sa.Column('allocations_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('constraints_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('tradeoffs_summary', sa.Text(), nullable=False, server_default=''),
-        sa.Column('is_approved', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_approved', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('approved_by_id', sa.String(length=64), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -279,7 +279,7 @@ def upgrade() -> None:
         sa.Column('source_event_ids_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('proposed_change', sa.Text(), nullable=False),
         sa.Column('expected_impact', sa.Text(), nullable=False, server_default=''),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('status', sa.String(length=32), nullable=False, server_default='PROPOSED'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
@@ -298,7 +298,7 @@ def upgrade() -> None:
         sa.Column('resource_effects_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('projected_risks_json', sa.Text(), nullable=False, server_default='[]'),
         sa.Column('confidence', sa.Float(), nullable=False, server_default='1.0'),
-        sa.Column('is_authoritative', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_authoritative', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )

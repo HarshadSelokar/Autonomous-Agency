@@ -134,6 +134,18 @@ class GovernanceRepository:
         stmt = select(EmergencyStopModel).where(EmergencyStopModel.is_active.is_(True))
         return list(self._session.scalars(stmt).all())
 
+    def is_emergency_stopped(self) -> bool:
+        """True while any emergency stop is active (read by the office overview)."""
+        return bool(self.get_active_emergency_stops())
+
+    def has_pending_approval(self, actor_id: str) -> bool:
+        """True if this actor has an approval request still waiting for a decision."""
+        stmt = select(GovernanceApprovalRequestModel.id).where(
+            GovernanceApprovalRequestModel.requested_by_actor_id == actor_id,
+            GovernanceApprovalRequestModel.status == "PENDING",
+        )
+        return self._session.execute(stmt).first() is not None
+
     def save_override(self, override: GovernanceOverride) -> GovernanceOverride:
         model = GovernanceOverrideModel(
             id=override.override_id,

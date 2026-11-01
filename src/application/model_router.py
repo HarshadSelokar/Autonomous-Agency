@@ -29,7 +29,7 @@ from src.infrastructure.repositories.model_routing_repository import ModelRoutin
 class ModelRouter:
     """Provider-neutral Model Router responsible for intelligent model selection, strategy-based scoring, governance allowlist validation, and controlled fallback."""
 
-    def __init__(self, repository: ModelRoutingRepository, outbox_publisher: Optional[Any] = None):
+    def __init__(self, repository: Optional[ModelRoutingRepository] = None, outbox_publisher: Optional[Any] = None):
         self._repository = repository
         self._outbox_publisher = outbox_publisher
 
@@ -212,3 +212,40 @@ class ModelRouter:
             return base_quality - error_penalty
 
         return base_quality
+
+    def select_model_v2(
+        self,
+        request: Optional[ModelSelectionRequest] = None,
+        max_budget_cost: Optional[float] = None,
+        task_complexity: str = "MEDIUM",
+        tenant_id: Optional[str] = None,
+        task_type: str = "general",
+        preferred_provider: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Phase 36 Enhanced Model Routing: Supports budget ceilings, task complexity scaling,
+        and tenant isolation constraints.
+        """
+        if request is not None and self._repository is not None:
+            if max_budget_cost is not None and max_budget_cost < 0.05:
+                request.strategy = RoutingStrategy.COST_AWARE
+            elif task_complexity in ("HIGH", "CRITICAL"):
+                request.strategy = RoutingStrategy.QUALITY_AWARE
+
+            decision = self.route_model(request)
+            if tenant_id:
+                decision.rationale += f" [Tenant: {tenant_id}]"
+            return decision
+
+        # No routing table available: fall back to the configured default of a real provider
+        from src.infrastructure.config import settings
+
+        provider = preferred_provider or "groq"
+        # An env file can set GROQ_MODEL to an empty string
+        selected = settings.OPENAI_MODEL if provider == "openai" else (settings.GROQ_MODEL or "openai/gpt-oss-120b")
+        return {
+            "primary_model": selected,
+            "provider": provider,
+            "tenant_id": tenant_id,
+            "complexity": task_complexity,
+        }

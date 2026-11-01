@@ -266,7 +266,7 @@ class AdaptationProposal:
             AdaptationStatus.REVIEW_REQUIRED: [AdaptationStatus.APPROVED, AdaptationStatus.REJECTED, AdaptationStatus.CANCELLED],
             AdaptationStatus.APPROVED: [AdaptationStatus.EXPERIMENTING, AdaptationStatus.ADOPTED, AdaptationStatus.CANCELLED],
             AdaptationStatus.REJECTED: [],
-            AdaptationStatus.EXPERIMENTING: [AdaptationStatus.EVALUATING, AdaptationStatus.ROLLED_BACK, AdaptationStatus.FAILED if hasattr(AdaptationStatus, "FAILED") else AdaptationStatus.ROLLED_BACK],
+            AdaptationStatus.EXPERIMENTING: [AdaptationStatus.EVALUATING, AdaptationStatus.ROLLED_BACK],
             AdaptationStatus.EVALUATING: [AdaptationStatus.ADOPTED, AdaptationStatus.ROLLED_BACK],
             AdaptationStatus.ADOPTED: [AdaptationStatus.SUPERSEDED, AdaptationStatus.ROLLED_BACK],
             AdaptationStatus.ROLLED_BACK: [],

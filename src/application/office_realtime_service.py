@@ -102,3 +102,15 @@ class OfficeRealtimeBroadcaster:
                     )
 
         return delivered_count
+
+    async def broadcast_payload(self, payload: dict[str, Any]) -> int:
+        """Send an already-serialisable event (e.g. one relayed from the worker) to every client."""
+        delivered_count = 0
+        for conn in list(self._connections.values()):
+            try:
+                if conn.websocket and hasattr(conn.websocket, "send_json"):
+                    await conn.websocket.send_json(payload)
+                delivered_count += 1
+            except Exception as exc:
+                logger.warning(f"Failed to deliver relayed event to connection {conn.connection_id}: {exc}")
+        return delivered_count

@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "015_create_phase13_office_projection_tables"
-down_revision: str | None = "014_create_phase11_12_governance_and_model_routing_tables"
+revision: str = "015"
+down_revision: str | None = "014"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -37,7 +37,7 @@ def upgrade() -> None:
         sa.Column("active_agent_id", sa.String(length=64), nullable=True),
         sa.Column("active_tool_name", sa.String(length=128), nullable=True),
         sa.Column("active_model_id", sa.String(length=128), nullable=True),
-        sa.Column("is_manager", sa.Boolean(), nullable=False, server_default=sa.text("0")),
+        sa.Column("is_manager", sa.Boolean(), nullable=False, server_default=sa.text("false")),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("employee_id"),
     )

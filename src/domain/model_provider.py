@@ -11,9 +11,13 @@ from typing import Any
 
 @dataclass(frozen=True)
 class ChatMessage:
-    role: str  # system, user, assistant
+    role: str  # system, user, assistant, tool
     content: str
     name: str | None = None
+    # Assistant turns that request tools carry normalized calls: {"id", "name", "arguments"}
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)
+    # Tool result turns reference the call they answer
+    tool_call_id: str | None = None
 
 
 @dataclass(frozen=True)

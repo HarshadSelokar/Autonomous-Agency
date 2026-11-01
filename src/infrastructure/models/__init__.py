@@ -4,6 +4,10 @@ Import all ORM models to ensure registration with Base.metadata.
 """
 
 from src.infrastructure.models.agent_model import AgentModel
+from src.infrastructure.models.tenant_model import TenantModel
+from src.infrastructure.models.identity_model import UserModel, OrganizationModel, MembershipModel
+from src.infrastructure.models.budget_model import ResourceBudgetModel, CostRecordModel
+from src.infrastructure.models.workflow_v2_model import WorkflowDefinitionModel, WorkflowInstanceModel
 from src.infrastructure.models.venture_model import (
     InnovationOpportunityModel,
     InnovationIdeaModel,
@@ -442,3 +446,28 @@ __all__.extend(
         "ProductionReadinessItemModel",
     ]
 )
+
+from src.infrastructure.models.resilience_v2_model import (
+    ResilienceV2PolicyModel,
+    SelfHealingLogModel,
+)
+from src.infrastructure.models.audit_v2_model import AuditRecordV2Model
+from src.infrastructure.models.dev_project_model import (
+    DevActivityEventModel,
+    DevProjectModel,
+    DevTicketModel,
+)
+
+__all__.extend(
+    [
+        "ResilienceV2PolicyModel",
+        "SelfHealingLogModel",
+        "AuditRecordV2Model",
+        "DevProjectModel",
+        "DevTicketModel",
+        "DevActivityEventModel",
+    ]
+)
+
+
+

@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "014_create_phase11_12_governance_and_model_routing_tables"
-down_revision: str | None = "013_create_phase10_verification_and_recovery_tables"
+revision: str = "014"
+down_revision: str | None = "013"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("scope_id", sa.String(length=64), nullable=True),
         sa.Column("level", sa.String(length=32), nullable=False, server_default="COMPANY"),
         sa.Column("rules_data", sa.JSON(), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column("risk_level", sa.String(length=32), nullable=False, server_default="HIGH"),
         sa.Column("status", sa.String(length=32), nullable=False, server_default="PENDING"),
         sa.Column("required_approver_roles", sa.JSON(), nullable=False),
-        sa.Column("prohibit_self_approval", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("prohibit_self_approval", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("approved_by_actor_id", sa.String(length=64), nullable=True),
         sa.Column("rejection_reason", sa.Text(), nullable=True),
         sa.Column("payload", sa.JSON(), nullable=False),
@@ -88,7 +88,7 @@ def upgrade() -> None:
         sa.Column("scope_id", sa.String(length=64), nullable=False),
         sa.Column("activated_by_actor_id", sa.String(length=64), nullable=False),
         sa.Column("reason", sa.Text(), nullable=False, server_default=""),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -140,8 +140,8 @@ def upgrade() -> None:
         sa.Column("cost_per_1k_output_tokens", sa.Float(), nullable=False, server_default="0.002"),
         sa.Column("latency_ms", sa.Integer(), nullable=False, server_default="200"),
         sa.Column("quality_score", sa.Float(), nullable=False, server_default="0.9"),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="1"),
-        sa.Column("is_approved_for_production", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
+        sa.Column("is_approved_for_production", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -161,7 +161,7 @@ def upgrade() -> None:
         sa.Column("candidate_model_ids", sa.JSON(), nullable=False),
         sa.Column("rejected_candidates", sa.JSON(), nullable=False),
         sa.Column("score_breakdown", sa.JSON(), nullable=False),
-        sa.Column("is_fallback", sa.Boolean(), nullable=False, server_default="0"),
+        sa.Column("is_fallback", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("rationale", sa.Text(), nullable=False, server_default=""),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
@@ -176,7 +176,7 @@ def upgrade() -> None:
         sa.Column("id", sa.String(length=64), nullable=False),
         sa.Column("provider_name", sa.String(length=64), nullable=False),
         sa.Column("model_id", sa.String(length=64), nullable=False),
-        sa.Column("is_healthy", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("is_healthy", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("error_rate", sa.Float(), nullable=False, server_default="0.0"),
         sa.Column("latency_p95_ms", sa.Integer(), nullable=False, server_default="250"),
         sa.Column("rate_limit_reset_at", sa.DateTime(timezone=True), nullable=True),

@@ -157,7 +157,7 @@ def upgrade() -> None:
         sa.Column('owner_id', sa.String(length=64), nullable=False, server_default='system'),
         sa.Column('version', sa.Integer(), nullable=False, server_default='1'),
         sa.Column('validation_status', sa.String(length=32), nullable=False, server_default='CANDIDATE'),
-        sa.Column('is_governance_approved', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_governance_approved', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
@@ -179,7 +179,7 @@ def upgrade() -> None:
         sa.Column('status', sa.String(length=32), nullable=False, server_default='PROPOSED'),
         sa.Column('results_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('conclusion', sa.Text(), nullable=False, server_default=''),
-        sa.Column('is_isolated', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('is_isolated', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('governance_approval_id', sa.String(length=64), nullable=True),
         sa.Column('started_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),

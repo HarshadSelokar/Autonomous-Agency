@@ -4,7 +4,11 @@ Follows the repository pattern to keep domain decoupled from persistence details
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from src.domain.meeting import Meeting
+    from src.domain.memory import MemoryEntry
 
 
 from src.domain.agent import Agent

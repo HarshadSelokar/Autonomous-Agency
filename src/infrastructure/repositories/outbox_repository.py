@@ -77,8 +77,8 @@ class SQLAlchemyOutboxRepository:
         if model:
             model.retry_count += 1
             model.last_error = error_msg
-            if model.retry_count >= model.max_retries:
-                model.status = "FAILED"
+            # Back to PENDING so the next batch retries it; FAILED once retries run out
+            model.status = "FAILED" if model.retry_count >= model.max_retries else "PENDING"
             flush_res = self.session.flush()
             if inspect.isawaitable(flush_res):
                 await flush_res

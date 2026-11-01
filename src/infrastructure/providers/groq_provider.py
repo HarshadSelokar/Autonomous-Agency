@@ -16,6 +16,7 @@ from src.domain.exceptions import (
     ProviderUnavailableError,
     RateLimitError,
     TimeoutError,
+    ToolCallRejectedError,
 )
 from src.domain.model_provider import (
     ModelProviderInterface,
@@ -24,11 +25,20 @@ from src.domain.model_provider import (
     UsageInfo,
 )
 from src.infrastructure.config import settings
+from src.infrastructure.providers.openai_format import (
+    messages_to_payload,
+    parse_tool_calls,
+    tools_to_payload,
+)
+
+
+DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
 
 
 class GroqModelProvider(ModelProviderInterface):
     def __init__(self, api_key: str | None = None, default_model: str | None = None) -> None:
-        self.api_key = api_key or settings.GROQ_API_KEY
+        # An explicit empty key means "unconfigured"; only None falls back to settings
+        self.api_key = api_key if api_key is not None else settings.GROQ_API_KEY
         self.default_model = default_model or settings.GROQ_MODEL
         self._client: AsyncGroq | None = None
 
@@ -48,24 +58,24 @@ class GroqModelProvider(ModelProviderInterface):
     async def generate(self, request: ModelRequest) -> ModelResponse:
         client = self._get_client()
 
-        model_name = request.model or self.default_model
-
-        messages_payload = [
-            {"role": msg.role, "content": msg.content, **({"name": msg.name} if msg.name else {})}
-            for msg in request.messages
-        ]
+        # GROQ_MODEL="" in an env file overrides the settings default with an empty string
+        model_name = request.model or self.default_model or DEFAULT_GROQ_MODEL
 
         kwargs: dict[str, Any] = {
             "model": model_name,
-            "messages": messages_payload,
+            "messages": messages_to_payload(request.messages),
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
             "top_p": request.top_p,
             "timeout": request.timeout_seconds,
         }
 
-        # If structured output JSON schema is specified
-        if request.response_schema is not None:
+        if request.tools:
+            kwargs["tools"] = tools_to_payload(request.tools)
+            kwargs["tool_choice"] = "auto"
+
+        # If structured output JSON schema is specified (JSON mode cannot be combined with tools)
+        if request.response_schema is not None and not request.tools:
             kwargs["response_format"] = {"type": "json_object"}
 
         try:
@@ -81,6 +91,12 @@ class GroqModelProvider(ModelProviderInterface):
         except groq.APIStatusError as e:
             if e.status_code in (500, 502, 503, 504):
                 raise ProviderUnavailableError(f"Groq server error ({e.status_code}): {e}") from e
+            error = (e.body or {}).get("error") if isinstance(getattr(e, "body", None), dict) else None
+            if isinstance(error, dict) and error.get("code") == "tool_use_failed":
+                raise ToolCallRejectedError(
+                    f"Groq rejected the tool call: {error.get('message', '')}",
+                    failed_generation=str(error.get("failed_generation") or ""),
+                ) from e
             raise ModelExecutionError(f"Groq API error ({e.status_code}): {e}") from e
         except Exception as e:
             raise ModelExecutionError(f"Unexpected Groq provider error: {e}") from e
@@ -110,6 +126,7 @@ class GroqModelProvider(ModelProviderInterface):
             model=chat_completion.model or model_name,
             usage=usage_info,
             structured_output=structured_output,
+            tool_calls=parse_tool_calls(getattr(choice.message, "tool_calls", None)),
             request_id=getattr(chat_completion, "id", ""),
             finish_reason=choice.finish_reason or "stop",
         )

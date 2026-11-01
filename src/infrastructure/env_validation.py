@@ -33,8 +33,14 @@ def validate_production_env(config: Settings) -> None:
         errors.append("Insecure default database credentials detected in DATABASE_URL.")
 
     # 3. Model Provider Credentials
-    if not config.GROQ_API_KEY:
-        errors.append("GROQ_API_KEY is required in production environment.")
+    if not config.GROQ_API_KEY and not config.OPENAI_API_KEY:
+        errors.append("GROQ_API_KEY or OPENAI_API_KEY is required in production environment.")
+
+    # 3b. Authentication
+    if not config.AUTH_REQUIRED:
+        errors.append("AUTH_REQUIRED must be true in production.")
+    if len(config.AUTH_SECRET_KEY) < 32:
+        errors.append("AUTH_SECRET_KEY must be set to at least 32 characters in production.")
 
     # 4. Storage Validation
     if config.STORAGE_TYPE.lower() == "s3":

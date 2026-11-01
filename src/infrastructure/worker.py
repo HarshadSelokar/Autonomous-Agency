@@ -2,11 +2,15 @@
 
 import asyncio
 import logging
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.infrastructure.config import settings
 from src.infrastructure.database import engine
+from src.infrastructure.event_publisher import LoggingEventPublisher, RedisEventPublisher
 from src.infrastructure.outbox_processor import TransactionalOutboxProcessor
+from src.infrastructure.redis_client import HAS_REDIS
 from src.infrastructure.worker_lifecycle import WorkerLifecycleManager, WorkerLifecycleState
 
 logger = logging.getLogger(__name__)
@@ -15,10 +19,16 @@ logger = logging.getLogger(__name__)
 class ProductionWorker:
     """Production async background worker daemon for outbox dispatching and task execution."""
 
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession] | None = None) -> None:
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession] | None = None,
+        event_publisher: Any | None = None,
+    ) -> None:
         self.session_factory = session_factory or async_sessionmaker(engine, expire_on_commit=False)
         self.lifecycle = WorkerLifecycleManager(drain_timeout_seconds=settings.WORKER_DRAIN_TIMEOUT)
-        self.outbox_processor = TransactionalOutboxProcessor()
+        if event_publisher is None:
+            event_publisher = RedisEventPublisher() if HAS_REDIS else LoggingEventPublisher()
+        self.outbox_processor = TransactionalOutboxProcessor(custom_subscriber=event_publisher)
         self.jobs_processed_count: int = 0
 
     async def run_once(self) -> int:

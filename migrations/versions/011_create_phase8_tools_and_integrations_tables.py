@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "011_create_phase8_tools_and_integrations_tables"
-down_revision: str | None = "010_create_phase7_memory_workspace_artifact_tables"
+revision: str = "011"
+down_revision: str | None = "010"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -34,7 +34,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(length=32), nullable=False, server_default="ACTIVE"),
         sa.Column("timeout_seconds", sa.Float(), nullable=False, server_default="30.0"),
         sa.Column("retry_limit", sa.Integer(), nullable=False, server_default="3"),
-        sa.Column("is_idempotent", sa.Boolean(), nullable=False, server_default="1"),
+        sa.Column("is_idempotent", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("metadata", sa.JSON(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),

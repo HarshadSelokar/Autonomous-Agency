@@ -30,9 +30,11 @@ ENV PYTHONUNBUFFERED=1 \
     APP_ENV=production \
     PORT=8000
 
+# git is required by the Software Studio (agent workspaces are git repositories)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Non-root user execution

@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "005_create_departments_and_employees"
-down_revision: str | None = "004_create_agent_checkpoints"
+revision: str = "005"
+down_revision: str | None = "004"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

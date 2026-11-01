@@ -7,6 +7,7 @@ staffing recommendation generation with explainable scoring, and workforce plann
 
 import logging
 from datetime import datetime
+from typing import Any
 
 from src.application.employee_selector import EmployeeSelector
 from src.domain.employee import Employee

@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column('product_id', sa.String(length=36), nullable=False),
         sa.Column('version_string', sa.String(length=50), nullable=False),
         sa.Column('release_notes', sa.Text(), nullable=False),
-        sa.Column('is_released', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_released', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('release_date', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id')
     )
@@ -113,7 +113,7 @@ def upgrade() -> None:
         sa.Column('name', sa.String(length=255), nullable=False),
         sa.Column('email', sa.String(length=255), nullable=False),
         sa.Column('role', sa.String(length=100), nullable=False),
-        sa.Column('is_primary', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_primary', sa.Boolean(), nullable=False, server_default='false'),
         sa.PrimaryKeyConstraint('id')
     )
 
@@ -286,9 +286,9 @@ def upgrade() -> None:
         'communication_preferences',
         sa.Column('id', sa.String(length=36), nullable=False),
         sa.Column('contact_email', sa.String(length=255), nullable=False, index=True),
-        sa.Column('opt_in_marketing', sa.Boolean(), nullable=False, server_default='1'),
-        sa.Column('opt_in_product_updates', sa.Boolean(), nullable=False, server_default='1'),
-        sa.Column('opt_out_all', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('opt_in_marketing', sa.Boolean(), nullable=False, server_default='true'),
+        sa.Column('opt_in_product_updates', sa.Boolean(), nullable=False, server_default='true'),
+        sa.Column('opt_out_all', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )

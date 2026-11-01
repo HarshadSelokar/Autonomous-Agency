@@ -3,6 +3,8 @@ WorkspaceAuthorizationService Application Layer for Phase 7.
 Enforces strict workspace isolation boundaries and authorization checks.
 """
 
+from typing import Any
+
 from src.domain.workspace import Workspace, WorkspaceStatus, WorkspaceType, WorkspaceValidationError
 
 
@@ -13,7 +15,7 @@ class WorkspaceAccessDeniedError(WorkspaceValidationError):
 
 
 class WorkspaceAuthorizationService:
-    def __init__(self, workspace_repo=None) -> None:
+    def __init__(self, workspace_repo: Any = None) -> None:
         self.workspace_repo = workspace_repo
 
     async def validate_task_workspace_access(

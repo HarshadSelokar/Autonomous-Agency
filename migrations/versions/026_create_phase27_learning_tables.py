@@ -101,7 +101,7 @@ def upgrade() -> None:
         sa.Column('candidate_id', sa.String(length=64), nullable=False),
         sa.Column('company_id', sa.String(length=64), nullable=False),
         sa.Column('validation_method', sa.String(length=64), nullable=False, server_default='HISTORICAL_ANALYSIS'),
-        sa.Column('is_valid', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_valid', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('evidence_score', sa.Float(), nullable=False, server_default='0.5'),
         sa.Column('validation_notes', sa.Text(), nullable=False, server_default=''),
         sa.Column('validated_by', sa.String(length=64), nullable=False, server_default='SYSTEM'),
@@ -171,7 +171,7 @@ def upgrade() -> None:
         sa.Column('rationale', sa.Text(), nullable=False),
         sa.Column('rollback_plan_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('status', sa.String(length=32), nullable=False, server_default='PROPOSED'),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('governance_approval_id', sa.String(length=64), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
@@ -223,7 +223,7 @@ def upgrade() -> None:
         sa.Column('actual_metrics_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('variance_analysis_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('side_effects_detected_json', sa.Text(), nullable=False, server_default='[]'),
-        sa.Column('has_regression', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('has_regression', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('measured_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )

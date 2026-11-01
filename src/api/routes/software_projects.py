@@ -107,6 +107,29 @@ async def create_software_project(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
+@router.get("/software-projects", response_model=list[SoftwareProjectResponse])
+async def list_software_projects(
+    db: AsyncSession = Depends(get_db),
+) -> list[SoftwareProjectResponse]:
+    from sqlalchemy import select
+    from src.infrastructure.models.software_company_model import SoftwareProjectModel
+    result = await db.execute(select(SoftwareProjectModel))
+    models = result.scalars().all()
+    return [
+        SoftwareProjectResponse(
+            project_id=m.id,
+            name=m.name,
+            description=m.description,
+            objective_id=m.objective_id,
+            repository_path=m.repository_path,
+            workspace_id=m.workspace_id,
+            status=m.status,
+            created_at=m.created_at,
+        )
+        for m in models
+    ]
+
+
 @router.get("/software-projects/{project_id}", response_model=SoftwareProjectResponse)
 async def get_software_project(
     project_id: str,

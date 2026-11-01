@@ -95,7 +95,7 @@ def upgrade() -> None:
         sa.Column('aggregated_result', JSON(), nullable=True),
         sa.Column('aggregation_strategy', sa.String(length=100), nullable=False, server_default='DETERMINISTIC_MERGE'),
         sa.Column('verification_status', sa.String(length=50), nullable=False, server_default='PENDING'),
-        sa.Column('is_completed', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_completed', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.ForeignKeyConstraint(['swarm_id'], ['swarms.id'], ondelete='CASCADE')
@@ -130,7 +130,7 @@ def upgrade() -> None:
         sa.Column('conflict_type', sa.String(length=100), nullable=False),
         sa.Column('resolution_strategy', sa.String(length=100), nullable=False, server_default='INDEPENDENT_VERIFICATION'),
         sa.Column('resolved_result', JSON(), nullable=True),
-        sa.Column('is_resolved', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('is_resolved', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.ForeignKeyConstraint(['swarm_id'], ['swarms.id'], ondelete='CASCADE')

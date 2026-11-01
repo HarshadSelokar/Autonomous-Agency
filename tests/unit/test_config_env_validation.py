@@ -22,9 +22,25 @@ def test_production_config_validation_pass():
         DATABASE_URL="postgresql+asyncpg://prod_user:secure_pass_123@prod-db.internal:5432/agency_db",
         GROQ_API_KEY="gsk_real_production_key_sample",
         STORAGE_TYPE="local",
+        AUTH_REQUIRED=True,
+        AUTH_SECRET_KEY="a-production-signing-secret-of-sufficient-length",
     )
     # Valid production settings should pass without error
     validate_production_env(prod_settings)
+
+
+def test_production_requires_authentication():
+    no_auth_settings = Settings(
+        APP_ENV="production",
+        DEBUG=False,
+        DATABASE_URL="postgresql+asyncpg://prod_user:secure_pass_123@prod-db.internal:5432/agency_db",
+        GROQ_API_KEY="gsk_real_production_key_sample",
+        STORAGE_TYPE="local",
+        AUTH_REQUIRED=False,
+        AUTH_SECRET_KEY="",
+    )
+    with pytest.raises(ValueError, match="AUTH_REQUIRED must be true"):
+        validate_production_env(no_auth_settings)
 
 
 def test_production_config_validation_failures():

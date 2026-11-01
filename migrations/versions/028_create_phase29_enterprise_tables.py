@@ -5,8 +5,8 @@ Alembic migration 028: Create Phase 29 Enterprise OS database tables.
 from alembic import op
 import sqlalchemy as sa
 
-revision = '028_create_phase29_enterprise_tables'
-down_revision = '027_create_phase28_venture_tables'
+revision = '028'
+down_revision = '027'
 branch_labels = None
 depends_on = None
 
@@ -66,7 +66,7 @@ def upgrade() -> None:
         sa.Column('capacity_units', sa.Integer(), nullable=False, server_default='100'),
         sa.Column('available_units', sa.Integer(), nullable=False, server_default='100'),
         sa.Column('sla_description', sa.Text(), nullable=False, server_default=''),
-        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default=sa.text('1')),
+        sa.Column('governance_required', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('metadata_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     )
@@ -143,7 +143,7 @@ def upgrade() -> None:
         sa.Column('mandatory_security_level', sa.String(length=64), nullable=False, server_default='HIGH'),
         sa.Column('max_single_budget_spend_usd', sa.Float(), nullable=False, server_default='50000.0'),
         sa.Column('prohibited_external_actions_json', sa.Text(), nullable=False, server_default='[]'),
-        sa.Column('require_human_governance', sa.Boolean(), nullable=False, server_default=sa.text('1')),
+        sa.Column('require_human_governance', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('metadata_json', sa.Text(), nullable=False, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     )
@@ -159,7 +159,7 @@ def upgrade() -> None:
         sa.Column('action', sa.String(length=128), nullable=False),
         sa.Column('max_impact_usd', sa.Float(), nullable=False, server_default='100000.0'),
         sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('is_revoked', sa.Boolean(), nullable=False, server_default=sa.text('0')),
+        sa.Column('is_revoked', sa.Boolean(), nullable=False, server_default=sa.text('false')),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     )
 
