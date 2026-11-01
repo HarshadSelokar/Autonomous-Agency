@@ -133,7 +133,7 @@ class BenchmarkHarness:
             if res.workspace_path and Path(res.workspace_path).is_dir():
                 try:
                     workspace = ProjectWorkspace(Path(res.workspace_path))
-                    diff = await workspace.diff(res.base_commit)
+                    diff = await workspace.diff_since(res.base_commit)
                     diff_chars = len(diff)
                 except Exception:
                     diff_chars = 0
@@ -194,3 +194,4 @@ class BenchmarkHarness:
             start_time=start_time,
             end_time=end_time,
         )
+

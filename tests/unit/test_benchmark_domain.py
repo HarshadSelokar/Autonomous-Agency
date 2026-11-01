@@ -3,7 +3,7 @@
 from src.domain.benchmark import BenchmarkSuiteResult, BenchmarkTask, BenchmarkTaskResult
 
 
-def test_benchmark_task_instantiation():
+def test_benchmark_task_instantiation() -> None:
     task = BenchmarkTask(
         task_id="task-01",
         title="Add health check",
@@ -16,7 +16,7 @@ def test_benchmark_task_instantiation():
     assert task.timeout_seconds == 300
 
 
-def test_benchmark_suite_result_scorecard():
+def test_benchmark_suite_result_scorecard() -> None:
     r1 = BenchmarkTaskResult(
         task_id="t1",
         title="First Task",
@@ -68,3 +68,4 @@ def test_benchmark_suite_result_scorecard():
     assert data["suite_name"] == "Unit Eval"
     assert data["pass_rate_percent"] == 50.0
     assert len(data["results"]) == 2
+

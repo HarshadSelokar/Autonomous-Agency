@@ -84,3 +84,4 @@ class ScriptedTeamHarness:
             stop_reason="completed",
             usage={"total_tokens": 50},
         )
+

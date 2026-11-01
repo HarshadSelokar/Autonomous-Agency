@@ -40,7 +40,7 @@ def is_docker_available() -> bool:
         return False
 
 
-class SandboxedCommandRunner:
+class SandboxedCommandRunner(CommandRunner):
     """
     Sandboxed runner that can execute commands inside an ephemeral Docker container
     with network restriction, memory limits, and filesystem scoping, or fall back
@@ -55,13 +55,16 @@ class SandboxedCommandRunner:
         cpus: float = 1.0,
         network_enabled: bool = False,
         local_runner: CommandRunner | None = None,
+        allowed_commands: list[str] | None = None,
+        timeout_seconds: int = 300,
     ) -> None:
+        super().__init__(allowed_commands=allowed_commands, timeout_seconds=timeout_seconds)
         self.mode = mode.lower()
         self.image = image
         self.memory_limit = memory_limit
         self.cpus = cpus
         self.network_enabled = network_enabled
-        self.local_runner = local_runner or CommandRunner()
+        self.local_runner = local_runner or self
         self._docker_checked = False
         self._docker_ready = False
 
@@ -73,8 +76,9 @@ class SandboxedCommandRunner:
         return self._docker_ready
 
     def validate(self, command: str, cwd: Path) -> list[str]:
-        # Always enforce host command allowlists and blocked git commands
-        return self.local_runner.validate(command, cwd)
+        if self.local_runner is not self:
+            return self.local_runner.validate(command, cwd)
+        return super().validate(command, cwd)
 
     def run_sync(self, command: str, cwd: Path, timeout_seconds: int | None = None) -> CommandResult:
         self.validate(command, cwd)
@@ -86,7 +90,9 @@ class SandboxedCommandRunner:
         if self.mode == "docker" and not self.docker_ready:
             logger.warning("Docker requested for sandboxed runner but Docker is not available. Falling back to local execution.")
 
-        return self.local_runner.run_sync(command, cwd, timeout_seconds)
+        if self.local_runner is not self:
+            return self.local_runner.run_sync(command, cwd, timeout_seconds)
+        return super().run_sync(command, cwd, timeout_seconds)
 
     def _run_in_docker(self, command: str, cwd: Path, timeout: int) -> CommandResult:
         resolved_cwd = str(cwd.resolve()).replace("\\", "/")
@@ -130,3 +136,4 @@ class SandboxedCommandRunner:
 
     async def run(self, command: str, cwd: Path, timeout_seconds: int | None = None) -> CommandResult:
         return await asyncio.to_thread(self.run_sync, command, cwd, timeout_seconds)
+

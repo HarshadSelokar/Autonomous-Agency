@@ -120,3 +120,4 @@ class BenchmarkSuiteResult:
             )
         lines.append("")
         return "\n".join(lines)
+

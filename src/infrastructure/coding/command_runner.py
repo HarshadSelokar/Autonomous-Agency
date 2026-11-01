@@ -16,6 +16,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from typing import Any
+
 from src.infrastructure.config import settings
 
 SHELL_OPERATORS = {"&&", "||", "|", ";", ">", ">>", "<", "&", "2>&1"}
@@ -145,7 +147,7 @@ class CommandRunner:
         if executable is None:
             return CommandResult(command, 127, f"'{argv[0]}' is not installed on this machine.")
 
-        popen_kwargs: dict = {}
+        popen_kwargs: dict[str, Any] = {}
         if os.name == "nt":
             popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
         else:
@@ -175,7 +177,7 @@ class CommandRunner:
         return CommandResult(command, process.returncode if not timed_out else -1, output, timed_out)
 
     @staticmethod
-    def _kill_tree(process: subprocess.Popen) -> None:
+    def _kill_tree(process: subprocess.Popen[Any]) -> None:
         try:
             if os.name == "nt":
                 subprocess.run(

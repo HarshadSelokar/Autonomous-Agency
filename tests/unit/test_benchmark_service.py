@@ -2,13 +2,15 @@
 
 import pytest
 from pathlib import Path
+from typing import Any
+from src.application.agent_engine import AgentTask
 from src.application.benchmark_service import BenchmarkHarness
 from src.application.dev_team_service import DevTeamOrchestrator, InMemoryDevProjectStore
 from src.domain.benchmark import BenchmarkTask
 from tests.fixtures.harness import ScriptedTeamHarness
 
 
-def test_load_benchmark_tasks_from_dir():
+def test_load_benchmark_tasks_from_dir() -> None:
     harness = BenchmarkHarness()
     tasks_dir = Path("benchmarks/tasks")
     tasks = harness.load_tasks_from_dir(tasks_dir)
@@ -19,10 +21,10 @@ def test_load_benchmark_tasks_from_dir():
 
 
 @pytest.mark.asyncio
-async def test_benchmark_harness_executes_task_with_scripted_engine(tmp_path: Path):
+async def test_benchmark_harness_executes_task_with_scripted_engine(tmp_path: Path) -> None:
     store = InMemoryDevProjectStore()
 
-    def develop(task, attempt):
+    def develop(task: AgentTask, attempt: int) -> None:
         # Developer implements safe_divide in calc.py
         (task.workspace_root / "calc.py").write_text(
             "def safe_divide(a, b):\n    return a / b if b != 0 else None\n",
@@ -61,3 +63,4 @@ async def test_benchmark_harness_executes_task_with_scripted_engine(tmp_path: Pa
     assert result.tickets_count == 1
     assert result.tickets_done == 1
     assert result.duration_seconds >= 0.0
+
