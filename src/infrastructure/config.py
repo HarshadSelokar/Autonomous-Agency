@@ -47,10 +47,10 @@ class Settings(BaseSettings):
     STUDIO_COMMAND_TIMEOUT_SECONDS: int = 300
     # Antigravity CLI engine
     AGY_COMMAND: str = "agy"
-    AGY_MODEL_MANAGER: str = "gemini-3.1-pro-high"
+    AGY_MODEL_MANAGER: str = "claude-sonnet-4-6"
     AGY_MODEL_DEVELOPER: str = "gemini-3.8-flash-high"
-    AGY_MODEL_REVIEWER: str = "gemini-3.1-pro-low"
-    AGY_FALLBACK_MODEL: str = "gemini-3.7-flash-medium"
+    AGY_MODEL_REVIEWER: str = "claude-sonnet-4-6"
+    AGY_FALLBACK_MODEL: str = "gemini-3.8-flash-medium"
     AGY_TIMEOUT_MINUTES: int = 20
     # Substrings (case-insensitive) of an agy error that mean "this model is out of quota"
     AGY_QUOTA_MARKERS: list[str] = Field(

@@ -290,7 +290,7 @@ Benchmark task specifications (`benchmarks/tasks/*.json`) define:
 # Run all test suites
 pytest
 
-# Run fast unit tests (~500 tests in under 2 minutes)
+# Run fast unit tests (~600 tests in under 2 minutes)
 pytest tests/unit
 
 # Run software studio multi-agent integration tests
