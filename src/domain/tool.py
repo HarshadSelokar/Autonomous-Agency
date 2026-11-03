@@ -6,6 +6,8 @@ Enforces that LLM outputs do NOT directly execute tools without backend validati
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
+import hashlib
+import json
 from typing import Any
 
 from src.domain.exceptions import ObjectiveValidationError
@@ -251,6 +253,14 @@ class ToolEvidence:
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
+def compute_parameter_hash(parameters: dict[str, Any] | None) -> str:
+    """Compute a deterministic SHA-256 hash of canonical tool parameters."""
+    if not parameters:
+        return hashlib.sha256(b"{}").hexdigest()
+    raw = json.dumps(parameters, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 @dataclass
 class ToolApproval:
     id: str
@@ -261,6 +271,12 @@ class ToolApproval:
     approver_employee_id: str | None = None
     status: ApprovalStatus = ApprovalStatus.PENDING
     rationale: str | None = None
+    parameter_hash: str = ""
+    workspace_id: str | None = None
+    tenant_id: str | None = None
+    expires_at: datetime | None = None
+    is_consumed: bool = False
+    consumed_at: datetime | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     approved_at: datetime | None = None
 
@@ -279,3 +295,34 @@ class ToolApproval:
         self.status = ApprovalStatus.REJECTED
         self.rationale = rationale
         self.approved_at = datetime.now(UTC)
+
+    def consume(self, arguments: dict[str, Any] | None = None, workspace_id: str | None = None) -> None:
+        """
+        Cryptographically verifies and atomically marks the approval as consumed.
+        Prevents parameter substitution, replay attacks, and expired approval reuse.
+        """
+        if self.status != ApprovalStatus.APPROVED:
+            raise ToolValidationError(f"Cannot consume tool approval {self.id} with status '{self.status.value}'.")
+        if self.is_consumed:
+            raise ToolValidationError(f"Tool approval {self.id} has already been consumed and cannot be reused.")
+
+        now = datetime.now(UTC)
+        if self.expires_at and now > self.expires_at:
+            raise ToolValidationError(f"Tool approval {self.id} has expired at {self.expires_at.isoformat()}.")
+
+        if self.parameter_hash:
+            expected_hash = compute_parameter_hash(arguments or {})
+            if self.parameter_hash != expected_hash:
+                raise ToolValidationError(
+                    f"Tool approval {self.id} parameter hash mismatch. "
+                    f"Approval is cryptographically bound to parameters that do not match the current request."
+                )
+
+        if self.workspace_id and workspace_id and self.workspace_id != workspace_id:
+            raise ToolValidationError(
+                f"Tool approval {self.id} workspace mismatch. "
+                f"Expected workspace '{self.workspace_id}', got '{workspace_id}'."
+            )
+
+        self.is_consumed = True
+        self.consumed_at = now

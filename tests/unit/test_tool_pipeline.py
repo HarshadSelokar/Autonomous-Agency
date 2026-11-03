@@ -98,3 +98,96 @@ async def test_pipeline_approval_workflow_requires_approval(pipeline_setup) -> N
     exec_result = await pipeline.execute_tool_request(req, pre_approved_approval_id=approval_id)
     assert exec_result.status == ToolExecutionStatus.SUCCEEDED
     assert exec_result.output["delivered"] is True
+
+
+@pytest.mark.asyncio
+async def test_approval_parameter_tampering_rejected(pipeline_setup) -> None:
+    """Verifies SEC-02: Tampering with parameters after approval is cryptographically rejected."""
+    _, pipeline, approval_service = pipeline_setup
+
+    req = ToolRequest(
+        id="req-tamper-1",
+        tool_id="send_msg",
+        tool_version="1.0.0",
+        requested_capability=ToolCapability.SEND_MESSAGE,
+        arguments={"recipient_id": "emp-mgr", "content": "Safe content approved"},
+        employee_id="emp-dev",
+        agent_id="agent-dev",
+        agent_run_id="run-tamper",
+    )
+    res = await pipeline.execute_tool_request(req)
+    approval_id = res.output["approval_id"]
+    await approval_service.approve_request(approval_id, approver_employee_id="emp-mgr")
+
+    # Attacker attempts parameter substitution attack
+    tampered_req = ToolRequest(
+        id="req-tamper-2",
+        tool_id="send_msg",
+        tool_version="1.0.0",
+        requested_capability=ToolCapability.SEND_MESSAGE,
+        arguments={"recipient_id": "emp-mgr", "content": "MALICIOUS TAMPERED PAYLOAD"},
+        employee_id="emp-dev",
+        agent_id="agent-dev",
+        agent_run_id="run-tamper",
+    )
+    tampered_result = await pipeline.execute_tool_request(tampered_req, pre_approved_approval_id=approval_id)
+    assert tampered_result.status == ToolExecutionStatus.DENIED
+    assert "parameter hash mismatch" in (tampered_result.error_message or "").lower()
+
+
+@pytest.mark.asyncio
+async def test_approval_replay_rejected(pipeline_setup) -> None:
+    """Verifies SEC-02: An approval grant cannot be replayed or reused once consumed."""
+    _, pipeline, approval_service = pipeline_setup
+
+    req = ToolRequest(
+        id="req-replay-1",
+        tool_id="send_msg",
+        tool_version="1.0.0",
+        requested_capability=ToolCapability.SEND_MESSAGE,
+        arguments={"recipient_id": "emp-mgr", "content": "Single-use operation"},
+        employee_id="emp-dev",
+        agent_id="agent-dev",
+        agent_run_id="run-replay",
+    )
+    res = await pipeline.execute_tool_request(req)
+    approval_id = res.output["approval_id"]
+    await approval_service.approve_request(approval_id, approver_employee_id="emp-mgr")
+
+    # First execution succeeds and consumes the approval
+    first_exec = await pipeline.execute_tool_request(req, pre_approved_approval_id=approval_id)
+    assert first_exec.status == ToolExecutionStatus.SUCCEEDED
+
+    # Replay attack with same approval ID
+    replay_exec = await pipeline.execute_tool_request(req, pre_approved_approval_id=approval_id)
+    assert replay_exec.status == ToolExecutionStatus.DENIED
+    assert "already been consumed" in (replay_exec.error_message or "").lower()
+
+
+@pytest.mark.asyncio
+async def test_approval_expiration_rejected(pipeline_setup) -> None:
+    """Verifies SEC-02: An expired approval grant cannot be executed."""
+    from datetime import UTC, datetime, timedelta
+    _, pipeline, approval_service = pipeline_setup
+
+    req = ToolRequest(
+        id="req-expire-1",
+        tool_id="send_msg",
+        tool_version="1.0.0",
+        requested_capability=ToolCapability.SEND_MESSAGE,
+        arguments={"recipient_id": "emp-mgr", "content": "Expiring action"},
+        employee_id="emp-dev",
+        agent_id="agent-dev",
+        agent_run_id="run-expire",
+    )
+    res = await pipeline.execute_tool_request(req)
+    approval_id = res.output["approval_id"]
+    appr = await approval_service.approve_request(approval_id, approver_employee_id="emp-mgr")
+
+    # Manually expire the approval token
+    appr.expires_at = datetime.now(UTC) - timedelta(seconds=10)
+
+    expired_exec = await pipeline.execute_tool_request(req, pre_approved_approval_id=approval_id)
+    assert expired_exec.status == ToolExecutionStatus.DENIED
+    assert "expired" in (expired_exec.error_message or "").lower()
+

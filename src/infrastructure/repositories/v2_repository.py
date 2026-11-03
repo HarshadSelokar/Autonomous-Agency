@@ -114,6 +114,28 @@ class V2Repository:
         )
         self.session.flush()
 
+    def get_latest_audit_record(self, tenant_id: str) -> AuditRecordV2 | None:
+        stmt = (
+            select(AuditRecordV2Model)
+            .where(AuditRecordV2Model.tenant_id == tenant_id)
+            .order_by(AuditRecordV2Model.timestamp.desc(), AuditRecordV2Model.id.desc())
+            .limit(1)
+        )
+        m = self.session.execute(stmt).scalars().first()
+        if not m:
+            return None
+        return AuditRecordV2(
+            id=m.id,
+            tenant_id=m.tenant_id,
+            actor_id=m.actor_id,
+            action_type=AuditActionType(m.action_type),
+            resource=m.resource,
+            details=m.details or {},
+            prev_hash=m.prev_hash,
+            hash=m.hash,
+            timestamp=m.timestamp,
+        )
+
     def load_audit_chain(self, tenant_id: str) -> list[AuditRecordV2]:
         stmt = (
             select(AuditRecordV2Model)

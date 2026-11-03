@@ -126,3 +126,29 @@ async def test_data_integrity_and_disaster_recovery(async_session: AsyncSession)
 
     failover_result = await dr_engine.simulate_failover_and_reconcile("snap-001")
     assert failover_result["reconciled_components_count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_disaster_recovery_durable_disk_persistence(async_session: AsyncSession, tmp_path):
+    """Verifies that backup snapshots persist to disk and survive RAM cache clearing."""
+    repo = SQLAlchemyResilienceRepository(async_session)
+    storage_dir = tmp_path / "dr_backups"
+    engine1 = DisasterRecoveryEngine(repo, storage_dir=storage_dir)
+
+    # 1. Create snapshot on engine 1
+    engine1.create_backup_snapshot("snap-persist-1", {"postgres": "leader", "minio": "replicated"})
+    manifest_file = storage_dir / "snap-persist-1.json"
+    assert manifest_file.is_file()
+
+    # 2. Simulate server crash / restart by initializing engine 2 with empty in-memory catalog
+    engine2 = DisasterRecoveryEngine(repo, storage_dir=storage_dir)
+    assert "snap-persist-1" not in engine2._snapshots
+
+    # 3. Discovery and validation from durable storage
+    available = engine2.list_persisted_snapshots()
+    assert "snap-persist-1" in available
+
+    valid = engine2.validate_backup_snapshot("snap-persist-1")
+    assert valid is True
+    assert engine2._snapshots["snap-persist-1"].component_states["postgres"] == "leader"
+

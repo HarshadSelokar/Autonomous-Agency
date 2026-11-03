@@ -43,3 +43,30 @@ def test_enforce_tenant_security_isolation():
     trail = service.get_audit_trail(tenant_a)
     assert len(trail) == 1
     assert trail[0].action_type == AuditActionType.POLICY_VIOLATION
+
+
+def test_concurrent_audit_writes_maintain_hash_chain_integrity():
+    """Verifies SEC-03: Concurrent audit records maintain a single un-forked hash chain."""
+    import concurrent.futures
+
+    service = AuditGovernanceV2Service()
+    tenant_id = "tenant-concurrent"
+
+    def record_job(idx: int):
+        service.record_action(
+            tenant_id,
+            f"user-{idx % 4}",
+            AuditActionType.MODEL_INFERENCE,
+            f"/resource/{idx}",
+            {"step": idx},
+        )
+
+    # 40 concurrent operations across 8 worker threads
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [executor.submit(record_job, i) for i in range(40)]
+        concurrent.futures.wait(futures)
+
+    trail = service.get_audit_trail(tenant_id)
+    assert len(trail) == 40
+    # Complete cryptographic integrity check must pass without fork
+    assert service.verify_audit_chain(tenant_id) is True

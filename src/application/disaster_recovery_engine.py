@@ -7,6 +7,7 @@ from datetime import datetime, timezone, UTC
 import hashlib
 import json
 import logging
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.domain.exceptions import DisasterRecoveryError
@@ -29,8 +30,13 @@ class BackupSnapshot:
 class DisasterRecoveryEngine:
     """Engine orchestrating automated disaster recovery snapshots, SLA validation (RPO < 5m, RTO < 15m), and failover reconciliation."""
 
-    def __init__(self, repository: ResilienceRepositoryInterface) -> None:
+    def __init__(
+        self,
+        repository: ResilienceRepositoryInterface,
+        storage_dir: Path | str | None = None,
+    ) -> None:
         self.repository = repository
+        self.storage_dir = Path(storage_dir) if storage_dir else None
         self._snapshots: Dict[str, BackupSnapshot] = {}
 
     def create_backup_snapshot(self, snapshot_id: str, component_states: Dict[str, Any]) -> BackupSnapshot:
@@ -47,16 +53,82 @@ class DisasterRecoveryEngine:
             is_validated=True,
         )
         self._snapshots[snapshot_id] = snapshot
+
+        # Persist durable snapshot manifest to disk if storage_dir is configured
+        if self.storage_dir:
+            self.persist_snapshot_to_disk(snapshot)
+
         logger.info(f"Disaster Recovery Snapshot '{snapshot_id}' created with checksum {checksum[:8]}...")
         return snapshot
 
+    def persist_snapshot_to_disk(self, snapshot: BackupSnapshot) -> Path:
+        """Persist snapshot manifest and checksum to durable storage."""
+        if not self.storage_dir:
+            raise DisasterRecoveryError(component="STORAGE", reason="No storage_dir configured for persistence")
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        file_path = self.storage_dir / f"{snapshot.snapshot_id}.json"
+        data = {
+            "snapshot_id": snapshot.snapshot_id,
+            "timestamp": snapshot.timestamp.isoformat(),
+            "component_states": snapshot.component_states,
+            "checksum": snapshot.checksum,
+            "rpo_minutes": snapshot.rpo_minutes,
+            "is_validated": snapshot.is_validated,
+        }
+        file_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        return file_path
+
+    def load_persisted_snapshot(self, snapshot_id: str) -> Optional[BackupSnapshot]:
+        """Load a persisted snapshot from disk into the catalog."""
+        if not self.storage_dir:
+            return None
+        file_path = self.storage_dir / f"{snapshot_id}.json"
+        if not file_path.is_file():
+            return None
+        try:
+            data = json.loads(file_path.read_text(encoding="utf-8"))
+            ts = datetime.fromisoformat(data["timestamp"])
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=UTC)
+            snapshot = BackupSnapshot(
+                snapshot_id=data["snapshot_id"],
+                timestamp=ts,
+                component_states=data["component_states"],
+                checksum=data["checksum"],
+                rpo_minutes=data.get("rpo_minutes", 0.0),
+                is_validated=data.get("is_validated", False),
+            )
+            self._snapshots[snapshot_id] = snapshot
+            return snapshot
+        except Exception as exc:
+            logger.error(f"Failed to load persisted snapshot '{snapshot_id}': {exc}")
+            return None
+
+    def list_persisted_snapshots(self) -> List[str]:
+        """List all snapshot IDs available in durable storage."""
+        if not self.storage_dir or not self.storage_dir.is_dir():
+            return list(self._snapshots.keys())
+        persisted = [f.stem for f in self.storage_dir.glob("*.json")]
+        return sorted(set(persisted) | set(self._snapshots.keys()))
+
     def validate_backup_snapshot(self, snapshot_id: str) -> bool:
         if snapshot_id not in self._snapshots:
-            raise DisasterRecoveryError(component="DR_CATALOG", reason=f"Snapshot '{snapshot_id}' not found in DR catalog")
+            # Attempt recovery from durable disk
+            recovered = self.load_persisted_snapshot(snapshot_id)
+            if not recovered:
+                raise DisasterRecoveryError(component="DR_CATALOG", reason=f"Snapshot '{snapshot_id}' not found in DR catalog")
 
         snap = self._snapshots[snapshot_id]
         raw_json = json.dumps(snap.component_states, sort_keys=True)
         expected_checksum = hashlib.sha256(f"{snapshot_id}:{raw_json}".encode("utf-8")).hexdigest()
+
+        if snap.checksum != expected_checksum:
+            logger.error(f"Snapshot '{snapshot_id}' checksum corruption detected!")
+            snap.is_validated = False
+            return False
+
+        snap.is_validated = True
+        return True
 
         if snap.checksum != expected_checksum:
             logger.error(f"Snapshot '{snapshot_id}' checksum corruption detected!")

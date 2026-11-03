@@ -152,7 +152,12 @@ class ToolExecutionPipeline:
         requires_approval = (res_result.requires_approval or policy_decision == PolicyDecision.REQUIRE_APPROVAL)
         if requires_approval and not pre_approved_approval_id:
             execution.transition_to(ToolExecutionStatus.PENDING_APPROVAL)
-            approval = await self.approval_service.create_approval_request(execution, request.employee_id)
+            approval = await self.approval_service.create_approval_request(
+                execution,
+                request.employee_id,
+                arguments=request.arguments,
+                workspace_id=request.workspace_id,
+            )
             execution.approval_id = approval.id
             await self._save_execution(execution)
 
@@ -164,14 +169,19 @@ class ToolExecutionPipeline:
             )
 
         if pre_approved_approval_id:
-            approval = await self.approval_service._get_approval(pre_approved_approval_id)
-            if not approval or approval.status != ApprovalStatus.APPROVED:
-                execution.transition_to(ToolExecutionStatus.DENIED, failure_reason="Pre-approval invalid or not approved.")
+            try:
+                approval = await self.approval_service.consume_approval(
+                    pre_approved_approval_id,
+                    arguments=request.arguments,
+                    workspace_id=request.workspace_id,
+                )
+            except Exception as exc:
+                execution.transition_to(ToolExecutionStatus.DENIED, failure_reason=f"Approval verification failed: {exc}")
                 await self._save_execution(execution)
                 return ToolResult(
                     execution_id=exec_id,
                     status=ToolExecutionStatus.DENIED,
-                    error_message="Approval verification failed.",
+                    error_message=f"Approval verification failed: {exc}",
                 )
             execution.approval_id = approval.id
 

@@ -12,6 +12,8 @@ authentication off) nothing is filtered or stamped.
 """
 
 from contextvars import ContextVar
+import contextlib
+from typing import Generator
 
 from sqlalchemy import event
 from sqlalchemy.orm import ORMExecuteState, Session, with_loader_criteria
@@ -34,6 +36,21 @@ def set_current_tenant_id(tenant_id: str | None) -> None:
 
 def set_current_tenant_slug(tenant_slug: str | None) -> None:
     _current_tenant_slug.set(tenant_slug)
+
+
+@contextlib.contextmanager
+def bound_tenant(tenant_id: str | None, tenant_slug: str | None = None) -> Generator[None, None, None]:
+    """
+    Context manager to reliably bind and unbind tenant context for background tasks and workers.
+    Ensures safe restoration of previous tenant state and prevents cross-task context leakage.
+    """
+    token_id = _current_tenant_id.set(tenant_id)
+    token_slug = _current_tenant_slug.set(tenant_slug)
+    try:
+        yield
+    finally:
+        _current_tenant_id.reset(token_id)
+        _current_tenant_slug.reset(token_slug)
 
 
 def install_tenant_scoping(base: type) -> None:

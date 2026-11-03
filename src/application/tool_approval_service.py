@@ -4,8 +4,9 @@ Handles creation, managerial review, approval, and rejection of consequential to
 Enforces that an Agent CANNOT approve its own request or self-promote authority.
 """
 
+from datetime import UTC, datetime, timedelta
 import uuid
-from typing import Any
+from typing import Any, cast
 
 from src.domain.repository import EmployeeRepositoryInterface
 from src.domain.tool import (
@@ -13,6 +14,7 @@ from src.domain.tool import (
     ToolApproval,
     ToolExecution,
     ToolValidationError,
+    compute_parameter_hash,
 )
 
 
@@ -36,9 +38,17 @@ class ToolApprovalService:
         self,
         execution: ToolExecution,
         requester_employee_id: str,
+        arguments: dict[str, Any] | None = None,
+        workspace_id: str | None = None,
+        tenant_id: str | None = None,
+        ttl_seconds: int = 3600,
     ) -> ToolApproval:
-        """Create a pending ToolApproval record for a consequential tool execution."""
+        """Create a pending ToolApproval record cryptographically bound to parameters and workspace."""
         approval_id = f"appr-{uuid.uuid4().hex[:8]}"
+        param_hash = compute_parameter_hash(arguments or {})
+        now = datetime.now(UTC)
+        expires_at = now + timedelta(seconds=ttl_seconds)
+
         approval = ToolApproval(
             id=approval_id,
             execution_id=execution.id,
@@ -46,11 +56,31 @@ class ToolApprovalService:
             capability=execution.capability,
             requester_employee_id=requester_employee_id,
             status=ApprovalStatus.PENDING,
+            parameter_hash=param_hash,
+            workspace_id=workspace_id or execution.workspace_id,
+            tenant_id=tenant_id,
+            expires_at=expires_at,
         )
         if self.approval_repo:
             await self.approval_repo.save(approval)
         else:
             self._in_memory_approvals[approval_id] = approval
+        return approval
+
+    async def consume_approval(
+        self,
+        approval_id: str,
+        arguments: dict[str, Any] | None = None,
+        workspace_id: str | None = None,
+    ) -> ToolApproval:
+        """Cryptographically verify, validate, and atomically mark an approved grant as consumed."""
+        approval = await self._get_approval(approval_id)
+        if not approval:
+            raise ToolValidationError(f"ToolApproval '{approval_id}' not found.")
+
+        approval.consume(arguments=arguments, workspace_id=workspace_id)
+        if self.approval_repo:
+            await self.approval_repo.save(approval)
         return approval
 
     async def approve_request(
@@ -104,5 +134,5 @@ class ToolApprovalService:
 
     async def _get_approval(self, approval_id: str) -> ToolApproval | None:
         if self.approval_repo:
-            return await self.approval_repo.get_by_id(approval_id)
+            return cast(ToolApproval | None, await self.approval_repo.get_by_id(approval_id))
         return self._in_memory_approvals.get(approval_id)
