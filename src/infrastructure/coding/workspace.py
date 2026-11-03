@@ -12,9 +12,28 @@ from src.infrastructure.coding.command_runner import CommandResult, CommandRunne
 from src.infrastructure.config import settings
 
 SNAPSHOT_IGNORED_DIRS = {
-    ".git", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", "dist", "build",
+    ".git",
+    "node_modules",
+    ".next",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "dist",
+    "build",
 }
-GENERATED_FOLDERS = ["node_modules/", ".venv/", "venv/", "__pycache__/", ".pytest_cache/"]
+GENERATED_FOLDERS = [
+    "node_modules/",
+    ".venv/",
+    "venv/",
+    "__pycache__/",
+    ".pytest_cache/",
+    ".env",
+    ".next/",
+    "dist/",
+    "build/",
+]
 AGENT_GIT_IDENTITY = ["-c", "user.name=Agency Dev Team", "-c", "user.email=agents@agency.local"]
 
 
@@ -85,8 +104,17 @@ class ProjectWorkspace:
         plus uncommitted work, but not changes other tickets merged into `branch` since.
         """
         await self.git("add", "-A")
+        await self.git("rm", "--cached", "--ignore-unmatch", ".env")
         fork = (await self.git("merge-base", "HEAD", branch)).output.strip()
-        diff = (await self.git("diff", "--cached", fork or branch)).output
+        diff = (await self.git(
+            "diff", "--cached", fork or branch,
+            "--", ".",
+            ":(exclude)package-lock.json",
+            ":(exclude)yarn.lock",
+            ":(exclude)pnpm-lock.yaml",
+            ":(exclude)Cargo.lock",
+            ":(exclude)poetry.lock",
+        )).output
         if len(diff) > max_chars:
             diff = diff[:max_chars] + "\n...[diff truncated]"
         return diff
@@ -99,6 +127,7 @@ class ProjectWorkspace:
         if not await self.has_pending_changes():
             return ""
         await self.git("add", "-A")
+        await self.git("rm", "--cached", "--ignore-unmatch", ".env")
         result = await self.git(*AGENT_GIT_IDENTITY, "commit", "-m", message)
         if not result.ok:
             raise WorkspaceError(f"git commit failed: {result.output[-500:]}")

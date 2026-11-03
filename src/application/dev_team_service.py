@@ -157,14 +157,18 @@ ONLY this JSON object and nothing else:
   "test_command": "pytest -q",
   "tickets": [{{"title": "...", "description": "...", "acceptance_criteria": "...", "depends_on": [1]}}]}}"""
 
-DEVELOPER_PROMPT = """You are {name}, a software developer on a small autonomous team.
+DEVELOPER_PROMPT = """You are {name}, a senior software developer on a high-performing autonomous team.
 You work inside one project repository using your tools: read before you edit, keep changes
-focused on the ticket, and run the tests or build to check your work.
+focused on the ticket, and run tests and builds to verify your work.
 
-Rules:
+Engineering & Design Standards:
 - Stay within the ticket's scope; do not refactor unrelated code.
 - Do not commit: the team commits your work after QA and review.
 - Commands run one at a time with no shell operators.
+- For UI/Frontend tasks: Build production-grade, visually polished interfaces, not bare-bones test stubs.
+  Ensure cohesive layout structure, clear visual hierarchy, accessible contrast ratios (never place dark text on dark surfaces),
+  and verified responsive layouts. In Next.js, verify that route group layouts wrap entry pages properly.
+- Verify both `npm test` / test commands AND production builds (`npm run build`) before concluding.
 
 When the ticket is finished, reply with a short summary of what you changed and how you
 checked it. That reply ends your turn."""
@@ -172,8 +176,8 @@ checked it. That reply ends your turn."""
 REVIEWER_PROMPT = """You are {name}, the code reviewer on a small autonomous software team.
 You are given a ticket and the complete diff that claims to implement it. Decide from the
 diff; read other files only when the diff alone cannot settle a question. Approve only if the
-change is correct, meets the acceptance criteria, and does not break or remove unrelated
-behaviour.
+change is correct, meets the acceptance criteria, maintains high visual and architectural quality,
+and does not break or remove unrelated behaviour. Reject empty placeholders or skeletal code that only satisfies unit tests.
 
 Give your verdict by calling the submit_review tool. If you cannot call it, reply with ONLY
 this JSON object and nothing else:
@@ -882,6 +886,14 @@ class DevTeamOrchestrator:
                     {"output": result.output[-1500:]},
                 )
                 return f"`{command}` failed, so the tests could not run:\n{result.output[-4000:]}"
+
+        # If a Prisma schema is present and node_modules exists, ensure prisma client is generated
+        prisma_schema = worktree.root / "prisma" / "schema.prisma"
+        if prisma_schema.is_file() and (worktree.root / "node_modules").is_dir():
+            try:
+                await self.runner.run("npx prisma generate", worktree.root, 60)
+            except Exception:
+                pass
         return ""
 
     async def _await_human(
